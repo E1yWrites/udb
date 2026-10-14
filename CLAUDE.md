@@ -5,7 +5,8 @@ The project brief is in `PROMPT.md`. Read it before starting any phase.
 ## Git workflow (mandatory)
 - Never commit to `main` directly. It changes only through merged PRs.
 - Each phase works on its own branch, `phase-<n>-<slug>`, cut from an up-to-date `main`. Run `git switch main && git pull` before branching.
-- Commit after every logical change. Use conventional messages (`feat:`, `fix:`, `docs:`, `test:`, `chore:`) and end each message with the attribution trailer.
+- Commit after every logical change. Use conventional messages (`feat:`, `fix:`, `docs:`, `test:`, `chore:`).
+- Never add a `Co-Authored-By: Claude` trailer, a "Generated with Claude Code" line, or a claude.ai session or chat link to a commit, PR or committed file.
 - The Stop hook (`.claude/hooks/autocommit.sh`) is a safety net, not the workflow. If it reports an auto-commit, the previous change should have been committed by hand.
 
 ## Phase gate

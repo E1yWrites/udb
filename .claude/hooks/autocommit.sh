@@ -18,6 +18,5 @@ if [ -z "$branch" ] || [ "$branch" = main ]; then
 fi
 
 git add -A
-git commit -q -m "chore: auto-commit leftover changes" \
-  -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>" || exit 1
+git commit -q -m "chore: auto-commit leftover changes" || exit 1
 echo '{"systemMessage":"UDB: auto-committed leftover changes on '"$branch"'"}'

@@ -1,0 +1,187 @@
+{
+  "$schema": "../device.schema.json",
+  "id": "pulsar/x2-crazylight",
+  "vendor": "Pulsar",
+  "model": "X2 CrazyLight (incl. Bruce Lee 85th Anniversary Edition)",
+  "category": "mouse",
+  "identities": [
+    {
+      "vid": "0x3710",
+      "pid": "0x5406",
+      "connection": "dongle",
+      "productName": "Pulsar 8K Dongle",
+      "protocolIdentity": {
+        "cid": 87,
+        "mid": null
+      },
+      "notes": "CID 87 is the only CID in Pulsar's cMouse config. The MID for this model has not been read from hardware yet."
+    }
+  ],
+  "protocol": {
+    "family": "compx",
+    "doc": "docs/protocols/compx.md",
+    "references": [
+      {
+        "title": "Pulsar Bibimbap web driver (/cMouse, cfg 1.3.12)",
+        "url": "https://bbb.pulsar.gg/cMouse/",
+        "license": "proprietary",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [
+      {
+        "interface": 1,
+        "usagePage": "0xFF02",
+        "usage": "0x0002",
+        "reportIds": [
+          8
+        ],
+        "purpose": "Command channel: 17-byte input/output reports (HidP_GetCaps on the dev machine); report ID 8 from the driver source"
+      }
+    ],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Target platform; not yet tested"
+    },
+    "linux": {
+      "status": "unknown",
+      "notes": "Needs a udev rule for hidraw"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "Pulsar Fusion",
+    "Another open Bibimbap tab"
+  ],
+  "limitations": [
+    "Firmware upgrade, pairing, factory reset, VID/PID and descriptor rewrites are denied by the adapter allowlist.",
+    "DPI encoding depends on the sensor type; the per-sensor table is not extracted yet."
+  ],
+  "features": [
+    {
+      "id": "polling-rate",
+      "kind": "enum",
+      "location": "device",
+      "constraints": {
+        "values": [
+          125,
+          250,
+          500,
+          1000,
+          2000,
+          4000,
+          8000
+        ],
+        "maxFromInfoType": true
+      },
+      "readBack": false,
+      "status": "write-verified",
+      "evidence": [
+        {
+          "source": "Static analysis of bbb.pulsar.gg/cMouse app.6842ab2c.js (sha256 6d509369a761f3b5...): flash 0x00, [v, 0x55-v]",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        },
+        {
+          "source": "hw test",
+          "hardware": "X2 CrazyLight fw 1.0",
+          "date": "2026-10-15",
+          "confidence": "high"
+        }
+      ]
+    },
+    {
+      "id": "dpi.stages",
+      "kind": "range",
+      "location": "device",
+      "constraints": {
+        "maxStages": 8,
+        "maxDpi": "per MID (32000 or 42000 in cfg.json)"
+      },
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Static analysis of /cMouse app.6842ab2c.js: flash 0x0C + 4n, sensor-specific encoding",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low",
+          "notes": "The DPI encoding table is not extracted yet"
+        }
+      ]
+    },
+    {
+      "id": "dpi.current-stage",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Static analysis of /cMouse app.6842ab2c.js: flash 0x04, [v, 0x55-v]",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ]
+    },
+    {
+      "id": "lift-off-distance",
+      "kind": "enum",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Static analysis of /cMouse app.6842ab2c.js: flash 0x0A",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low",
+          "notes": "Value meanings not extracted"
+        }
+      ]
+    },
+    {
+      "id": "debounce-ms",
+      "kind": "range",
+      "location": "device",
+      "constraints": {
+        "max": 15,
+        "default": 2
+      },
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Static analysis of /cMouse app.6842ab2c.js and cfg.json (maxDebounce 15): flash 0xA9",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ]
+    },
+    {
+      "id": "battery",
+      "kind": "readonly",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Static analysis of /cMouse app.6842ab2c.js: command 4 BatteryLevel, byte 5 level, byte 6 charging",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ]
+    }
+  ]
+}

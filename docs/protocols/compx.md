@@ -25,9 +25,11 @@ Tenz series, X2F series, JV-X (X series)".
 - Chips named in the model config: mouse `NRF52833`, dongles `CX52650N` and
   `CH32V305`.
 - The driver picks the HID collection that has exactly one input report and
-  one output report, both with **report ID `0x08`**. On the dev machine that is
-  one of the dongle's vendor collections (usage pages `FF02`–`FF06`). Which one
-  is unverified.
+  one output report, both with **report ID `0x08`**. On the dev machine,
+  `HidP_GetCaps` (descriptor metadata only) shows exactly one dongle collection
+  with 17-byte input and output reports (16 bytes plus the report ID):
+  `MI_01` `FF02:0002`. That is the command channel; the report ID itself has
+  not been read yet.
 - A device is identified by **CID/MID**, not by PID. The `EncryptionData`
   response carries `cid` = byte 9, `mid` = byte 10, `type` = byte 11. Pulsar's
   model table uses CID 87 and MIDs 1–149. The CrazyLight Bruce Lee edition's
@@ -154,7 +156,8 @@ code, not in `cfg.json`. That table is a Phase 3 extraction task.
 ## Open questions (Phase 3)
 
 - The CrazyLight's MID and sensor type. Read via `EncryptionData` (read-only).
-- Which of `FF02`–`FF06` carries report `0x08`.
+- Confirm that `FF02:0002` declares report ID `0x08`, by reading
+  `HIDDevice.collections` in WebHID.
 - What `PCDriverStatus` does (does the mouse change behaviour while a "driver"
   is present?).
 - Whether Pulsar's desktop "Fusion" app or another open Bibimbap tab holds the

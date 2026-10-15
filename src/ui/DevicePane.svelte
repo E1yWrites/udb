@@ -5,6 +5,7 @@
   import { deviceReport } from '../lib/report.ts';
   import CompxPanel from './CompxPanel.svelte';
   import Vibe75Panel from './Vibe75Panel.svelte';
+  import ViaPanel from './ViaPanel.svelte';
 
   let { device }: { device: UdbDevice } = $props();
 
@@ -89,6 +90,17 @@
         </p>
       </div>
     </div>
+  {:else if device.match?.identity.byCollection}
+    <div class="notice signal">
+      <Icon name="unverified" size={20} />
+      <div>
+        <h2>Recognised by its {entry.vendor} interface</h2>
+        <p>
+          Many devices share this interface, so the name above is the one the device gives itself. UDB sends nothing
+          until you choose “Read from {entry.category}”, and then first checks that it speaks the protocol.
+        </p>
+      </div>
+    </div>
   {:else if !device.match?.modelConfirmed}
     <div class="notice signal">
       <Icon name="unverified" size={20} />
@@ -122,6 +134,8 @@
     <CompxPanel {device} />
   {:else if entry?.protocol.family === 'vibe75' && device.presence === 'connected'}
     <Vibe75Panel {device} />
+  {:else if entry?.protocol.family === 'qmk-via' && device.presence === 'connected'}
+    <ViaPanel {device} />
   {/if}
 
   {#if entry}

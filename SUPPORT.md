@@ -27,7 +27,7 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | debounce-ms | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
-### Not yet seen on hardware by UDB (169)
+### Not yet seen on hardware by UDB (224)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
@@ -171,6 +171,61 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | ATK ZERO EX | 373B:11CC | `compx` | polling-rate, dpi.stages, dpi.current-stage, debounce-ms | – |
 | ATK ZERO EX + | 373B:1289 | `compx` | polling-rate, dpi.current-stage, debounce-ms | dpi.stages |
 | ATK ZERO + | 373B:129E | `compx` | polling-rate, dpi.current-stage, debounce-ms | dpi.stages |
+| Logitech G PRO 2 LIGHTSPEED | 046D:C09A | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G Pro Wireless | 046D:4079 046D:C088 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G Pro X Wireless Superlight | 046D:4093 046D:C094 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G102 LIGHTSYNC | 046D:C089 | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G303 Shroud Edition | 046D:C097 | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G402 Gaming Mouse | 046D:C07E | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G403 | 046D:C083 | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G403 Hero | 046D:C08F | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G403 Wireless | 046D:405D 046D:C082 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G502 Hero | 046D:C08B | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G502 Hero Wireless | 046D:407F 046D:C08D | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G502 Proteus Core | 046D:C07D | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G502 Proteus Spectrum | 046D:C332 | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G502 X | 046D:C099 | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech G502 X PLUS | 046D:4099 046D:C095 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G502 X Wireless | 046D:C098 046D:409F | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G602 | 046D:402C | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G603 | 046D:406C 046D:B01C | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G604 | 046D:4085 046D:B024 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G703 | 046D:C087 046D:4070 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G703 Hero | 046D:4086 046D:C090 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G705 | 046D:C096 046D:409D 046D:B02E | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G900 | 046D:C081 046D:4053 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G903 | 046D:C086 046D:4067 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech G903 Hero | 046D:C091 046D:4087 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech Gaming Mouse G Pro | 046D:C085 046D:C08C | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech Gaming Mouse G102/G103/G203 | 046D:C084 046D:C092 046D:C09D | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech Gaming Mouse G302 | 046D:C07F | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech Gaming Mouse G303 | 046D:C080 | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech Gaming Mouse G305 | 046D:4074 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech HID++ 2.0 device or receiver | any 046D device with FF00:0001 or FF00:0002 or FF43:0202 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech M325 | 046D:400A | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech M500s | 046D:C093 | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech M545 | 046D:4052 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech M585/M590 | 046D:406B 046D:B01B | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech M720 | 046D:405E 046D:B015 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech Marathon M705 | 046D:406D | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Anywhere 2 | 046D:404A 046D:4072 046D:4063 046D:B013 046D:B018 046D:B01F | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Anywhere 2S | 046D:B01A 046D:406A | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Anywhere 3 | 046D:B025 046D:4090 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Anywhere 3B | 046D:B02D | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Anywhere 3S | 046D:B037 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Ergo | 046D:B01D 046D:406F | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Master | 046D:4041 046D:B012 046D:4060 046D:B017 046D:B01E 046D:4071 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Master 2S | 046D:B019 046D:4069 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Master 3 | 046D:B023 046D:4082 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Master 3S | 046D:B034 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Master 3S for Business | 046D:B035 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Master 4 | 046D:B042 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX Vertical | 046D:B020 046D:407B 046D:C08A 046D:C077 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech MX518 | 046D:C08E | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech PRO X SUPERLIGHT 2 | 046D:C09B | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech PRO X SUPERLIGHT 2 DEX | 046D:C0A0 | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
+| Logitech T650 | 046D:4101 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Logitech Wireless Touchpad | 046D:4011 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
 | VXE R1 | 3554:F58F | `compx` | dpi.stages, dpi.current-stage, debounce-ms | polling-rate |
 | VXE R1 NK | 373B:1065 373B:1066 373B:10C7 373B:10C8 373B:124C | `compx` | dpi.stages, dpi.current-stage, debounce-ms | polling-rate |
 | VXE R1 | 373B:1271 | `compx` | dpi.stages, dpi.current-stage, debounce-ms | polling-rate |
@@ -222,11 +277,18 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 | keymap | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 | screen-image | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 
-### Not yet seen on hardware by UDB (2)
+### Not yet seen on hardware by UDB (9)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
 | ASUS ROG Zephyrus G14 (GA403) built-in keyboard | 0B05:19B6 | `asus-aura` | – | lighting.lamparray |
+| Logitech G PRO Keyboard | 046D:C339 | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
+| Logitech G413 | 046D:C33A | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
+| Logitech G513 | 046D:C33C | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
+| Logitech G815 | 046D:C33F | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
+| Logitech G910 | 046D:C335 | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
+| Logitech G915 | 046D:C33E | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
+| Logitech G915 TKL | 046D:C343 046D:B35F | `logitech-hidpp` | polling-rate, battery | onboard-profiles, keymap, lighting |
 | QMK Keyboard with VIA firmware | any device with FF60:0061 | `qmk-via` | lighting.brightness, lighting.mode, lighting.speed, lighting.color | keymap, macros |
 
 ## Headsets

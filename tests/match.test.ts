@@ -40,6 +40,22 @@ describe('matchDevice', () => {
     expect(matchDevice({ ...dongle, collections: [{ usagePage: 0xff60, usage: 0x0061 }] }, registry)?.entry.id).toBe('pulsar/x2-crazylight');
   });
 
+  it('matches Logitech wired mice by VID/PID, and receivers and unknown models to the HID++ entry', () => {
+    const hidpp = [{ usagePage: 0xff00, usage: 0x0002 }];
+    expect(matchDevice({ vendorId: 0x046d, productId: 0xc08b, productName: 'G502 HERO Gaming Mouse', collections: hidpp }, registry)).toMatchObject({
+      entry: { id: 'logitech/g502-hero' },
+      modelConfirmed: true,
+    });
+    const receiver = matchDevice({ vendorId: 0x046d, productId: 0xc539, productName: 'USB Receiver', collections: hidpp }, registry);
+    expect(receiver).toMatchObject({ entry: { id: 'logitech/hidpp-device' }, modelConfirmed: false });
+    expect(matchDevice({ vendorId: 0x046d, productId: 0xc539, productName: 'USB Receiver', collections: [{ usagePage: 0x0001, usage: 0x0002 }] }, registry)).toBeNull();
+    expect(matchDevice({ vendorId: 0x1234, productId: 0xc539, productName: 'x', collections: hidpp }, registry)).toBeNull();
+  });
+
+  it('finds the model behind a receiver from the wireless PID it reports', () => {
+    expect(matchDevice({ vendorId: 0x046d, productId: 0x407f, productName: '' }, registry)?.entry.id).toBe('logitech/g502-hero-wireless');
+  });
+
   it('returns null for unknown devices', () => {
     expect(matchDevice({ vendorId: 0x1234, productId: 0x5678, productName: 'x' }, registry)).toBeNull();
   });
@@ -52,6 +68,7 @@ describe('chooserFilters', () => {
     expect(filters).toContainEqual({ vendorId: 0x3710, productId: 0x5406, usagePage: 0xff02, usage: 0x0002 });
     expect(filters).toContainEqual({ vendorId: 0x05ac, productId: 0x024f, usagePage: 0xff13, usage: 0x0001 });
     expect(filters).toContainEqual({ usagePage: 0xff60, usage: 0x0061 });
+    expect(filters).toContainEqual({ vendorId: 0x046d, usagePage: 0xff00, usage: 0x0002 });
   });
 
   it('never requests a denied collection', () => {

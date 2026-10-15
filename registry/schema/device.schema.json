@@ -56,7 +56,7 @@
             "$ref": "#/$defs/hex16"
           },
           "byCollection": {
-            "description": "Match any VID/PID that exposes one of the entry's collections.use. For protocol families not tied to a vendor (e.g. QMK/VIA); the identity names a protocol, not a model. An entry with a matching VID/PID wins.",
+            "description": "Match any device exposing one of the entry's collections.use: any VID/PID, or any PID of `vid` when it is given (e.g. every Logitech HID++ interface). For protocol families whose model is only known after a protocol query; the identity names a protocol, not a model. An entry with a matching VID/PID wins.",
             "const": true
           },
           "connection": {
@@ -125,17 +125,8 @@
               "byCollection"
             ],
             "not": {
-              "anyOf": [
-                {
-                  "required": [
-                    "vid"
-                  ]
-                },
-                {
-                  "required": [
-                    "pid"
-                  ]
-                }
+              "required": [
+                "pid"
               ]
             }
           }

@@ -1,0 +1,729 @@
+{
+ "source": "libratbag data/devices/logitech-*.device, https://github.com/libratbag/libratbag commit 8235b5bb6032dea15901ab58a8218956f4494d08. Fields copied: Name, DeviceMatch, Driver, DeviceType. MIT license: see COPYING in this directory.",
+ "devices": [
+  {
+   "file": "logitech-M325.device",
+   "name": "Logitech M325",
+   "match": [
+    "usb:046d:400a"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-M500s.device",
+   "name": "Logitech M500s",
+   "match": [
+    "usb:046d:c093"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-M545.device",
+   "name": "Logitech M545",
+   "match": [
+    "usb:046d:4052"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-M570.device",
+   "name": "Logitech M570",
+   "match": [
+    "usb:046d:1028"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-M585-M590.device",
+   "name": "Logitech M585/M590",
+   "match": [
+    "usb:046d:406b",
+    "bluetooth:046d:b01b"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-M705.device",
+   "name": "Logitech M705",
+   "match": [
+    "usb:046d:101b"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-M720.device",
+   "name": "Logitech M720",
+   "match": [
+    "usb:046d:405e",
+    "bluetooth:046d:b015"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Anywhere-3.device",
+   "name": "Logitech MX Anywhere 3",
+   "match": [
+    "bluetooth:046d:b025",
+    "usb:046d:4090"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Anywhere-3S.device",
+   "name": "Logitech MX Anywhere 3S",
+   "match": [
+    "bluetooth:046d:b037"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Anywhere2.device",
+   "name": "Logitech MX Anywhere 2",
+   "match": [
+    "usb:046d:404a",
+    "usb:046d:4072",
+    "usb:046d:4063",
+    "bluetooth:046d:b013",
+    "bluetooth:046d:b018",
+    "bluetooth:046d:b01f"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Anywhere2S.device",
+   "name": "Logitech MX Anywhere 2S",
+   "match": [
+    "bluetooth:046d:b01a",
+    "usb:046d:406a"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Anywhere3B.device",
+   "name": "Logitech MX Anywhere 3B",
+   "match": [
+    "bluetooth:046d:b02d"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Ergo.device",
+   "name": "Logitech MX Ergo",
+   "match": [
+    "bluetooth:046d:b01d",
+    "usb:046d:406f"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Master-2S.device",
+   "name": "Logitech MX Master 2S",
+   "match": [
+    "bluetooth:046d:b019",
+    "usb:046d:4069"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Master-3.device",
+   "name": "Logitech MX Master 3",
+   "match": [
+    "bluetooth:046d:b023",
+    "usb:046d:4082"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Master-3S-for-Business.device",
+   "name": "Logitech MX Master 3S for Business",
+   "match": [
+    "bluetooth:046d:b035"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Master-3S.device",
+   "name": "Logitech MX Master 3S",
+   "match": [
+    "bluetooth:046d:b034"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Master-4.device",
+   "name": "Logitech MX Master 4",
+   "match": [
+    "bluetooth:046d:b042"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Master.device",
+   "name": "Logitech MX Master",
+   "match": [
+    "usb:046d:4041",
+    "bluetooth:046d:b012",
+    "usb:046d:4060",
+    "bluetooth:046d:b017",
+    "bluetooth:046d:b01e",
+    "usb:046d:4071"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX-Vertical.device",
+   "name": "Logitech MX Vertical",
+   "match": [
+    "bluetooth:046d:b020",
+    "usb:046d:407b",
+    "usb:046d:c08a",
+    "usb:046d:c077"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-MX518.device",
+   "name": "MX518",
+   "match": [
+    "usb:046d:c08e"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-Marathon-M705.device",
+   "name": "Logitech Marathon M705",
+   "match": [
+    "usb:046d:406d"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-T650.device",
+   "name": "Logitech T650",
+   "match": [
+    "usb:046d:4101"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-Wireless-Touchpad.device",
+   "name": "Logitech Wireless Touchpad",
+   "match": [
+    "usb:046d:4011"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g-powerplay.device",
+   "name": "Logitech G Powerplay",
+   "match": [
+    "usb:046d:405f"
+   ],
+   "driver": "hidpp20",
+   "type": "other"
+  },
+  {
+   "file": "logitech-g-pro-keyboard.device",
+   "name": "Logitech G PRO Keyboard",
+   "match": [
+    "usb:046d:c339"
+   ],
+   "driver": "hidpp20",
+   "type": "keyboard"
+  },
+  {
+   "file": "logitech-g-pro-wireless.device",
+   "name": "Logitech G Pro Wireless",
+   "match": [
+    "usb:046d:4079",
+    "usb:046d:c088"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g-pro-x-wireless-superlight.device",
+   "name": "Logitech G Pro X Wireless Superlight",
+   "match": [
+    "usb:046d:4093",
+    "usb:046d:c094"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g-pro.device",
+   "name": "Logitech Gaming Mouse G Pro",
+   "match": [
+    "usb:046d:c085",
+    "usb:046d:c08c"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g102-g203.device",
+   "name": "Logitech Gaming Mouse G102/G103/G203",
+   "match": [
+    "usb:046d:c084",
+    "usb:046d:c092",
+    "usb:046d:c09d"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g300.device",
+   "name": "Logitech G300",
+   "match": [
+    "usb:046d:c246"
+   ],
+   "driver": "logitech_g300",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g302.device",
+   "name": "Logitech Gaming Mouse G302",
+   "match": [
+    "usb:046d:c07f"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g303-shroud.device",
+   "name": "Logitech G303 Shroud Edition",
+   "match": [
+    "usb:046d:c097"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g303.device",
+   "name": "Logitech Gaming Mouse G303",
+   "match": [
+    "usb:046d:c080"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g305.device",
+   "name": "Logitech Gaming Mouse G305",
+   "match": [
+    "usb:046d:4074"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g402.device",
+   "name": "Logitech G402 Gaming Mouse",
+   "match": [
+    "usb:046d:c07e"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g403-hero.device",
+   "name": "Logitech G403 Hero",
+   "match": [
+    "usb:046d:c08f"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g403-wireless.device",
+   "name": "Logitech G403 Wireless",
+   "match": [
+    "usb:046d:405d",
+    "usb:046d:c082"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g403.device",
+   "name": "Logitech G403",
+   "match": [
+    "usb:046d:c083"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g413.device",
+   "name": "Logitech G413",
+   "match": [
+    "usb:046d:c33a"
+   ],
+   "driver": "hidpp20",
+   "type": "keyboard"
+  },
+  {
+   "file": "logitech-g5-2007.device",
+   "name": "Logitech G5",
+   "match": [
+    "usb:046d:c049"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g5.device",
+   "name": "G5",
+   "match": [
+    "usb:046d:c041"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g500.device",
+   "name": "Logitech G500",
+   "match": [
+    "usb:046d:c068"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g500s.device",
+   "name": "Logitech G500s",
+   "match": [
+    "usb:046d:c24e"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g502-hero-wireless.device",
+   "name": "Logitech G502 Hero Wireless",
+   "match": [
+    "usb:046d:407f",
+    "usb:046d:c08d"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g502-hero.device",
+   "name": "Logitech G502 Hero",
+   "match": [
+    "usb:046d:c08b"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g502-proteus-core.device",
+   "name": "Logitech G502 Proteus Core",
+   "match": [
+    "usb:046d:c07d"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g502-proteus-spectrum.device",
+   "name": "Logitech G502 Proteus Spectrum",
+   "match": [
+    "usb:046d:c332"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g502-x-plus.device",
+   "name": "Logitech G502 X PLUS",
+   "match": [
+    "usb:046d:4099",
+    "usb:046d:c095"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g502-x-wireless.device",
+   "name": "Logitech G502 X Wireless",
+   "match": [
+    "usb:046d:c098",
+    "usb:046d:409f"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g502-x.device",
+   "name": "Logitech G502 X",
+   "match": [
+    "usb:046d:c099"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g513.device",
+   "name": "Logitech G513",
+   "match": [
+    "usb:046d:c33c"
+   ],
+   "driver": "hidpp20",
+   "type": "keyboard"
+  },
+  {
+   "file": "logitech-g600.device",
+   "name": "Logitech G600",
+   "match": [
+    "usb:046d:c24a"
+   ],
+   "driver": "logitech_g600",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g602.device",
+   "name": "Logitech G602",
+   "match": [
+    "usb:046d:402c"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g603.device",
+   "name": "Logitech G603",
+   "match": [
+    "usb:046d:406c",
+    "bluetooth:046d:b01c"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g604.device",
+   "name": "Logitech G604",
+   "match": [
+    "usb:046d:4085",
+    "bluetooth:046d:b024"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g635.device",
+   "name": "Logitech G635",
+   "match": [
+    "usb:046d:0a89"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g7.device",
+   "name": "Logitech G7",
+   "match": [
+    "usb:046d:c51a"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g700-wireless.device",
+   "name": "Logitech G700",
+   "match": [
+    "usb:046d:c531"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g700.device",
+   "name": "Logitech G700",
+   "match": [
+    "usb:046d:c06b"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g700s.device",
+   "name": "Logitech G700s",
+   "match": [
+    "usb:046d:c07c"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g703-hero.device",
+   "name": "Logitech G703 Hero",
+   "match": [
+    "usb:046d:4086",
+    "usb:046d:c090"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g703.device",
+   "name": "Logitech G703",
+   "match": [
+    "usb:046d:c087",
+    "usb:046d:4070"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g705.device",
+   "name": "Logitech G705",
+   "match": [
+    "usb:046d:c096",
+    "usb:046d:409d",
+    "bluetooth:046d:b02e"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g733.device",
+   "name": "Logitech G733 Gaming Headset",
+   "match": [
+    "usb:046d:0ab5",
+    "usb:046d:0afe"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g815.device",
+   "name": "Logitech G815",
+   "match": [
+    "usb:046d:c33f"
+   ],
+   "driver": "hidpp20",
+   "type": "keyboard"
+  },
+  {
+   "file": "logitech-g9.device",
+   "name": "Logitech G9",
+   "match": [
+    "usb:046d:c048"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g900.device",
+   "name": "Logitech G900",
+   "match": [
+    "usb:046d:c081",
+    "usb:046d:4053"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g903-hero.device",
+   "name": "Logitech G903 Hero",
+   "match": [
+    "usb:046d:c091",
+    "usb:046d:4087"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g903.device",
+   "name": "Logitech G903",
+   "match": [
+    "usb:046d:c086",
+    "usb:046d:4067"
+   ],
+   "driver": "hidpp20",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g910.device",
+   "name": "Logitech G910",
+   "match": [
+    "usb:046d:c335"
+   ],
+   "driver": "hidpp20",
+   "type": "keyboard"
+  },
+  {
+   "file": "logitech-g915-tkl.device",
+   "name": "Logitech G915 TKL",
+   "match": [
+    "usb:046d:c343",
+    "bluetooth:046d:b35f"
+   ],
+   "driver": "hidpp20",
+   "type": "keyboard"
+  },
+  {
+   "file": "logitech-g915.device",
+   "name": "Logitech G915",
+   "match": [
+    "usb:046d:c33e"
+   ],
+   "driver": "hidpp20",
+   "type": "keyboard"
+  },
+  {
+   "file": "logitech-g935.device",
+   "name": "Logitech G935",
+   "match": [
+    "usb:046d:0a87"
+   ],
+   "driver": "hidpp20",
+   "type": "other"
+  },
+  {
+   "file": "logitech-g9x-Call-of-Duty-MW3-Edition.device",
+   "name": "Logitech G9x [Call of Duty MW3 Edition]",
+   "match": [
+    "usb:046d:c249"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  },
+  {
+   "file": "logitech-g9x-Original.device",
+   "name": "G9x [Original]",
+   "match": [
+    "usb:046d:c066"
+   ],
+   "driver": "hidpp10",
+   "type": "mouse"
+  }
+ ]
+}

@@ -48,6 +48,11 @@ configuring the keyboard through `MI_00` alone. The working hypothesis:
 `config.xml`'s `MI_00` only identifies the device, and commands go through
 `MI_03`. **To be confirmed in Phase 3.**
 
+WebHID on 2026-10-15 (Edge 155, Windows 11) shows exactly the two vendor
+interfaces, `FF68:0061` and `FF13:0001`, neither using report IDs (ID 0), with
+the sizes above. The protected keyboard, mouse and system-control collections
+are not exposed, as expected.
+
 ## Driver features (from exported UI class names, not protocol facts)
 
 Custom per-key lighting (`CustomLightMode::SetKeyMap`, `SetKeyInfo`), key

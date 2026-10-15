@@ -11,7 +11,15 @@
       "connection": "wired",
       "productName": "Mechlands Vibe75",
       "notes": "Uses Apple's vendor ID. Matching needs the product name or protocol identity, not VID/PID alone.",
-      "requireProductName": true
+      "requireProductName": true,
+      "evidence": [
+        {
+          "source": "UDB device report via WebHID: productName \"Mechlands Vibe75\"; interfaces FF68:0061 (no report IDs, 64 B in / 4096 B out) and FF13:0001 (no report IDs, 64 B in/out/feature)",
+          "hardware": "Mechlands Vibe75, USB cable; Microsoft Edge 155 on Windows 11 (ROG Zephyrus G14 GA403)",
+          "date": "2026-10-15",
+          "confidence": "high"
+        }
+      ]
     },
     {
       "vid": "0x05AC",
@@ -46,13 +54,19 @@
         "interface": 3,
         "usagePage": "0xFF13",
         "usage": "0x0001",
-        "purpose": "Likely command channel: 65-byte input/output/feature reports (hypothesis)"
+        "purpose": "Likely command channel: 65-byte input/output/feature reports (hypothesis)",
+        "reportIds": [
+          0
+        ]
       },
       {
         "interface": 2,
         "usagePage": "0xFF68",
         "usage": "0x0061",
-        "purpose": "Likely bulk channel for screen images: 4097-byte output (hypothesis)"
+        "purpose": "Likely bulk channel for screen images: 4097-byte output (hypothesis)",
+        "reportIds": [
+          0
+        ]
       }
     ],
     "deny": []

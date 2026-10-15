@@ -9,6 +9,14 @@ describe('matchDevice', () => {
     expect(m?.modelConfirmed).toBe(false);
   });
 
+  it('confirms the CrazyLight on its cable from the USB product string, a PID Pulsar shares across models', () => {
+    const m = matchDevice({ vendorId: 0x3710, productId: 0x3414, productName: 'Pulsar X2 CrazyLight' }, registry);
+    expect(m?.entry.id).toBe('pulsar/x2-crazylight');
+    expect(m?.identity.connection).toBe('wired');
+    expect(m?.modelConfirmed).toBe(true);
+    expect(matchDevice({ vendorId: 0x3710, productId: 0x3414, productName: 'Pulsar Xlite V4' }, registry)).toBeNull();
+  });
+
   it('matches the Vibe75 on its borrowed Apple VID/PID only by product name', () => {
     const vibe = matchDevice({ vendorId: 0x05ac, productId: 0x024f, productName: 'Mechlands Vibe75' }, registry);
     expect(vibe?.entry.id).toBe('mechlands/vibe75');

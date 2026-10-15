@@ -15,7 +15,8 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 
 | Identity | Connection | Detected by UDB |
 |---|---|---|
-| `0x3710:0x5406` "Pulsar 8K Dongle" | dongle | not yet |
+| `0x3710:0x5406` "Pulsar 8K Dongle" | dongle | Pulsar 8K Dongle bundled with X2 CrazyLight Bruce Lee edition; Microsoft Edge 155 on Windows 11 (ROG Zephyrus G14 GA403), 2026-10-15, high confidence |
+| `0x3710:0x3414` "Pulsar X2 CrazyLight" | wired | Pulsar X2 CrazyLight Bruce Lee 85th Anniversary Edition, USB cable; Microsoft Edge 155 on Windows 11 (ROG Zephyrus G14 GA403), 2026-10-15, high confidence |
 
 | Feature | Location | Status | Read-back | Latest evidence |
 |---|---|---|---|---|
@@ -46,7 +47,7 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 
 | Identity | Connection | Detected by UDB |
 |---|---|---|
-| `0x05AC:0x024F` "Mechlands Vibe75" | wired | not yet |
+| `0x05AC:0x024F` "Mechlands Vibe75" | wired | Mechlands Vibe75, USB cable; Microsoft Edge 155 on Windows 11 (ROG Zephyrus G14 GA403), 2026-10-15, high confidence |
 | `0x05AC:0x024F` "2.4G Dongle" | dongle | not yet |
 | `0x05AC:0x024F` "Vibe75-1" | bluetooth | not yet |
 

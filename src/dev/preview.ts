@@ -1,0 +1,46 @@
+// Fake devices for design review (`npm run dev`, then /?preview or /?preview=empty).
+// Collections mirror the dev machine's real descriptors (HidP_GetCaps, 2026-10-15).
+import { devices, keyOf, type Presence } from '../lib/devices.svelte.ts';
+import { matchDevice } from '../lib/match.ts';
+import { registry } from '../lib/registry.ts';
+
+const rep = (id: number, bytes: number) => [{ reportId: id, items: [{ reportSize: 8, reportCount: bytes }] }];
+
+function fake(vendorId: number, productId: number, productName: string, collections: HIDCollectionInfo[]): HIDDevice {
+  return { vendorId, productId, productName, collections, opened: false } as unknown as HIDDevice;
+}
+
+const pulsar = fake(0x3710, 0x5406, 'Pulsar 8K Dongle', [
+  { usagePage: 0xff02, usage: 0x0002, inputReports: rep(8, 16), outputReports: rep(8, 16), featureReports: [] },
+]);
+const vibe = fake(0x05ac, 0x024f, 'Mechlands Vibe75', [
+  { usagePage: 0xff13, usage: 0x0001, inputReports: rep(0, 64), outputReports: rep(0, 64), featureReports: rep(0, 64) },
+]);
+const g14 = fake(0x0b05, 0x19b6, 'ITE Device(8910)', [
+  { usagePage: 0xff31, usage: 0x0079, inputReports: rep(0x5d, 32), outputReports: rep(0x5d, 127), featureReports: rep(0x5d, 127) },
+  { usagePage: 0xff82, usage: 0x00cf, inputReports: rep(0x5a, 16), outputReports: rep(0x5a, 60), featureReports: rep(0x5a, 60) },
+  { usagePage: 0x0059, usage: 0x0001, featureReports: rep(1, 50) },
+]);
+const vxe = fake(0x25a7, 0xfa6c, 'VXE R1 SE+', [{ usagePage: 0xff00, usage: 0x0001, featureReports: rep(5, 32) }]);
+
+const SETS: Record<string, [HIDDevice, Presence][]> = {
+  preview: [[pulsar, 'connected'], [vibe, 'connected'], [g14, 'connected'], [vxe, 'connected']],
+  busy: [[vibe, 'busy'], [pulsar, 'disconnected']],
+};
+
+export function load(search: string): void {
+  const name = new URLSearchParams(search).get('preview') || 'preview';
+  if (name === 'cancelled') devices.outcome = { kind: 'cancelled' };
+  for (const [hid, presence] of SETS[name] ?? []) {
+    devices.list.push({
+      key: keyOf(hid),
+      vendorId: hid.vendorId,
+      productId: hid.productId,
+      productName: hid.productName,
+      interfaces: presence === 'disconnected' ? [] : [hid],
+      match: matchDevice(hid, registry),
+      presence,
+      openError: presence === 'busy' ? 'NotAllowedError: Failed to open the device.' : undefined,
+    });
+  }
+}

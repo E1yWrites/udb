@@ -169,7 +169,6 @@
     display: inline-block;
     width: 0.9em;
     height: 0.9em;
-    border-radius: 2px;
     border: 1px solid var(--line-strong);
     vertical-align: -0.1em;
     margin-right: var(--space-2);

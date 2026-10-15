@@ -70,10 +70,13 @@ Exit criteria:
     multi-stage setups and read-verified.
   - Captured bytes are kept as a replay fixture
     (`tests/fixtures/compx-crazylight-2026-10-15.json`).
-- [ ] **Keyboard, Vibe75:** install Ghidra (Linux side) and Wireshark +
-  USBPcap (Windows, admin). Recover the protocol from `DeviceDriver.exe` and
-  captures, document it in `docs/protocols/vibe75.md`, and get one setting
-  `write-verified` with a persistence check.
+- [ ] **Keyboard, Mechlands Vibe75 (`vibe75`).** Protocol recovered with
+  Ghidra from `DeviceDriver.exe`, cross-checked against XVX G75 research (same
+  OEM family). No USB capture was needed. Results on 2026-10-15:
+  - **Lighting brightness** is `write-verified` (5 → 3 → 5 with the vendor's
+    write sequence; the keyboard's `04 02` acknowledgement sum matched the
+    block; each value was read back).
+  - **Still open: persistence across unplug/replug.**
 - [ ] **Headset:** a `steelseries-arctis` adapter ported from HeadsetControl,
   tested on replayed traffic. Status `experimental`. **The headset criterion
   stays open** (ADR 7).

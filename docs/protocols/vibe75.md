@@ -156,7 +156,16 @@ Read-only probe over `FF13:0001` (USB cable, Edge 155, Windows 11). Bytes are in
   (`tests/vibe75.test.ts`), so writing it back with only brightness changed
   leaves every other field as the keyboard reported it.
 
-### Write path (implemented, not yet run on hardware)
+### Write path (run on hardware, 2026-10-15)
+
+Brightness 5 → 3 → 5 on profile 0, each confirmed by reading the block back.
+Acknowledgements: `04 18` and `04 13` echo with status `01`. **`04 02` replies
+`04 02 00 01 <sum lo> <sum hi>`, where the sum is the 16-bit total of the
+block bytes the keyboard received** (`77 03` = 887 and `79 03` = 889, matching
+the two blocks). UDB checks that sum before trusting the write. Persistence
+across unplug/replug has not been tested yet.
+
+### Write path (as implemented)
 
 The vendor's lighting sequence, 35 ms between frames: `04 18` (ack) →
 `04 13 … byte8=01` (ack) → block → `04 02` (ack) → `04 F0`. Then read back with

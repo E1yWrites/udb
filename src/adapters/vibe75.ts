@@ -65,6 +65,14 @@ export function lightingBlock(l: LightingBlock): OutgoingReport {
   });
 }
 
+/**
+ * The `04 02` acknowledgement carries the 16-bit little-endian sum of the
+ * block the keyboard received in bytes 4-5 (observed: 0x0377 and 0x0379 for
+ * blocks summing to 887 and 889, 2026-10-15).
+ */
+export const blockSum = (block: Uint8Array) => block.reduce((s, x) => s + x, 0) & 0xffff;
+export const ackSum = (ack: Uint8Array) => ack[4]! | (ack[5]! << 8);
+
 /** Read reply states: the block itself, still pending (status 01), or no block (status FF). */
 export function replyState(res: Uint8Array, profile: number): 'block' | 'pending' | 'empty' | 'unknown' {
   if (decodeLighting(res)) return 'block';

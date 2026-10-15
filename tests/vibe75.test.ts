@@ -15,6 +15,7 @@ const bytes = (hex: string) => Uint8Array.from(hex.split(' '), (h) => parseInt(h
 const fx = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/vibe75-2026-10-15.json'), 'utf8')) as {
   exchanges: { op: string; tx: string; rx: string }[];
   delayedBlock: { tx: string; rx: string[] };
+  write: { frames: { tx: string; rx?: string }[]; readBack: string };
 };
 const realBlock = bytes(fx.delayedBlock.rx[1]!);
 
@@ -29,6 +30,8 @@ class Vibe75Sim {
   readonly sent: Uint8Array[] = [];
   blocks: (Uint8Array | null)[] = [realBlock.slice(), null, null, null, null];
   ignoreWrites = false;
+  /** Added to the acknowledged sum, to simulate a block corrupted in transit. */
+  corruptSum = 0;
   private queue: Uint8Array[] = [];
   private pendingBlock: Uint8Array | null = null;
   private listeners = new Set<(e: Event) => void>();
@@ -53,7 +56,8 @@ class Vibe75Sim {
       this.pendingBlock = b;
       this.queue = [];
     } else {
-      this.queue = [payload(b[0]!, b[1]!, 0, 0xff)];
+      const sum = b[1] === 0x02 && this.pendingBlock ? v.blockSum(this.pendingBlock) + this.corruptSum : 0;
+      this.queue = [payload(b[0]!, b[1]!, 0, 0x01, sum & 0xff, sum >> 8)];
       if (b[1] === 0x02 && this.pendingBlock && !this.ignoreWrites) this.blocks[this.pendingBlock[8]!] = this.pendingBlock;
     }
   }
@@ -146,6 +150,14 @@ describe('vibe75 session (simulator, not hardware evidence)', () => {
     expect(await applySetting(s.brightness(base), 4, 5)).toMatchObject({ kind: 'mismatch', actual: 5, restored: 5, restoreConfirmed: true });
   });
 
+  it('fails the write when the keyboard acknowledges a different block sum', async () => {
+    const sim = new Vibe75Sim();
+    sim.corruptSum = 1;
+    const s = new Vibe75Session(sim, []);
+    const base = (await s.readLighting(0)).block!;
+    expect(await applySetting(s.brightness(base), 4, 5)).toMatchObject({ kind: 'failed', error: expect.stringMatching(/summing/) });
+  });
+
   it('refuses out-of-range brightness before sending', async () => {
     const sim = new Vibe75Sim();
     const s = new Vibe75Session(sim, []);
@@ -172,6 +184,20 @@ describe('vibe75 session (simulator, not hardware evidence)', () => {
 });
 
 describe('vibe75 replay: owner hardware, 2026-10-15', () => {
+  it('session 3: the vendor write sequence, its acknowledgements and the read-back', () => {
+    const w = fx.write;
+    const sent = w.frames.map((f) => bytes(f.tx));
+    expect(sent[0]).toEqual(v.begin().data);
+    expect(sent[1]).toEqual(v.lightingHeader().data);
+    const block = { ...v.decodeLighting(realBlock)!, brightness: 3 };
+    expect(sent[2]).toEqual(v.lightingBlock(block).data);
+    expect(sent[3]).toEqual(v.end().data);
+    expect(sent[4]).toEqual(v.finish().data);
+    for (const f of sent) expect(v.allow({ type: 'feature', reportId: 0, data: f })).toBe(true);
+    expect(v.ackSum(bytes(w.frames[3]!.rx!))).toBe(v.blockSum(sent[2]!));
+    expect(v.decodeLighting(bytes(w.readBack))?.brightness).toBe(3);
+  });
+
   it('reproduces the captured read requests; first replies are echoes without a block', () => {
     fx.exchanges.forEach((e, p) => {
       expect(v.readLighting(p).data).toEqual(bytes(e.tx));

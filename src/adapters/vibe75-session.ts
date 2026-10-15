@@ -56,19 +56,22 @@ export class Vibe75Session {
 
   /** The vendor's sequence; frames it acknowledges are followed by a GET_FEATURE. */
   async writeLighting(block: v.LightingBlock): Promise<void> {
+    const data = v.lightingBlock(block);
     const frames: [OutgoingReport, boolean][] = [
       [v.begin(), true],
       [v.lightingHeader(), true],
-      [v.lightingBlock(block), false],
+      [data, false],
       [v.end(), true],
       [v.finish(), false],
     ];
     for (const [frame, ack] of frames) {
       await this.sleep(v.FRAME_DELAY_MS);
       await this.tx(frame);
-      if (ack) {
-        await this.sleep(v.FRAME_DELAY_MS);
-        await this.rx();
+      if (!ack) continue;
+      await this.sleep(v.FRAME_DELAY_MS);
+      const reply = await this.rx();
+      if (frame.data[1] === 0x02 && v.ackSum(reply) !== v.blockSum(data.data)) {
+        throw new Error(`The keyboard acknowledged a block summing to ${v.ackSum(reply)}, UDB sent ${v.blockSum(data.data)}`);
       }
     }
   }

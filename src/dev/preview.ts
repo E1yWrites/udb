@@ -3,6 +3,7 @@
 import { devices, keyOf, type Presence } from '../lib/devices.svelte.ts';
 import { matchDevice } from '../lib/match.ts';
 import { registry } from '../lib/registry.ts';
+import { CompxSim } from '../../tests/compx-sim.ts';
 
 const rep = (id: number, bytes: number) => [{ reportId: id, items: [{ reportSize: 8, reportCount: bytes }] }];
 
@@ -10,9 +11,14 @@ function fake(vendorId: number, productId: number, productName: string, collecti
   return { vendorId, productId, productName, collections, opened: false } as unknown as HIDDevice;
 }
 
-const pulsar = fake(0x3710, 0x5406, 'Pulsar 8K Dongle', [
-  { usagePage: 0xff02, usage: 0x0002, inputReports: rep(8, 16), outputReports: rep(8, 16), featureReports: [] },
-]);
+// The Pulsar answers through the protocol simulator (tests/compx-sim.ts), so the live panel works in preview.
+const pulsar = Object.assign(new CompxSim({ mid: 42, type: 5 }), {
+  vendorId: 0x3710,
+  productId: 0x5406,
+  productName: 'Pulsar 8K Dongle',
+  open: async () => {},
+  close: async () => {},
+}) as unknown as HIDDevice;
 const vibe = fake(0x05ac, 0x024f, 'Mechlands Vibe75', [
   { usagePage: 0xff13, usage: 0x0001, inputReports: rep(0, 64), outputReports: rep(0, 64), featureReports: rep(0, 64) },
 ]);
@@ -40,6 +46,7 @@ export function load(search: string): void {
       interfaces: presence === 'disconnected' ? [] : [hid],
       match: matchDevice(hid, registry),
       presence,
+      reconnects: 0,
       openError: presence === 'busy' ? 'NotAllowedError: Failed to open the device.' : undefined,
     });
   }

@@ -18,6 +18,8 @@ export interface UdbDevice {
   match: Match | null;
   presence: Presence;
   openError?: string;
+  /** Times the device came back after a disconnect, for persistence checks. */
+  reconnects: number;
 }
 
 export type RequestOutcome = { kind: 'idle' } | { kind: 'cancelled' } | { kind: 'error'; message: string };
@@ -76,11 +78,15 @@ class Devices {
           interfaces: [],
           match: matchDevice(hid, registry),
           presence: 'connected',
+          reconnects: 0,
         });
         device = this.list[this.list.length - 1]!;
       }
       if (!device.interfaces.includes(hid)) device.interfaces.push(hid);
-      if (device.presence === 'disconnected') device.presence = 'connected';
+      if (device.presence === 'disconnected') {
+        device.presence = 'connected';
+        device.reconnects++;
+      }
       await this.checkAccess(device, hid);
       if (announce) this.announcement = `${this.label(device)} connected`;
     }

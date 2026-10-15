@@ -3,6 +3,7 @@
   import { devices, type UdbDevice } from '../lib/devices.svelte.ts';
   import { CONNECTION_ICON, LOCATION, STATUS, featureLabel, hex4 } from '../lib/labels.ts';
   import { deviceReport } from '../lib/report.ts';
+  import CompxPanel from './CompxPanel.svelte';
 
   let { device }: { device: UdbDevice } = $props();
 
@@ -89,9 +90,8 @@
       <div>
         <h2>Receiver recognised, model not confirmed</h2>
         <p>
-          This receiver pairs with several {entry.vendor} mice. UDB confirms the exact model by asking the
-          device, which comes in the next release. Listed below is what UDB knows about the
-          {entry.model}.
+          This receiver pairs with several {entry.vendor} mice. Use “Read from mouse” below to ask the device
+          which model it is. Listed further down is what UDB knows about the {entry.model}.
         </p>
       </div>
     </div>
@@ -100,9 +100,19 @@
       <Icon name="check" size={20} />
       <div>
         <h2>Detected</h2>
-        <p>This release identifies devices only. UDB sends nothing to them yet.</p>
+        <p>
+          {#if entry.protocol.family === 'compx'}
+            UDB sends nothing until you choose “Read from mouse”.
+          {:else}
+            UDB can identify this device but has no adapter for it yet, so it sends nothing to it.
+          {/if}
+        </p>
       </div>
     </div>
+  {/if}
+
+  {#if entry?.protocol.family === 'compx' && device.presence === 'connected'}
+    <CompxPanel {device} />
   {/if}
 
   {#if entry}

@@ -26,6 +26,20 @@ describe('matchDevice', () => {
     expect(apple).toBeNull();
   });
 
+  it('matches any keyboard exposing the VIA collection to the generic QMK/VIA entry, model unconfirmed', () => {
+    const q2 = { vendorId: 0x3434, productId: 0x0111, productName: 'Keychron Q2' };
+    const m = matchDevice({ ...q2, collections: [{ usagePage: 0xff60, usage: 0x0061 }] }, registry);
+    expect(m?.entry.id).toBe('qmk/via-keyboard');
+    expect(m?.modelConfirmed).toBe(false);
+    expect(matchDevice({ ...q2, collections: [{ usagePage: 0xff60, usage: 0x0062 }] }, registry)).toBeNull();
+    expect(matchDevice(q2, registry)).toBeNull();
+  });
+
+  it('prefers an entry with the device’s own VID/PID over a collection match', () => {
+    const dongle = { vendorId: 0x3710, productId: 0x5406, productName: 'Pulsar 8K Dongle' };
+    expect(matchDevice({ ...dongle, collections: [{ usagePage: 0xff60, usage: 0x0061 }] }, registry)?.entry.id).toBe('pulsar/x2-crazylight');
+  });
+
   it('returns null for unknown devices', () => {
     expect(matchDevice({ vendorId: 0x1234, productId: 0x5678, productName: 'x' }, registry)).toBeNull();
   });
@@ -37,6 +51,7 @@ describe('chooserFilters', () => {
   it('requests only collections an adapter uses', () => {
     expect(filters).toContainEqual({ vendorId: 0x3710, productId: 0x5406, usagePage: 0xff02, usage: 0x0002 });
     expect(filters).toContainEqual({ vendorId: 0x05ac, productId: 0x024f, usagePage: 0xff13, usage: 0x0001 });
+    expect(filters).toContainEqual({ usagePage: 0xff60, usage: 0x0061 });
   });
 
   it('never requests a denied collection', () => {

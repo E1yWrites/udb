@@ -222,11 +222,12 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 | keymap | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 | screen-image | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 
-### Not yet seen on hardware by UDB (1)
+### Not yet seen on hardware by UDB (2)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
 | ASUS ROG Zephyrus G14 (GA403) built-in keyboard | 0B05:19B6 | `asus-aura` | – | lighting.lamparray |
+| QMK Keyboard with VIA firmware | any device with FF60:0061 | `qmk-via` | lighting.brightness, lighting.mode, lighting.speed, lighting.color | keymap, macros |
 
 ## Headsets
 

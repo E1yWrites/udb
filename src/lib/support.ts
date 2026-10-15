@@ -13,6 +13,9 @@ function describe(e: Evidence | undefined): string {
   return `${e.hardware ?? 'no hardware'}, ${e.date}, ${e.confidence} confidence`;
 }
 
+/** A `byCollection` identity has no VID/PID: it matches by the collections the entry uses. */
+const anyDevice = (e: DeviceEntry) => `any device with ${e.collections.use.map((c) => `${c.usagePage.slice(2)}:${c.usage.slice(2)}`).join(' or ')}`;
+
 /** True when any identity or feature carries evidence observed on real hardware. */
 const seenOnHardware = (e: DeviceEntry) =>
   e.identities.some((id) => id.evidence?.some((ev) => ev.hardware)) || e.features.some((f) => f.evidence.some((ev) => ev.hardware));
@@ -24,7 +27,8 @@ function detailed(entry: DeviceEntry, out: string[]): void {
   for (const id of entry.identities) {
     const name = id.productName ? ` "${id.productName}"` : '';
     const seen = id.evidence?.length ? describe(latest(id.evidence)) : 'not yet';
-    out.push(`| \`${id.vid}:${id.pid}\`${cell(name)} | ${id.connection} | ${cell(seen)} |`);
+    const ids = id.vid && id.pid ? `\`${id.vid}:${id.pid}\`` : anyDevice(entry);
+    out.push(`| ${ids}${cell(name)} | ${id.connection} | ${cell(seen)} |`);
   }
   out.push('', '| Feature | Location | Status | Read-back | Latest evidence |', '|---|---|---|---|---|');
   for (const f of entry.features) {
@@ -36,7 +40,7 @@ function detailed(entry: DeviceEntry, out: string[]): void {
 function compact(entries: DeviceEntry[], out: string[]): void {
   out.push('', '| Device | USB IDs | Protocol | Experimental | Not supported |', '|---|---|---|---|---|');
   for (const e of entries) {
-    const ids = [...new Set(e.identities.map((id) => `${id.vid.slice(2)}:${id.pid.slice(2)}`))].join(' ');
+    const ids = [...new Set(e.identities.map((id) => (id.vid && id.pid ? `${id.vid.slice(2)}:${id.pid.slice(2)}` : anyDevice(e))))].join(' ');
     const by = (s: string) => e.features.filter((f) => f.status === s).map((f) => f.id).join(', ') || '–';
     out.push(`| ${cell(`${e.vendor} ${e.model}`)} | ${ids} | \`${e.protocol.family}\` | ${by('experimental')} | ${by('unsupported')} |`);
   }

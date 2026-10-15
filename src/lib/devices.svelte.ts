@@ -88,6 +88,8 @@ export class Devices {
         device = this.list[this.list.length - 1]!;
       }
       if (!device.interfaces.includes(hid)) device.interfaces.push(hid);
+      // Composite devices arrive one interface at a time; a byCollection match may only show on a later one.
+      device.match ??= matchDevice(hid, registry);
       if (device.presence === 'disconnected') {
         device.presence = 'connected';
         device.reconnects++;

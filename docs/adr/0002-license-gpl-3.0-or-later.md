@@ -1,6 +1,6 @@
 # 2. License: GPL-3.0-or-later
 
-Status: accepted, 2026-10-15
+Status: accepted, 2026-10-15. Extended by ADR 8 (AGPL-3.0 sources).
 
 ## Context
 The best open protocol sources, as checked on 2026-10-15:

@@ -5,6 +5,8 @@ export interface HidInfo {
   vendorId: number;
   productId: number;
   productName: string;
+  /** Needed only to match `byCollection` identities. */
+  collections?: Pick<HIDCollectionInfo, 'usagePage' | 'usage'>[];
 }
 
 export interface Match {
@@ -13,21 +15,29 @@ export interface Match {
   /**
    * False when the VID/PID is shared (several entries match) or when the model
    * is only known after a protocol query (protocolIdentity, e.g. compx CID/MID).
-   * Phase 2 sends nothing, so such models stay unconfirmed.
+   * Phase 2 sends nothing, so such models stay unconfirmed. Always false for
+   * a `byCollection` identity: it names a protocol, not a model.
    */
   modelConfirmed: boolean;
 }
 
 function identityMatches(id: Identity, dev: HidInfo): boolean {
-  if (hex(id.vid) !== dev.vendorId || hex(id.pid) !== dev.productId) return false;
+  if (!id.vid || !id.pid || hex(id.vid) !== dev.vendorId || hex(id.pid) !== dev.productId) return false;
   return !id.requireProductName || id.productName === dev.productName;
 }
 
-/** Every registry identity this HID device could be (several when a receiver ID is shared). */
+const exposes = (entry: DeviceEntry, dev: HidInfo) =>
+  (dev.collections ?? []).some((c) => entry.collections.use.some((u) => hex(u.usagePage) === c.usagePage && hex(u.usage) === c.usage));
+
+/**
+ * Every registry identity this HID device could be (several when a receiver ID
+ * is shared). `byCollection` identities count only when no VID/PID matches.
+ */
 export function candidates(dev: HidInfo, entries: DeviceEntry[]): { entry: DeviceEntry; identity: Identity }[] {
-  return entries.flatMap((entry) =>
-    entry.identities.filter((id) => identityMatches(id, dev)).map((identity) => ({ entry, identity })),
-  );
+  const hits = (keep: (id: Identity, entry: DeviceEntry) => boolean) =>
+    entries.flatMap((entry) => entry.identities.filter((id) => keep(id, entry)).map((identity) => ({ entry, identity })));
+  const specific = hits((id) => identityMatches(id, dev));
+  return specific.length ? specific : hits((id, entry) => !!id.byCollection && exposes(entry, dev));
 }
 
 /** Narrows candidates by the CID/MID the device reported. Null when nothing matches. */
@@ -48,7 +58,7 @@ export function matchDevice(dev: HidInfo, entries: DeviceEntry[]): Match | null 
   const first = hits[0];
   if (!first) return null;
   const entryCount = new Set(hits.map((h) => h.entry.id)).size;
-  return { ...first, modelConfirmed: entryCount === 1 && !first.identity.protocolIdentity };
+  return { ...first, modelConfirmed: entryCount === 1 && !first.identity.protocolIdentity && !first.identity.byCollection };
 }
 
 /** requestDevice filters: only collections an adapter will use, never denied ones. */
@@ -58,7 +68,8 @@ export function chooserFilters(entries: DeviceEntry[]): HIDDeviceFilter[] {
   for (const entry of entries) {
     for (const id of entry.identities) {
       for (const c of entry.collections.use) {
-        const f = { vendorId: hex(id.vid), productId: hex(id.pid), usagePage: hex(c.usagePage), usage: hex(c.usage) };
+        const usage = { usagePage: hex(c.usagePage), usage: hex(c.usage) };
+        const f = id.vid && id.pid ? { vendorId: hex(id.vid), productId: hex(id.pid), ...usage } : usage;
         const key = JSON.stringify(f);
         if (seen.has(key)) continue;
         seen.add(key);

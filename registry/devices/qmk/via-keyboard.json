@@ -1,0 +1,182 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "qmk/via-keyboard",
+  "vendor": "QMK",
+  "model": "Keyboard with VIA firmware",
+  "category": "keyboard",
+  "identities": [
+    {
+      "byCollection": true,
+      "connection": "wired",
+      "notes": "Any keyboard exposing QMK's raw HID collection FF60:0061 (Keychron Q/V/K Pro, most VIA-supported boards). The name shown is the USB product string. UDB checks that the board speaks VIA (command 01) before anything else."
+    }
+  ],
+  "protocol": {
+    "family": "qmk-via",
+    "doc": "docs/protocols/qmk-via.md",
+    "references": [
+      {
+        "title": "QMK firmware quantum/via.h and via.c",
+        "url": "https://github.com/qmk/qmk_firmware/blob/master/quantum/via.c",
+        "license": "GPL-2.0-or-later",
+        "use": "code"
+      },
+      {
+        "title": "VIA app keyboard API",
+        "url": "https://github.com/the-via/app/blob/main/src/utils/keyboard-api.ts",
+        "license": "GPL-3.0",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [
+      {
+        "usagePage": "0xFF60",
+        "usage": "0x0061",
+        "reportIds": [
+          0
+        ],
+        "purpose": "QMK raw HID: VIA commands as 32-byte output reports, replies as 32-byte input reports, no report ID"
+      }
+    ],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Target platform; not yet tested"
+    },
+    "linux": {
+      "status": "documented",
+      "notes": "Needs a udev rule giving the user access to the keyboard's hidraw node (as VIA documents)"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "VIA (usevia.app) in another tab",
+    "Vial",
+    "Keychron Launcher"
+  ],
+  "limitations": [
+    "Wired only. Raw HID over Bluetooth or a 2.4 GHz receiver is not documented.",
+    "Lighting needs VIA protocol 12 or 13 (QMK 0.19 or newer). Older firmware and Vial (protocol 9) get the handshake and layer count only.",
+    "Effect numbers depend on the effects the firmware was built with. Without the board's VIA definition, UDB shows them as numbers.",
+    "Brightness is rescaled to the board's own maximum, so the value read back can differ slightly from the one written.",
+    "Keymap and macro editing need the board's matrix size from its VIA definition and are not implemented yet.",
+    "Keyboard-specific custom values (channel 0, e.g. Keychron's settings) are refused.",
+    "UDB never sends the bootloader, EEPROM-reset or keymap-reset commands."
+  ],
+  "features": [
+    {
+      "id": "lighting.brightness",
+      "kind": "range",
+      "location": "device",
+      "constraints": {
+        "min": 0,
+        "max": 255
+      },
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "QMK quantum/via.c (commit 7a1bbf37): via_qmk_{backlight,rgblight,rgb_matrix,led_matrix}_{get,set}_value; value ID 1 on channels 1, 2, 3 and 5",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ],
+      "notes": "Per lighting channel the firmware has: backlight, rgblight, RGB matrix or LED matrix."
+    },
+    {
+      "id": "lighting.mode",
+      "kind": "range",
+      "location": "device",
+      "constraints": {
+        "min": 0,
+        "max": 255
+      },
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "QMK quantum/via.c (commit 7a1bbf37): via_qmk_{backlight,rgblight,rgb_matrix,led_matrix}_{get,set}_value; value ID 2; 0 = off; out-of-range modes clamped by rgb_matrix_mode_eeprom_helper",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ],
+      "notes": "Backlight: breathing on/off only."
+    },
+    {
+      "id": "lighting.speed",
+      "kind": "range",
+      "location": "device",
+      "constraints": {
+        "min": 0,
+        "max": 255
+      },
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "QMK quantum/via.c (commit 7a1bbf37): via_qmk_{backlight,rgblight,rgb_matrix,led_matrix}_{get,set}_value; value ID 3 on channels 2, 3 and 5",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ]
+    },
+    {
+      "id": "lighting.color",
+      "kind": "color",
+      "location": "device",
+      "constraints": {
+        "model": "hue-saturation",
+        "max": 255
+      },
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "QMK quantum/via.c (commit 7a1bbf37): via_qmk_{backlight,rgblight,rgb_matrix,led_matrix}_{get,set}_value; value ID 4 (hue, saturation) on channels 2 and 3",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ]
+    },
+    {
+      "id": "keymap",
+      "kind": "keymap",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "QMK via.c id_dynamic_keymap_get/set_keycode (04/05)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "high",
+          "notes": "Needs the matrix size from the board's VIA definition; planned for Phase 5"
+        }
+      ]
+    },
+    {
+      "id": "macros",
+      "kind": "macro",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "QMK via.c id_dynamic_keymap_macro_* (0C-10)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "high",
+          "notes": "Planned for Phase 5"
+        }
+      ]
+    }
+  ]
+}

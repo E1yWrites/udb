@@ -26,6 +26,7 @@
     if (d.presence === 'busy') return { word: 'In use by another app', icon: 'busy', tone: 'signal' };
     if (!d.match) return { word: 'Unsupported', icon: 'blocked', tone: 'muted' };
     const icon = CONNECTION_ICON[d.match.identity.connection];
+    if (d.match.identity.byCollection) return { word: 'Protocol not checked', icon, tone: 'signal' };
     if (!d.match.modelConfirmed) return { word: 'Model not confirmed', icon, tone: 'signal' };
     return { word: 'Detected', icon, tone: 'confirmed' };
   }

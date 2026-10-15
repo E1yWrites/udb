@@ -1,0 +1,95 @@
+{
+  "about": "Raw VIA replies from real keyboards, copied from VIA's own error log as users posted it in public issues. VIA logs a command when the reply does not echo it. Commands are listed without their zero padding; replies are the full 32 bytes. These are third-party captures, not UDB evidence.",
+  "captures": [
+    {
+      "source": "https://github.com/the-via/releases/issues/251",
+      "date": "2023-03-07",
+      "device": "Corne (foostan)",
+      "vid": "0x4653",
+      "pid": "0x0001",
+      "note": "Custom-value get on channel 2 (rgblight) from a board without rgblight: the firmware answers FF and echoes the rest.",
+      "exchanges": [
+        {
+          "command": [8, 2, 1],
+          "response": [255, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          "command": [8, 2, 2],
+          "response": [255, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          "command": [8, 2, 3],
+          "response": [255, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ]
+    },
+    {
+      "source": "https://github.com/the-via/app/issues/167",
+      "date": "2023-06-02",
+      "device": "Keychron Q3",
+      "vid": null,
+      "pid": null,
+      "note": "The protocol-9 rgblight value ID 0x80 sent to this firmware: unhandled (FF), rest echoed.",
+      "exchanges": [
+        {
+          "command": [8, 128],
+          "response": [255, 128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ]
+    },
+    {
+      "source": "https://github.com/the-via/app/issues/197",
+      "date": "2023-10-05",
+      "device": "DZ60",
+      "vid": null,
+      "pid": null,
+      "note": "The protocol-9 backlight brightness value ID 0x09 sent to this firmware: unhandled (FF), rest echoed.",
+      "exchanges": [
+        {
+          "command": [8, 9],
+          "response": [255, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ]
+    },
+    {
+      "source": "https://github.com/the-via/app/issues/176",
+      "date": "2023-07-01",
+      "device": "Keychron Q2",
+      "vid": "0x3434",
+      "pid": "0x0111",
+      "note": "Encoder get on firmware without ENCODER_MAP: unhandled, arguments echoed.",
+      "exchanges": [
+        {
+          "command": [20, 0, 0, 0],
+          "response": [255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          "command": [20, 0, 0, 1],
+          "response": [255, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ]
+    },
+    {
+      "source": "https://github.com/the-via/app/issues/228",
+      "date": "2024-02-01",
+      "device": "Quefrency Rev. 3",
+      "vid": "0xCB10",
+      "pid": "0x3257",
+      "note": "Replies arriving one command late. Each response is the reply to the PREVIOUS command: 01 -> version 9, 0D -> macro buffer size 0x0109, 02 02 -> layout options. A reply must be matched by its echo, never by order.",
+      "exchanges": [
+        {
+          "command": [13],
+          "response": [1, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          "command": [2, 2],
+          "response": [13, 1, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          "command": [8, 9],
+          "response": [2, 2, 0, 0, 4, 220, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        }
+      ]
+    }
+  ]
+}

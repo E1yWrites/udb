@@ -45,13 +45,18 @@ experimental (generated from OpenMouse's copy of the ATK HUB catalog; see
 | Brand | Protocol family | Reference (license) | WebHID | Read-back | Owned | Plan |
 |---|---|---|---|---|---|---|
 | Mechlands Vibe75 (not on the list; owned) | unidentified vendor | vendor MFC app (needs Ghidra and capture) | ✅ `MI_03` `FF13` (hypothesis) | ❓ | **Vibe75** | **Phase 3** |
-| Keychron and other QMK boards | QMK/VIA | VIA (GPL-3.0), QMK (GPL-2.0-or-later) | ✅ `FF60:0061` | ✅ | – | Phase 4, **#1** |
+| Keychron and other QMK boards | QMK/VIA | VIA (GPL-3.0), QMK (GPL-2.0-or-later) | ✅ `FF60:0061` | ✅ | – | Phase 4, **#1**: experimental |
 | Wooting | Wooting | Wootility (web app; facts only), wooting SDKs (MPL-2.0) | ❓ | ❓ | – | Phase 4, #4 |
 | Razer | Razer protocol | OpenRazer (GPL-2.0-or-later) | ✅ | ✅ | – | with Razer mice |
 | Logitech G | HID++ 2.0 | Solaar, libratbag | ✅ | ✅ | – | with Logitech mice |
 | ASUS ROG (incl. laptops) | Aura / LampArray | OpenRGB, asusctl; Windows Dynamic Lighting | ✅ `FF31`, LampArray `0x59` | ⚠️ LampArray colours are write-only | **G14 built-in** | Phase 4, #6 |
 | SteelSeries, Corsair, HyperX, MSI | vendor protocols | OpenRGB (lighting) | ❓ | ❓ | – | Phase 4, later |
 | Ducky | mostly no software | – | – | – | – | detect only |
+
+**Phase 4 update (2026-10-15):** QMK/VIA is in as one generic registry entry
+(`qmk/via-keyboard`) that matches any keyboard exposing `FF60:0061`. Lighting
+(brightness, effect, speed, colour) is `experimental`. Keymap and macros wait
+for VIA definitions (Phase 5). See `docs/protocols/qmk-via.md`.
 
 ## Headsets
 

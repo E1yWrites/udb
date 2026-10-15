@@ -46,8 +46,6 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "vid",
-          "pid",
           "connection"
         ],
         "properties": {
@@ -56,6 +54,10 @@
           },
           "pid": {
             "$ref": "#/$defs/hex16"
+          },
+          "byCollection": {
+            "description": "Match any VID/PID that exposes one of the entry's collections.use. For protocol families not tied to a vendor (e.g. QMK/VIA); the identity names a protocol, not a model. An entry with a matching VID/PID wins.",
+            "const": true
           },
           "connection": {
             "enum": [
@@ -105,7 +107,39 @@
           "notes": {
             "type": "string"
           }
-        }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "vid",
+              "pid"
+            ],
+            "not": {
+              "required": [
+                "byCollection"
+              ]
+            }
+          },
+          {
+            "required": [
+              "byCollection"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "vid"
+                  ]
+                },
+                {
+                  "required": [
+                    "pid"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
       }
     },
     "protocol": {

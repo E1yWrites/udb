@@ -16,8 +16,11 @@ export interface Evidence {
 }
 
 export interface Identity {
-  vid: Hex16;
-  pid: Hex16;
+  /** Absent only on a `byCollection` identity. */
+  vid?: Hex16;
+  pid?: Hex16;
+  /** Matches any VID/PID exposing one of the entry's collections (vendor-neutral families like QMK/VIA). */
+  byCollection?: true;
   connection: Connection;
   productName?: string;
   requireProductName?: boolean;

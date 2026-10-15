@@ -4,6 +4,7 @@ import { devices, keyOf, type Presence } from '../lib/devices.svelte.ts';
 import { matchDevice } from '../lib/match.ts';
 import { registry } from '../lib/registry.ts';
 import { CompxSim } from '../../tests/compx-sim.ts';
+import { ViaSim } from '../../tests/qmk-via-sim.ts';
 
 const rep = (id: number, bytes: number) => [{ reportId: id, items: [{ reportSize: 8, reportCount: bytes }] }];
 
@@ -19,6 +20,14 @@ const pulsar = Object.assign(new CompxSim({ mid: 82, type: 5 }), {
   open: async () => {},
   close: async () => {},
 }) as unknown as HIDDevice;
+// A VIA keyboard (Keychron Q2 IDs) answering through tests/qmk-via-sim.ts.
+const keychron = Object.assign(new ViaSim({ channels: { rgbMatrix: { max: 200 } } }), {
+  vendorId: 0x3434,
+  productId: 0x0111,
+  productName: 'Keychron Q2',
+  open: async () => {},
+  close: async () => {},
+}) as unknown as HIDDevice;
 const vibe = fake(0x05ac, 0x024f, 'Mechlands Vibe75', [
   { usagePage: 0xff13, usage: 0x0001, inputReports: rep(0, 64), outputReports: rep(0, 64), featureReports: rep(0, 64) },
 ]);
@@ -30,7 +39,7 @@ const g14 = fake(0x0b05, 0x19b6, 'ITE Device(8910)', [
 const vxe = fake(0x25a7, 0xfa6c, 'VXE R1 SE+', [{ usagePage: 0xff00, usage: 0x0001, featureReports: rep(5, 32) }]);
 
 const SETS: Record<string, [HIDDevice, Presence][]> = {
-  preview: [[pulsar, 'connected'], [vibe, 'connected'], [g14, 'connected'], [vxe, 'connected']],
+  preview: [[pulsar, 'connected'], [vibe, 'connected'], [keychron, 'connected'], [g14, 'connected'], [vxe, 'connected']],
   busy: [[vibe, 'busy'], [pulsar, 'disconnected']],
 };
 

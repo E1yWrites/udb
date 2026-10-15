@@ -30,3 +30,18 @@ it('merges a re-granted device into its entry and counts the reconnect', async (
   expect(d.list[0]!.reconnects).toBe(1);
   expect(d.list[0]!.match?.entry.id).toBe('mechlands/vibe75');
 });
+
+it('matches a composite keyboard by a collection on a later interface', async () => {
+  const iface = (usagePage: number, usage: number) =>
+    ({ vendorId: 0x3434, productId: 0x0111, productName: 'Keychron Q2', collections: [{ usagePage, usage }], opened: true }) as unknown as HIDDevice;
+  const hid = {
+    getDevices: async () => [iface(0x000c, 0x0001), iface(0xff60, 0x0061)],
+    addEventListener: () => {},
+  } as unknown as HID;
+  const d = new Devices(hid);
+  await d.start();
+  expect(d.list).toHaveLength(1);
+  expect(d.list[0]!.interfaces).toHaveLength(2);
+  expect(d.list[0]!.match?.entry.id).toBe('qmk/via-keyboard');
+  expect(d.list[0]!.match?.modelConfirmed).toBe(false);
+});

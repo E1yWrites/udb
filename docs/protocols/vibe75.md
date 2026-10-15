@@ -162,8 +162,14 @@ Brightness 5 → 3 → 5 on profile 0, each confirmed by reading the block back.
 Acknowledgements: `04 18` and `04 13` echo with status `01`. **`04 02` replies
 `04 02 00 01 <sum lo> <sum hi>`, where the sum is the 16-bit total of the
 block bytes the keyboard received** (`77 03` = 887 and `79 03` = 889, matching
-the two blocks). UDB checks that sum before trusting the write. Persistence
-across unplug/replug has not been tested yet.
+the two blocks). UDB checks that sum before trusting the write.
+
+**Persistence (session 4):** brightness 3, written by UDB before the cable was
+unplugged, read back as 3 after replugging (the keyboard had to be picked
+again: no USB serial, so Chromium's grant is ephemeral). Caveats: the write
+happened in the previous page load, so UDB's own persistence check didn't run.
+And the Vibe75 has a battery, so unplugging may not cut power; a full
+power-off was not tested.
 
 ### Write path (as implemented)
 

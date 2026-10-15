@@ -130,8 +130,14 @@
           "source": "UDB evidence 2026-10-15 session 3: vendor sequence 04 18, 04 13, block (byte 9 = 03), 04 02, 04 F0; 04 02 ack sum 0x0377 = block sum; read back byte 9 = 03; then 05 written and read back (tests/fixtures/vibe75-2026-10-15.json)",
           "hardware": "Mechlands Vibe75, USB cable; Microsoft Edge 155 on Windows 11",
           "date": "2026-10-15",
-          "confidence": "high",
-          "notes": "Persistence across unplug/replug not yet shown. Visible LED effect not reported (LEDs were off)."
+          "confidence": "high"
+        },
+        {
+          "source": "UDB evidence 2026-10-15 session 4: brightness 3 written by UDB (owner's session-4 step, previous page load), USB cable unplugged and replugged, keyboard re-picked (reconnects: 1); first read after replug: block byte 9 = 03; then 05 written, ack sum 0x0379, read back 05",
+          "hardware": "Mechlands Vibe75, USB cable; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "Persists across unplug/replug. The write record is from the previous page load, so UDB's in-page persistence check did not run. The keyboard has a battery; a full power-off was not tested."
         }
       ],
       "constraints": {

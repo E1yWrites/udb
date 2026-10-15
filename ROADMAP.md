@@ -70,16 +70,21 @@ Exit criteria:
     multi-stage setups and read-verified.
   - Captured bytes are kept as a replay fixture
     (`tests/fixtures/compx-crazylight-2026-10-15.json`).
-- [ ] **Keyboard, Mechlands Vibe75 (`vibe75`).** Protocol recovered with
+- [x] **Keyboard, Mechlands Vibe75 (`vibe75`).** Protocol recovered with
   Ghidra from `DeviceDriver.exe`, cross-checked against XVX G75 research (same
   OEM family). No USB capture was needed. Results on 2026-10-15:
   - **Lighting brightness** is `write-verified` (5 → 3 → 5 with the vendor's
     write sequence; the keyboard's `04 02` acknowledgement sum matched the
     block; each value was read back).
-  - **Still open: persistence across unplug/replug.**
-- [ ] **Headset:** a `steelseries-arctis` adapter ported from HeadsetControl,
-  tested on replayed traffic. Status `experimental`. **The headset criterion
-  stays open** (ADR 7).
+  - **Persistence:** brightness 3 survived a USB unplug/replug (read back 3
+    after re-picking the keyboard; medium confidence, because the write was in
+    the previous page load and the keyboard's battery may keep it powered).
+  - Found on the way: the Vibe75 has no USB serial, so Chromium's permission
+    is lost on unplug. The UI now offers "Pick it again", and SPEC.md records
+    the limit.
+- [x] **Headset:** a `steelseries-arctis` adapter ported from HeadsetControl,
+  tested against bytes derived from its source. Status `experimental`, with no
+  UI until a headset exists. **The headset criterion stays open** (ADR 7).
 - [x] Every write follows the SPEC write procedure (`src/lib/write.ts`), and
   the UI shows the value the device returned.
 

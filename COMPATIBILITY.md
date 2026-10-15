@@ -56,6 +56,12 @@ from the official RGB SDK are in the registry, and UDB sends them nothing. No
 configuration protocol with read-back is public; `docs/protocols/wooting.md`
 says what would unblock it.
 
+**Phase 4 update (2026-10-15):** Headsets. Fourteen Logitech HID++ headsets
+(from HeadsetControl's list) get battery and sidetone through the Logitech
+adapter, both `experimental`. Sidetone reads back, so it can be verified once
+someone with the headset tests it. Five HyperX headsets are detection only
+until a device report shows their collections (`docs/protocols/hyperx.md`).
+
 ## Keyboards
 
 | Brand | Protocol family | Reference (license) | WebHID | Read-back | Owned | Plan |
@@ -79,8 +85,8 @@ for VIA definitions (Phase 5). See `docs/protocols/qmk-via.md`.
 | Brand | Protocol family | Reference (license) | WebHID | Read-back | Owned | Plan |
 |---|---|---|---|---|---|---|
 | SteelSeries Arctis | `steelseries-arctis` | HeadsetControl (GPL-3.0) | ✅ `FFC0:0001` | ⚠️ Nova 7: only sidetone on Gen 2 | – | **Phase 3, experimental only** |
-| HyperX Cloud | HyperX | HeadsetControl | ❓ | ⚠️ | – | Phase 4, #5 |
-| Logitech G | Logitech headset | HeadsetControl | ❓ | ⚠️ | – | Phase 4, #5 |
+| HyperX Cloud | HyperX (one protocol per model) | HeadsetControl (GPL-3.0) | ❓ collections unknown | ⚠️ battery only | – | Phase 4, #5: **detection only** |
+| Logitech G | HID++ 2.0 | HeadsetControl (GPL-3.0), Solaar | ✅ `FF43:0202` | ✅ sidetone, battery | – | Phase 4, #5: experimental |
 | Razer BlackShark | unknown | no open reference | ❓ | ❓ | – | research gap (top pro share) |
 | Corsair, Audeze, Sony INZONE, Turtle Beach | various | HeadsetControl (partial) | ❓ | ⚠️ | – | Phase 4, later |
 | ASUS ROG, JBL Quantum | unknown | none found | ❓ | ❓ | – | research gap |

@@ -188,6 +188,18 @@ checks happen in the Phase 6 compatibility pass.
 - No encode/decode tests: UDB sends Wooting nothing, so there is nothing to
   encode.
 
+### Headsets (HeadsetControl-derived): branch `phase-4-headsets` (stacked on Wooting)
+- [x] Logitech HID++ headsets: the Logitech adapter gains `0x1F20` (battery
+  voltage) and `0x8300` (sidetone, with read-back). There are 14 headset
+  entries generated from HeadsetControl's list, and the panel adds a sidetone
+  row. Tests run against a simulated G933 on index `FF`.
+- [x] HyperX: 5 headsets, detection only. `docs/protocols/hyperx.md` says
+  what HeadsetControl shows and why there is no adapter yet (unknown
+  collections; most settings write-only).
+- G535 (HID++ on a consumer collection), G930 (not HID++), the PRO X 2
+  LIGHTSPEED and G522 (Logitech's "Centurion" protocol) and Astro A50 are left
+  for a later pass.
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

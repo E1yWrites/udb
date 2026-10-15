@@ -10,6 +10,7 @@ these notes, plus reply bytes recorded in those drivers' sources.
 |---|---|---|---|
 | OpenMouse mouse-protocol `src/drivers/logitech/hidpp.ts`, `src/logitech/index.ts`, `src/drivers/logitech/bolt.ts`, `docs/logitech-testing.md` (commit `e53af6d5`) | framing, device-index probing, error formats, DPI/report-rate/battery decoding, receiver and direct PIDs, hardware notes from G402, G502 X, PRO X 2 Superstrike and Bolt users | AGPL-3.0-or-later | code (ADR 8): decoders and lists ported into `src/adapters/logitech-hidpp.ts` |
 | libratbag `data/devices/logitech-*.device` (commit `8235b5bb`) | model names and USB, wireless and Bluetooth PIDs | MIT | data: `npm run import:logitech` generates the registry entries |
+| HeadsetControl `lib/devices/logitech_*.hpp`, `protocols/hidpp_protocol.hpp` (commit `fbbce846`) | HID++ headset product IDs and the battery-voltage reply layout | GPL-3.0 | data: headset registry entries (`third_party/headsetcontrol`) |
 | Solaar `lib/logitech_receiver/settings_templates.py` (commit `e7304c4c`) | function numbers for 0x2201, 0x2202, 0x8060 and 0x8061 (they agree with OpenMouse); a DPI reading of 0 means "use the default" | GPL-2.0-or-later | facts |
 
 ## Transport
@@ -75,11 +76,31 @@ reported for that feature ID.
 | `0x8060` ReportRate | 0 `getReportRateList`, 1 `getReportRate`, 2 `setReportRate(ms)` | bitmap, bit i = (i+1) ms; current ms |
 | `0x8061` ExtendedReportRate | 1 `getReportRateList(conn)`, 2 `getReportRate(conn)`, 3 `setReportRate(code)` | 16-bit mask; code 0–6 = 125…8000 Hz; `conn` 0 = cable, 1 = wireless |
 | `0x8100` OnboardProfiles | 2 `getOnboardMode` | 1 = onboard, 2 = host |
+| `0x1F20` ADCMeasurement | 0 | `[mV, flags]` (headsets, see below) |
+| `0x8300` Sidetone | 0 `get`, 1 `set(0–100)` | `[level]` (headsets) |
 
 Model identity behind a receiver: `0x0003`'s wireless PID (the transport with
 flag `0x04`). That is the PID libratbag lists (`usb:046d:40xx`), so UDB looks it
 up in the registry like a USB ID. On Linux, the kernel's `hid-logitech-dj`
 driver exposes the same PID as a device of its own.
+
+## Headsets
+
+HeadsetControl drives Logitech's HID++ headsets (G633/G635/G733/G933/G935,
+G431–G433, G533, G PRO/PRO X/PRO X 2, Zone Wired/750) by hard-coded feature
+*indices* (for example `0x08`/`0x0A` for battery on the G933). UDB looks the
+features up by ID instead:
+
+| Feature | Functions | Reply | Source |
+|---|---|---|---|
+| `0x1F20` ADC measurement | 0 | `[mV hi, mV lo, flags]`, bit 0 = valid, bit 1 = charging | g933-utils; HeadsetControl's G933 battery command reads the same layout |
+| `0x8300` Sidetone | 0 get, 1 set(0–100) | `[level]` | Solaar |
+
+Sidetone has a getter, so it goes through the full write procedure. Battery
+percentages are estimated from voltage. HeadsetControl keeps calibration tables
+per model; UDB uses one Li-ion curve and shows the millivolts too. If a headset
+implements these under other feature IDs, the panel simply shows no control for
+them. A headset on its own dongle answers on index `FF`.
 
 ## Writes and persistence
 

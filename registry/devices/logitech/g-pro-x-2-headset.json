@@ -1,0 +1,176 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "logitech/g-pro-x-2-headset",
+  "vendor": "Logitech",
+  "model": "G PRO X 2 headset",
+  "category": "headset",
+  "identities": [
+    {
+      "vid": "0x046D",
+      "pid": "0x0AFB",
+      "connection": "unknown"
+    },
+    {
+      "vid": "0x046D",
+      "pid": "0x0AFC",
+      "connection": "unknown"
+    }
+  ],
+  "protocol": {
+    "family": "logitech-hidpp",
+    "doc": "docs/protocols/logitech-hidpp.md",
+    "references": [
+      {
+        "title": "OpenMouse mouse-protocol (Logitech HID++ driver)",
+        "url": "https://github.com/OpenMouse-Project/mouse-protocol",
+        "license": "AGPL-3.0-or-later",
+        "use": "code"
+      },
+      {
+        "title": "libratbag device data",
+        "url": "https://github.com/libratbag/libratbag/tree/master/data/devices",
+        "license": "MIT",
+        "use": "code"
+      },
+      {
+        "title": "Solaar settings templates",
+        "url": "https://github.com/pwr-Solaar/Solaar",
+        "license": "GPL-2.0-or-later",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [
+      {
+        "usagePage": "0xFF00",
+        "usage": "0x0001",
+        "reportIds": [
+          16
+        ],
+        "purpose": "HID++ short reports (7 bytes); receivers and wired devices"
+      },
+      {
+        "usagePage": "0xFF00",
+        "usage": "0x0002",
+        "reportIds": [
+          17
+        ],
+        "purpose": "HID++ long reports (20 bytes); the only ones Bolt devices answer on"
+      },
+      {
+        "usagePage": "0xFF43",
+        "usage": "0x0202",
+        "reportIds": [
+          17
+        ],
+        "purpose": "HID++ long reports over Bluetooth and on some newer USB mice"
+      }
+    ],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Target platform; not yet tested"
+    },
+    "linux": {
+      "status": "documented",
+      "notes": "Needs a udev rule for hidraw. hid-logitech-dj exposes a receiver’s mouse under its wireless PID."
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "Logitech G HUB",
+    "Logi Options+",
+    "Solaar"
+  ],
+  "limitations": [
+    "Generated from HeadsetControl @fbbce846 (third_party/headsetcontrol): HID++ headset classes.",
+    "Nothing here has been verified on hardware by UDB.",
+    "UDB looks up battery (0x1F20) and sidetone (0x8300) by feature ID. HeadsetControl addresses them by fixed index, so a headset that uses other IDs shows no control.",
+    "Battery is estimated from voltage with one Li-ion curve, not per-model calibration.",
+    "Lighting and auto power-off are not implemented; EQ runs on the PC (G HUB)."
+  ],
+  "features": [
+    {
+      "id": "battery",
+      "kind": "readonly",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "HeadsetControl @fbbce846 (third_party/headsetcontrol): HID++ headset classes: battery voltage command; feature 0x1F20 per g933-utils",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true,
+      "notes": "Estimated from voltage"
+    },
+    {
+      "id": "sidetone",
+      "kind": "range",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "HeadsetControl @fbbce846 (third_party/headsetcontrol): HID++ headset classes: sidetone 0-100; Solaar: feature 0x8300 get function 0, set function 1",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true,
+      "constraints": {
+        "min": 0,
+        "max": 100
+      }
+    },
+    {
+      "id": "lighting",
+      "kind": "color",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "HeadsetControl @fbbce846 (third_party/headsetcontrol): HID++ headset classes: breathing effect on 0x8070 (no read-back)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "inactive-time-min",
+      "kind": "range",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "HeadsetControl @fbbce846 (third_party/headsetcontrol): HID++ headset classes",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "eq.software",
+      "kind": "enum",
+      "location": "companion",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "G HUB applies EQ on the PC",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    }
+  ]
+}

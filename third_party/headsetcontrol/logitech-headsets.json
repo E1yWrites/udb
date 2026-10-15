@@ -1,0 +1,93 @@
+{
+ "source": "HeadsetControl lib/devices/logitech_g633_g933_935.hpp, logitech_g432.hpp, logitech_g533.hpp, logitech_gpro.hpp, logitech_zone_wired.hpp (https://github.com/Sapd/HeadsetControl, commit fbbce846). These classes speak HID++ (HIDPPDevice). GPL-3.0; product IDs and names only. G535 (HID++ on a consumer collection) and G930 (not HID++) are left out.",
+ "headsets": [
+  {
+   "name": "G633",
+   "pids": [
+    "0x0A5C"
+   ]
+  },
+  {
+   "name": "G635",
+   "pids": [
+    "0x0A89"
+   ]
+  },
+  {
+   "name": "G933",
+   "pids": [
+    "0x0A5B"
+   ]
+  },
+  {
+   "name": "G935",
+   "pids": [
+    "0x0A87"
+   ]
+  },
+  {
+   "name": "G733",
+   "pids": [
+    "0x0AB5",
+    "0x0AFE",
+    "0x0B1F"
+   ]
+  },
+  {
+   "name": "G431",
+   "pids": [
+    "0x0A9B"
+   ]
+  },
+  {
+   "name": "G432",
+   "pids": [
+    "0x0A9C"
+   ]
+  },
+  {
+   "name": "G433",
+   "pids": [
+    "0x0A6D"
+   ]
+  },
+  {
+   "name": "G533",
+   "pids": [
+    "0x0A66"
+   ]
+  },
+  {
+   "name": "G PRO",
+   "pids": [
+    "0x0AA7"
+   ]
+  },
+  {
+   "name": "G PRO X",
+   "pids": [
+    "0x0AAA",
+    "0x0ABA"
+   ]
+  },
+  {
+   "name": "G PRO X 2",
+   "pids": [
+    "0x0AFB",
+    "0x0AFC"
+   ]
+  },
+  {
+   "name": "Zone Wired",
+   "pids": [
+    "0x0AAD"
+   ]
+  },
+  {
+   "name": "Zone 750",
+   "pids": [
+    "0x0ADE"
+   ]
+  }
+ ]
+}

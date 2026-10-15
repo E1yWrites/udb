@@ -137,8 +137,32 @@ Read-only probe over `FF13:0001` (USB cable, Edge 155, Windows 11). Bytes are in
   something. Open hypotheses: the data comes on a later GET_FEATURE, or as an
   input report (the interface also has 64-byte input and output reports), or
   `04 12` is not the read on this firmware.
-- Next: an extended read-only probe (one `04 12 00`, then GET_FEATURE at
-  60/200/500/1000 ms, recording any pushed input report).
+- **Extended probe (profile 0):** the first GET_FEATURE (68 ms) returned the
+  echo with status `01`. The second (215 ms) and every later one returned the
+  **lighting block**:
+  `05 ff c6 aa 00 00 00 00 00 05 01 00 00 00 aa 55 …`. That is mode 5, colour
+  `ffc6aa`, profile 0, brightness 5, speed 1, byte 11 = 0, with the `AA 55`
+  signature at bytes 14–15. No input reports were pushed.
+- **Read protocol:** SET `04 12 <p>`, then poll GET_FEATURE. `01` means the
+  block is pending, `FF` means the profile has no block.
+- The owner reports the LEDs were **off** at the time, so the block is the
+  stored profile and the on/off state lives elsewhere (probably the Fn
+  lighting toggle). Mode numbers stay raw until confirmed.
+- **Vendor layout file** (`layouts/rgb-keyboard.xml`): `cmd_delaytime` 35 ms,
+  `brightness_max` 5, `speed_max` 5, `default_mode` 11, `default_brightness` 5,
+  `default_speed` 3. Mode 11 is also the XVX G75's default, more evidence of
+  the shared firmware.
+- The decoded block re-encodes to exactly the bytes received
+  (`tests/vibe75.test.ts`), so writing it back with only brightness changed
+  leaves every other field as the keyboard reported it.
+
+### Write path (implemented, not yet run on hardware)
+
+The vendor's lighting sequence, 35 ms between frames: `04 18` (ack) →
+`04 13 … byte8=01` (ack) → block → `04 02` (ack) → `04 F0`. Then read back with
+`04 12 <p>`. UDB changes only byte 9 (brightness, 1–5). The header carries no
+profile number and the vendor always sends it as above, so writes target the
+profile the block names (0 on the owner's keyboard).
 
 ## UDB plan
 

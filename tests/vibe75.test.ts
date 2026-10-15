@@ -1,8 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as v from '../src/adapters/vibe75.ts';
 import { Vibe75Session } from '../src/adapters/vibe75-session.ts';
+import { applySetting } from '../src/lib/write.ts';
 import { TransportRejected } from '../src/lib/transport.ts';
 
 const payload = (...bytes: number[]) => {
@@ -10,39 +11,106 @@ const payload = (...bytes: number[]) => {
   b.set(bytes);
   return b;
 };
+const bytes = (hex: string) => Uint8Array.from(hex.split(' '), (h) => parseInt(h, 16));
+const fx = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/vibe75-2026-10-15.json'), 'utf8')) as {
+  exchanges: { op: string; tx: string; rx: string }[];
+  delayedBlock: { tx: string; rx: string[] };
+};
+const realBlock = bytes(fx.delayedBlock.rx[1]!);
 
-// Reply layout from the XVX G75 notes (same OEM family): documentation, not captured from a Vibe75.
-const xvxProfile1 = payload(11, 0xff, 0, 0, 0, 0, 0, 0, 1, 5, 3, 0, 0, 0, 0xaa, 0x55);
-const xvxEmpty = payload(0x04, 0x12, 2, 0xff);
+/**
+ * Simulates the observed behaviour: `04 12 p` → first GET echoes with status
+ * 01 (block pending) or FF (empty), later GETs return the block. The vendor's
+ * write sequence stores the block. Simulator results are not hardware evidence.
+ */
+class Vibe75Sim {
+  opened = true;
+  readonly collections = [{ usagePage: 0xff13, usage: 0x0001, featureReports: [{ reportId: 0 }] }];
+  readonly sent: Uint8Array[] = [];
+  blocks: (Uint8Array | null)[] = [realBlock.slice(), null, null, null, null];
+  ignoreWrites = false;
+  private queue: Uint8Array[] = [];
+  private pendingBlock: Uint8Array | null = null;
+  private listeners = new Set<(e: Event) => void>();
 
-describe('vibe75 framing', () => {
-  it('reads lighting with a 64-byte feature report 0: 04 12 <profile>', () => {
-    expect(v.readLighting(3)).toEqual({ type: 'feature', reportId: 0, data: payload(0x04, 0x12, 3) });
+  addEventListener(_t: string, l: (e: Event) => void) {
+    this.listeners.add(l);
+  }
+  removeEventListener(_t: string, l: (e: Event) => void) {
+    this.listeners.delete(l);
+  }
+  async sendReport() {
+    throw new Error('vibe75 uses feature reports');
+  }
+  async sendFeatureReport(_id: number, data: BufferSource) {
+    const b = new Uint8Array(data as ArrayBuffer).slice();
+    this.sent.push(b);
+    if (b[0] === 0x04 && b[1] === 0x12) {
+      const block = this.blocks[b[2]!] ?? null;
+      this.queue = [payload(0x04, 0x12, b[2]!, block ? 0x01 : 0xff)];
+      if (block) this.queue.push(block.slice());
+    } else if (b[14] === 0xaa && b[15] === 0x55) {
+      this.pendingBlock = b;
+      this.queue = [];
+    } else {
+      this.queue = [payload(b[0]!, b[1]!, 0, 0xff)];
+      if (b[1] === 0x02 && this.pendingBlock && !this.ignoreWrites) this.blocks[this.pendingBlock[8]!] = this.pendingBlock;
+    }
+  }
+  async receiveFeatureReport(): Promise<DataView> {
+    const next = this.queue.length > 1 ? this.queue.shift()! : (this.queue[0] ?? payload());
+    return new DataView(next.slice().buffer);
+  }
+}
+
+describe('vibe75 framing and the real block', () => {
+  it('decodes the owner keyboard block and re-encodes it to the same bytes', () => {
+    const block = v.decodeLighting(realBlock)!;
+    expect(block).toEqual({ mode: 5, color: [0xff, 0xc6, 0xaa], profile: 0, brightness: 5, speed: 1, byte11: 0 });
+    expect(v.lightingBlock(block).data).toEqual(realBlock);
+    expect(v.allow(v.lightingBlock(block))).toBe(true);
   });
 
-  it('decodes a configured block and treats a reply without AA 55 as empty', () => {
-    expect(v.decodeLighting(xvxProfile1)).toEqual({ mode: 11, color: [0xff, 0, 0], profile: 1, brightness: 5, speed: 3, byte11: 0 });
-    expect(v.decodeLighting(xvxEmpty)).toBeNull();
+  it('classifies read replies', () => {
+    expect(v.replyState(bytes(fx.delayedBlock.rx[0]!), 0)).toBe('pending');
+    expect(v.replyState(realBlock, 0)).toBe('block');
+    expect(v.replyState(bytes(fx.exchanges[2]!.rx), 2)).toBe('empty');
+  });
+
+  it('builds the vendor write frames', () => {
+    expect(v.begin().data).toEqual(payload(0x04, 0x18));
+    expect(v.lightingHeader().data).toEqual(payload(0x04, 0x13, 0, 0, 0, 0, 0, 0, 1));
+    expect(v.end().data).toEqual(payload(0x04, 0x02));
+    expect(v.finish().data).toEqual(payload(0x04, 0xf0));
   });
 });
 
-describe('vibe75 allowlist (read-only release)', () => {
-  it('allows only lighting reads for profiles 0-4 and GET_FEATURE', () => {
-    for (const p of v.PROFILES) expect(v.allow(v.readLighting(p))).toBe(true);
+describe('vibe75 allowlist', () => {
+  it('allows the read, the five write frames and GET_FEATURE', () => {
+    for (const r of [v.readLighting(0), v.readLighting(4), v.begin(), v.lightingHeader(), v.end(), v.finish()]) expect(v.allow(r)).toBe(true);
     expect(v.allow({ type: 'feature-read', reportId: 0, data: new Uint8Array() })).toBe(true);
   });
 
+  const block = (patch: Record<number, number>) => {
+    const b = realBlock.slice();
+    for (const [i, x] of Object.entries(patch)) b[Number(i)] = x;
+    return b;
+  };
+
   it.each([
     ['INIT/reset (01)', payload(0x01)],
-    ['begin write session (04 18)', payload(0x04, 0x18)],
-    ['lighting header (04 13)', payload(0x04, 0x13, 0, 0, 0, 0, 0, 0, 1)],
     ['system settings (04 17)', payload(0x04, 0x17, 1, 0, 0, 0, 0, 0, 1)],
     ['key table (04 20)', payload(0x04, 0x20, 0, 0, 0, 0, 0, 0, 3)],
+    ['macro (04 15)', payload(0x04, 0x15)],
     ['LCD upload (04 72)', payload(0x04, 0x72)],
-    ['end session (04 02)', payload(0x04, 0x02)],
-    ['04 F0', payload(0x04, 0xf0)],
-    ['profile 5', payload(0x04, 0x12, 5)],
-    ['read with trailing bytes', payload(0x04, 0x12, 1, 1)],
+    ['header announcing 2 packets', payload(0x04, 0x13, 0, 0, 0, 0, 0, 0, 2)],
+    ['profile 5 read', payload(0x04, 0x12, 5)],
+    ['begin with trailing bytes', payload(0x04, 0x18, 1)],
+    ['block with brightness 6', block({ 9: 6 })],
+    ['block with speed 6', block({ 10: 6 })],
+    ['block without the AA 55 signature', block({ 15: 0x56 })],
+    ['block with data in the reserved gap', block({ 5: 1 })],
+    ['block with trailing data', block({ 20: 1 })],
   ])('refuses %s', (_name, data) => {
     expect(v.allow({ type: 'feature', reportId: 0, data })).toBe(false);
   });
@@ -53,63 +121,60 @@ describe('vibe75 allowlist (read-only release)', () => {
   });
 });
 
-describe('vibe75 session', () => {
-  function fakeKeyboard(replies: Record<number, Uint8Array>) {
-    let lastProfile = 0;
-    const listeners = new Set<(e: Event) => void>();
-    return {
-      listeners,
-      addEventListener: (_t: string, l: (e: Event) => void) => void listeners.add(l),
-      removeEventListener: (_t: string, l: (e: Event) => void) => void listeners.delete(l),
-      opened: true,
-      collections: [{ usagePage: 0xff13, usage: 0x0001, featureReports: [{ reportId: 0 }] }],
-      sendReport: vi.fn(),
-      sendFeatureReport: vi.fn(async (_id: number, data: BufferSource) => {
-        lastProfile = new Uint8Array(data as ArrayBuffer)[2]!;
-      }),
-      receiveFeatureReport: vi.fn(async () => new DataView((replies[lastProfile] ?? payload(0x04, 0x12, lastProfile, 0xff)).slice().buffer)),
-    };
-  }
-
-  it('probes all five profiles read-only and decodes what it finds', async () => {
-    const kb = fakeKeyboard({ 1: xvxProfile1 });
-    const readings = await new Vibe75Session(kb, []).probe();
-    expect(readings.map((r) => r.block?.mode ?? null)).toEqual([null, 11, null, null, null]);
-    expect(kb.sendFeatureReport).toHaveBeenCalledTimes(5);
+describe('vibe75 session (simulator, not hardware evidence)', () => {
+  it('polls past the pending echo to the block, and reports empty profiles', async () => {
+    const s = new Vibe75Session(new Vibe75Sim(), []);
+    expect((await s.readLighting(0)).block).toMatchObject({ mode: 5, brightness: 5 });
+    expect((await s.readLighting(3)).block).toBeNull();
   });
 
-  it('extended probe sends one read, then only GET_FEATUREs, and records pushed input reports', async () => {
-    const kb = fakeKeyboard({});
-    kb.sendFeatureReport.mockImplementation(async () => {
-      setTimeout(() => {
-        const ev = Object.assign(new Event('inputreport'), { reportId: 0, data: new DataView(xvxProfile1.slice().buffer) });
-        for (const l of kb.listeners) l(ev);
-      }, 10);
-    });
-    const s = new Vibe75Session(kb, []);
+  it('writes brightness with the vendor sequence and confirms by read-back, other fields untouched', async () => {
+    const sim = new Vibe75Sim();
+    const s = new Vibe75Session(sim, []);
+    const base = (await s.readLighting(0)).block!;
+    expect(await applySetting(s.brightness(base), 4, 5)).toEqual({ kind: 'confirmed', value: 4 });
+    expect(v.decodeLighting(sim.blocks[0]!)).toEqual({ ...base, brightness: 4 });
+    const writes = sim.sent.filter((b) => !(b[0] === 0x04 && b[1] === 0x12)).map((b) => [b[0], b[1]]);
+    expect(writes).toEqual([[0x04, 0x18], [0x04, 0x13], [0x05, 0xff], [0x04, 0x02], [0x04, 0xf0]]);
+  });
+
+  it('reports a mismatch when the keyboard keeps the old block', async () => {
+    const sim = new Vibe75Sim();
+    sim.ignoreWrites = true;
+    const s = new Vibe75Session(sim, []);
+    const base = (await s.readLighting(0)).block!;
+    expect(await applySetting(s.brightness(base), 4, 5)).toMatchObject({ kind: 'mismatch', actual: 5, restored: 5, restoreConfirmed: true });
+  });
+
+  it('refuses out-of-range brightness before sending', async () => {
+    const sim = new Vibe75Sim();
+    const s = new Vibe75Session(sim, []);
+    const base = (await s.readLighting(0)).block!;
+    const before = sim.sent.length;
+    expect(await applySetting(s.brightness(base), 0, 5)).toMatchObject({ kind: 'invalid' });
+    expect(await applySetting(s.brightness(base), 6, 5)).toMatchObject({ kind: 'invalid' });
+    expect(sim.sent.length).toBe(before);
+  });
+
+  it('extended probe sends one read, then only GET_FEATUREs', async () => {
+    const sim = new Vibe75Sim();
+    const s = new Vibe75Session(sim, []);
     await s.extendedProbe(0);
-    expect(kb.sendFeatureReport).toHaveBeenCalledTimes(1);
-    expect(kb.receiveFeatureReport).toHaveBeenCalledTimes(4);
-    expect(s.log.filter((e) => e.via === 'input')).toHaveLength(1);
+    expect(sim.sent).toHaveLength(1);
+    expect(s.log.filter((e) => e.dir === 'rx')).toHaveLength(4);
   });
 
   it('cannot reach a denied collection', async () => {
-    const kb = fakeKeyboard({});
-    await expect(new Vibe75Session(kb, [{ usagePage: 0xff13, usage: 0x0001 }]).probe()).rejects.toBeInstanceOf(TransportRejected);
-    expect(kb.sendFeatureReport).not.toHaveBeenCalled();
+    const sim = new Vibe75Sim();
+    await expect(new Vibe75Session(sim, [{ usagePage: 0xff13, usage: 0x0001 }]).readLighting(0)).rejects.toBeInstanceOf(TransportRejected);
+    expect(sim.sent).toHaveLength(0);
   });
 });
 
 describe('vibe75 replay: owner hardware, 2026-10-15', () => {
-  const fx = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/vibe75-2026-10-15.json'), 'utf8')) as {
-    exchanges: { op: string; tx: string; rx: string }[];
-  };
-  const bytes = (hex: string) => Uint8Array.from(hex.split(' '), (h) => parseInt(h, 16));
-
-  it('reproduces the captured requests, and the replies carry no lighting block', () => {
+  it('reproduces the captured read requests; first replies are echoes without a block', () => {
     fx.exchanges.forEach((e, p) => {
       expect(v.readLighting(p).data).toEqual(bytes(e.tx));
-      expect(v.allow(v.readLighting(p))).toBe(true);
       expect(v.decodeLighting(bytes(e.rx))).toBeNull();
     });
   });

@@ -124,10 +124,27 @@ checks happen in the Phase 6 compatibility pass.
 - [x] Shared receivers resolve to a model by CID/MID; the panel edits DPI
   stages through the write procedure
 
+### QMK/VIA: branch `phase-4-qmk-via` (stacked on the `compx` branch)
+- [x] `docs/protocols/qmk-via.md`: commands, version gates, lighting channels,
+  brightness scaling, refusals; sources QMK (GPL-2.0-or-later) and the VIA app
+  (GPL-3.0, facts only)
+- [x] Reply matching and unhandled replies tested against raw VIA replies from
+  real keyboards, copied from VIA error logs in public issues
+  (`tests/fixtures/via-issue-logs.json`). Lighting is tested against a
+  simulator that follows `via.c`.
+- [x] One generic registry entry (`qmk/via-keyboard`) with a `byCollection`
+  identity: any VID/PID exposing `FF60:0061`, model not confirmed. Lighting
+  features are `experimental`; keymap and macros `unsupported`.
+- [x] Panel: VIA handshake, layer count, lighting channels found by probing;
+  writes save to EEPROM and are read back
+- Keymap and macro editing need the board's VIA definition (matrix size,
+  layout). They move to Phase 5, loaded from a file the user picks.
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with
   import/export.
+- QMK/VIA keymap and macro editing from a VIA definition file the user loads.
 - Macros, where onboard memory exists.
 - A diagnostics page: raw descriptor view and a report log that can be
   exported locally.

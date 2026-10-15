@@ -117,7 +117,10 @@ shows the last value the device returned, never the requested value.
 
 JSON files at `registry/devices/<vendor>/<model>.json`, validated against
 `registry/schema/device.schema.json`. Each entry records:
-- the VID/PIDs and, where needed, the in-protocol identity (e.g. CID/MID)
+- the VID/PIDs and, where needed, the in-protocol identity (e.g. CID/MID).
+  A vendor-neutral family (QMK/VIA) can instead use a `byCollection`
+  identity: it matches any VID/PID exposing the entry's collection, and an
+  entry with the device's own VID/PID always wins.
 - the connection type
 - the protocol family
 - the collections UDB uses, and **denied collections** (firmware, DFU)

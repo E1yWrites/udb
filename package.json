@@ -15,7 +15,8 @@
     "test": "vitest run",
     "support": "node scripts/gen-support.ts",
     "import:atk": "node scripts/import-atk-catalog.ts",
-    "import:logitech": "node scripts/import-logitech.ts"
+    "import:logitech": "node scripts/import-logitech.ts",
+    "import:razer": "node scripts/import-razer.ts"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "7.3.1",

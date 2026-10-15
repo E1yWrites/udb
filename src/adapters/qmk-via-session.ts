@@ -7,11 +7,6 @@ import type { Setting } from '../lib/write.ts';
 
 type Device = Parameters<typeof request>[0];
 
-export interface Color {
-  hue: number;
-  sat: number;
-}
-
 export class ViaSession {
   readonly log: LogEntry[];
   /** Protocol version from the handshake; null until the keyboard answers as VIA. */
@@ -76,16 +71,20 @@ export class ViaSession {
     };
   }
 
-  color(ch: via.Channel): Setting<Color> {
-    const ok = (n: number) => Number.isInteger(n) && n >= 0 && n <= 255;
+  /**
+   * Hue (part 0) or saturation (part 1) of a channel's colour. The firmware
+   * sets both at once, so the other half is written back exactly as read.
+   */
+  colorPart(ch: via.Channel, part: 0 | 1): Setting<number> {
     return {
-      validate: (c) => (ok(c.hue) && ok(c.sat) ? null : 'Hue and saturation must be whole numbers from 0 to 255'),
-      write: (c) => this.write(ch, 'color', [c.hue, c.sat]),
-      read: async () => {
-        const b = await this.read(ch, 'color');
-        return b ? { hue: b[0]!, sat: b[1]! } : null;
+      validate: (n) => (Number.isInteger(n) && n >= 0 && n <= 255 ? null : 'Must be a whole number from 0 to 255'),
+      write: async (n) => {
+        const color = await this.read(ch, 'color');
+        if (!color) throw new Error('Could not read the current colour');
+        color[part] = n;
+        await this.write(ch, 'color', color);
       },
-      equals: (a, b) => a.hue === b.hue && a.sat === b.sat,
+      read: async () => (await this.read(ch, 'color'))?.[part] ?? null,
     };
   }
 }

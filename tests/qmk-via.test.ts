@@ -151,18 +151,17 @@ describe('qmk-via session (simulator, not hardware evidence)', () => {
     const s = new ViaSession(sim, []);
     await s.handshake();
     expect(await applySetting(s.level('rgbMatrix', 'speed'), 200, 127)).toEqual({ kind: 'confirmed', value: 200 });
-    expect(await applySetting(s.color('rgbMatrix'), { hue: 85, sat: 128 }, { hue: 0, sat: 255 })).toEqual({
-      kind: 'confirmed',
-      value: { hue: 85, sat: 128 },
-    });
-    // Each write is set, then save, then the read-back.
-    expect(sim.sent.slice(-3).map((b) => b.slice(0, 5))).toEqual([
+    expect(await applySetting(s.colorPart('rgbMatrix', 0), 85, 0)).toEqual({ kind: 'confirmed', value: 85 });
+    expect(await applySetting(s.colorPart('rgbMatrix', 1), 128, 255)).toEqual({ kind: 'confirmed', value: 128 });
+    // A colour write reads the pair, sets it with the other half unchanged, saves, then reads back.
+    expect(sim.sent.slice(-4).map((b) => b.slice(0, 5))).toEqual([
+      [8, 3, 4, 0, 0],
       [7, 3, 4, 85, 128],
       [9, 3, 0, 0, 0],
       [8, 3, 4, 0, 0],
     ]);
     sim.powerCycle();
-    expect(await s.color('rgbMatrix').read()).toEqual({ hue: 85, sat: 128 });
+    expect(await s.read('rgbMatrix', 'color')).toEqual([85, 128]);
   });
 
   it('confirms a brightness the board rescaled, and shows what it returned', async () => {

@@ -61,18 +61,78 @@ layers (`KeyLayerButton`), an LCD screen with RGB565 image and GIF frames
 `temp\FirmwareUpdateTool.exe`. **UDB never touches the firmware tool or the
 `firmware/` directory.**
 
-## Plan to recover the protocol (Phase 3)
+## Recovered from the vendor driver (static, 2026-10-15)
 
-1. **Ghidra** on the Linux side (JDK 21 + Ghidra, no root needed), then
-   `open_binary` on `DeviceDriver.exe` through REA. Look for the callers of
-   `HidD_SetFeature`, `HidD_GetFeature`, `WriteFile` and `ReadFile`, and the
-   buffers they build.
-2. **Wireshark + USBPcap** on Windows (needs admin; it installs a kernel filter
-   driver). Capture the vendor app while changing one setting at a time, on
-   the user's own keyboard.
-3. Cross-check each static finding against a capture before writing any
-   adapter code. Every command and its effect goes into the allowlist table
-   here, with the evidence that backs it.
+Method: Ghidra 12.1.4 headless decompile of `DeviceDriver.exe` (sha256
+`4f81d013ae78f389b936ff9b8f5560fbf51ddbd79061b67fd5e251575afb50c7`), REA
+`binary_overview`/`search`/`xrefs` for the entry points. Function names below
+are Ghidra's addresses in that build. Nothing has been sent to the keyboard.
+
+### Transport
+
+- The driver statically links hidapi (`FUN_00451390` is hidapi's
+  `lookup_functions`: `LoadLibrary("hid.dll")` + `GetProcAddress`).
+- **Commands are 64-byte feature reports with report ID 0**
+  (`HidD_SetFeature`, buffer 0x41 = ID + 64; `FUN_00451ce0`).
+- **Replies are read with GET_FEATURE** (`DeviceIoControl 0xB0192`
+  = `IOCTL_HID_GET_FEATURE`; `FUN_00451d80`) a few ms later. The driver
+  re-sends once when reply byte 3 is `0xFF` (`FUN_0044f960`).
+- Between frames the driver sleeps `cmd_delaytime` (config key; the shipped
+  `config.xml` doesn't set it). Payloads over 64 bytes are sent in 64-byte
+  chunks.
+- On the dev machine this is the `FF13:0001` interface (MI_03), the only one
+  with 64-byte feature reports.
+- **The driver never uses a reply's data**; replies only act as
+  acknowledgements. It keeps its own copy of the settings in SQLite.
+
+### Commands the driver sends
+
+| Bytes 0–1 | Ack read? | Used by | Meaning (inferred) |
+|---|---|---|---|
+| `04 18` | yes | system settings, lighting, LCD | begin a write session |
+| `04 17` (byte 2 = 1, byte 8 = 1) | yes | system settings | system-settings block follows |
+| `04 13` (byte 8 = 1) | yes | lighting (`FUN_0042b0c0`, `FUN_00434350`) | lighting block follows |
+| `04 20` (byte 8 = 3 or 8) | yes | per-key lighting, key map | key table (0xC0 or 0x200 bytes) follows |
+| `04 19`, `04 15` | yes | macros (`FUN_0042d830`) | macro data |
+| `04 72`, `04 28` | yes | LCD image (`FUN_00422b20`, `FUN_00423ae0`) | image upload |
+| `04 02` | yes | all of the above | end the session |
+| `04 F0` | no | after lighting | unknown; possibly "apply" or "save" |
+
+### Blocks
+
+- **System settings** (after `04 17`): `00 01`, then three checkbox flags
+  (bytes 2–4), `fn_switch` (byte 5), `sleep_time` (byte 6),
+  `key_respondtime` (byte 8). Bytes 62–63 = `AA 55`.
+- **Lighting** (after `04 13`): byte 0 = mode, bytes 1–3 = colour, bytes 8–11
+  = four values from the driver's profile record, bytes 14–15 = `AA 55`.
+
+## Same OEM family: XVX G75 (independent research)
+
+The [XVX G75 reverse-engineering notes](https://github.com/youssefvdel/xvx-g75-linux-driver)
+(no license, so UDB uses them for facts only) describe a keyboard with the
+**same borrowed `05AC:024F`**, 64-byte feature reports, the `0x04` command
+family, an `AA 55` signature and a TFT screen. Commands its author confirmed
+on hardware:
+
+- `04 12 <profile>` → **read the lighting config**. Reply:
+  `<mode> c c c 00 00 00 00 <profile> <brightness> <speed> 00 00 00 AA 55`,
+  with `AA 55` marking a configured profile. **That layout matches the
+  lighting block Mechlands' driver writes after `04 13`.**
+- `04 10 <page>` → read a key-map page.
+- `04 01 …` → set runtime lighting (not persisted).
+- `01` → "INIT/Reset". **UDB never sends it.**
+- Reply byte 3 is a status byte (`FF` idle, `01` busy).
+
+## UDB plan
+
+1. **Read-only probe** on the owner's Vibe75: `04 12 p` for p = 0–4, then
+   decode. Confirms the family and finds the active profile.
+2. **Write** by replaying the vendor's exact lighting sequence (`04 18`,
+   `04 13`, block, `04 02`, `04 F0`), changing one field of the block that was
+   just read. Then **read back** with `04 12`, and check again after
+   unplug/replug.
+3. The allowlist admits only those frame shapes. `01`, key, macro, LCD,
+   system-settings and firmware traffic stay refused.
 
 ## Open questions
 

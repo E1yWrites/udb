@@ -130,12 +130,23 @@ export class HidppSession {
     return { deviceIndex: this.deviceIndex!, protocol, name, info, wired };
   }
 
-  /** The most direct battery report the device has: 0x1004, then 0x1000, then 0x1001. Null without one. */
+  /** The most direct battery report the device has: 0x1004, then 0x1000, then 0x1001, then 0x1F20 (headsets). Null without one. */
   async battery(): Promise<hp.Battery | null> {
     if (await this.feature(hp.FEATURE.unifiedBattery)) return hp.decodeUnifiedBattery(await this.ask(hp.FEATURE.unifiedBattery, 1));
     if (await this.feature(hp.FEATURE.batteryLevel)) return hp.decodeBatteryLevel(await this.ask(hp.FEATURE.batteryLevel, 0));
     if (await this.feature(hp.FEATURE.batteryVoltage)) return hp.decodeBatteryVoltage(await this.ask(hp.FEATURE.batteryVoltage, 0));
+    if (await this.feature(hp.FEATURE.adcMeasurement)) return hp.decodeAdcMeasurement(await this.ask(hp.FEATURE.adcMeasurement, 0));
     return null;
+  }
+
+  /** Headset sidetone 0-100 (0x8300), or null when the device has no sidetone feature. */
+  async sidetone(): Promise<Setting<number> | null> {
+    if (!(await this.feature(hp.FEATURE.sidetone))) return null;
+    return {
+      validate: (v) => (Number.isInteger(v) && v >= 0 && v <= 100 ? null : 'Sidetone must be a whole number from 0 to 100'),
+      write: async (v) => void (await this.ask(hp.FEATURE.sidetone, 1, [v])),
+      read: async () => hp.decodeSidetone(await this.ask(hp.FEATURE.sidetone, 0)),
+    };
   }
 
   async onboardMode(): Promise<'onboard' | 'host' | null> {

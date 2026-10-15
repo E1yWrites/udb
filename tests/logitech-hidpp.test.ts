@@ -92,6 +92,7 @@ describe('logitech-hidpp allowlist', () => {
     [hp.FEATURE.onboardProfiles, 9],
     [0x00d0, 10], // DFU, as if a device reported it
     [0x1814, 11], // change host
+    [hp.FEATURE.sidetone, 12],
   ]);
   const allow = hp.allowFor(features);
 
@@ -105,6 +106,8 @@ describe('logitech-hidpp allowlist', () => {
     expect(allow(long([0x01, 8, sw(3), 6]))).toBe(true);
     expect(allow(long([0x01, 9, sw(2)]))).toBe(true);
     expect(allow(hp.frame(hp.SHORT, 0xff, 5, 2, [0]))).toBe(true);
+    expect(allow(long([0xff, 12, sw(1), 100]))).toBe(true);
+    expect(allow(long([0xff, 12, sw(0)]))).toBe(true);
   });
 
   it.each([
@@ -112,7 +115,7 @@ describe('logitech-hidpp allowlist', () => {
     ['a HID++ 1.0 pairing register write', [0xff, 0x80, 0xb2, 1]],
     ['DFU, even though the device reported its index', [0x01, 10, sw(0)]],
     ['change host', [0x01, 11, sw(1), 1]],
-    ['a feature index the device never reported', [0x01, 12, sw(0)]],
+    ['a feature index the device never reported', [0x01, 13, sw(0)]],
     ['setOnboardMode (a lasting change)', [0x01, 9, sw(1), 2]],
     ['an onboard-profile memory write', [0x01, 9, sw(6), 0, 0, 0, 0]],
     ['another software ID', [0x01, 5, 0x35, 0]],
@@ -127,6 +130,7 @@ describe('logitech-hidpp allowlist', () => {
     ['9 ms interval', [0x01, 7, sw(2), 9]],
     ['trailing bytes', [0x01, 7, sw(2), 8, 1]],
     ['an unlisted function (0x2202 fn 7)', [0x01, 6, sw(7), 0]],
+    ['sidetone above 100', [0xff, 12, sw(1), 101]],
   ])('refuses %s', (_name, bytes) => {
     expect(allow(long(bytes))).toBe(false);
   });
@@ -211,6 +215,17 @@ describe('logitech-hidpp session (simulator, not hardware evidence)', () => {
     const before = sim.sent.length;
     expect(await applySetting(dpi, 125, 1600)).toMatchObject({ kind: 'invalid' });
     expect(sim.sent.length).toBe(before);
+  });
+
+  it('reads a headset’s battery voltage and verifies sidetone (G933 on its own dongle, index FF)', async () => {
+    const { sim, s } = session({ productId: 0x0a5b, roles: { 0xff: 'headset' } });
+    expect(await s.connect()).toBe(0xff);
+    expect(await s.dpiOptions()).toBeNull();
+    expect(await s.battery()).toEqual({ percent: 68, state: 'charging', millivolts: 3910 });
+    const sidetone = (await s.sidetone())!;
+    expect(await applySetting(sidetone, 80, 50)).toEqual({ kind: 'confirmed', value: 80 });
+    expect(sim.sidetone).toBe(80);
+    expect(await applySetting(sidetone, 101, 80)).toMatchObject({ kind: 'invalid' });
   });
 
   it('cannot be talked into a denied collection', async () => {

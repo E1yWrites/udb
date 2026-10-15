@@ -14,9 +14,11 @@ const ratbag = read('third_party/libratbag/logitech-devices.json') as {
   devices: { file: string; name: string; match: string[]; driver: string; type: string }[];
 };
 const openmouse = read('third_party/openmouse/logitech-products.json') as { products: { pid: string; name: string }[] };
+const headsetcontrol = read('third_party/headsetcontrol/logitech-headsets.json') as { headsets: { name: string; pids: string[] }[] };
 
 const DATE = '2026-10-15';
 const RATBAG = 'libratbag data/devices @8235b5bb (third_party/libratbag)';
+const HEADSETCONTROL = 'HeadsetControl @fbbce846 (third_party/headsetcontrol): HID++ headset classes';
 const OPENMOUSE = 'OpenMouse mouse-protocol @e53af6d5 (src/logitech/index.ts, src/drivers/logitech/hidpp.ts)';
 const hex = (n: number) => `0x${n.toString(16).toUpperCase().padStart(4, '0')}` as const;
 const slug = (s: string) =>
@@ -49,6 +51,31 @@ const LIMITATIONS = [
   'UDB never switches the onboard-profile mode. In host mode, live DPI and report-rate changes are lost at power-off; in onboard mode some mice refuse them.',
   'Onboard profiles, button mapping and lighting are not implemented. DFU, reset and host-change features are refused.',
 ];
+
+/** Headsets: battery voltage and sidetone, looked up by feature ID (HeadsetControl hardcodes their indices). */
+function headsetFeatures(): Feature[] {
+  const f = (id: string, kind: Feature['kind'], status: Feature['status'], source: string, extra: Partial<Feature> = {}): Feature => ({
+    id,
+    kind,
+    location: 'device',
+    status,
+    evidence: evidence(source),
+    ...extra,
+  });
+  return [
+    f('battery', 'readonly', 'experimental', `${HEADSETCONTROL}: battery voltage command; feature 0x1F20 per g933-utils`, {
+      readBack: true,
+      notes: 'Estimated from voltage',
+    }),
+    f('sidetone', 'range', 'experimental', `${HEADSETCONTROL}: sidetone 0-100; Solaar: feature 0x8300 get function 0, set function 1`, {
+      readBack: true,
+      constraints: { min: 0, max: 100 },
+    }),
+    f('lighting', 'color', 'unsupported', `${HEADSETCONTROL}: breathing effect on 0x8070 (no read-back)`),
+    f('inactive-time-min', 'range', 'unsupported', HEADSETCONTROL),
+    f('eq.software', 'enum', 'unsupported', 'G HUB applies EQ on the PC', { location: 'companion' }),
+  ];
+}
 
 function features(category: Category, wireless: boolean): Feature[] {
   const f = (id: string, kind: Feature['kind'], status: Feature['status'], source: string, extra: Partial<Feature> = {}): Feature => ({
@@ -139,6 +166,24 @@ for (const p of openmouse.products) {
   entries.push(entry(id, p.name, 'mouse', [{ vid: '0x046D', pid: hex(pid), connection: 'wired' }], `${OPENMOUSE} LOGITECH_PRODUCTS`));
 }
 
+for (const h of headsetcontrol.headsets) {
+  const pids = h.pids.map((p) => parseInt(p, 16)).filter((p) => !known.has(p));
+  if (!pids.length) continue;
+  const id = `logitech/${slug(h.name)}-headset`;
+  if (ids.has(id)) throw new Error(`Duplicate id ${id}`);
+  ids.add(id);
+  const e = entry(id, `${h.name} headset`, 'headset', pids.map((pid) => ({ vid: '0x046D', pid: hex(pid), connection: 'unknown' as const })), HEADSETCONTROL);
+  e.features = headsetFeatures();
+  e.limitations = [
+    `Generated from ${HEADSETCONTROL}.`,
+    'Nothing here has been verified on hardware by UDB.',
+    'UDB looks up battery (0x1F20) and sidetone (0x8300) by feature ID. HeadsetControl addresses them by fixed index, so a headset that uses other IDs shows no control.',
+    'Battery is estimated from voltage with one Li-ion curve, not per-model calibration.',
+    'Lighting and auto power-off are not implemented; EQ runs on the PC (G HUB).',
+  ];
+  entries.push(e);
+}
+
 const generic = entry(
   'logitech/hidpp-device',
   'HID++ 2.0 device or receiver',
@@ -160,4 +205,5 @@ const dir = join(root, 'registry/devices/logitech');
 rmSync(dir, { recursive: true, force: true });
 mkdirSync(dir, { recursive: true });
 for (const e of entries) writeFileSync(join(root, 'registry/devices', `${e.id}.json`), JSON.stringify({ $schema: '../../schema/device.schema.json', ...e }, null, 2) + '\n');
-console.log(`Generated ${entries.length} Logitech entries (${entries.filter((e) => e.category === 'mouse').length} mice, ${entries.filter((e) => e.category === 'keyboard').length} keyboards)`);
+const count = (c: Category) => entries.filter((e) => e.category === c).length;
+console.log(`Generated ${entries.length} Logitech entries (${count('mouse')} mice, ${count('keyboard')} keyboards, ${count('headset')} headsets)`);

@@ -6,7 +6,7 @@
 
 import { FEATURE, LONG, REPORT_RATES, SHORT, SIZE } from '../src/adapters/logitech-hidpp.ts';
 
-type Role = 'mouse' | 'keyboard';
+type Role = 'mouse' | 'keyboard' | 'headset';
 
 export interface HidppSimOptions {
   productId: number;
@@ -27,7 +27,8 @@ export interface HidppSimOptions {
   name?: string;
 }
 
-const TABLES: Record<'mouse' | 'legacyMouse' | 'keyboard', number[]> = {
+const TABLES: Record<'mouse' | 'legacyMouse' | 'keyboard' | 'headset', number[]> = {
+  headset: [FEATURE.root, 0x0001, FEATURE.deviceName, FEATURE.adcMeasurement, FEATURE.sidetone],
   mouse: [FEATURE.root, 0x0001, FEATURE.deviceInfo, FEATURE.deviceName, FEATURE.unifiedBattery, FEATURE.extendedDpi, FEATURE.extendedReportRate, FEATURE.onboardProfiles],
   legacyMouse: [FEATURE.root, 0x0001, FEATURE.deviceInfo, FEATURE.deviceName, FEATURE.batteryLevel, FEATURE.dpi, FEATURE.reportRate, FEATURE.onboardProfiles],
   keyboard: [FEATURE.root, 0x0001, FEATURE.deviceInfo, FEATURE.deviceName, FEATURE.unifiedBattery, FEATURE.extendedReportRate],
@@ -87,6 +88,7 @@ export class HidppSim {
   rateCode = 3; // 1000 Hz
   rateMs = 1;
   onboard = 1;
+  sidetone = 50;
 
   constructor(opts: HidppSimOptions) {
     this.opts = opts;
@@ -96,7 +98,7 @@ export class HidppSim {
   }
 
   private table(role: Role) {
-    return role === 'keyboard' ? TABLES.keyboard : this.opts.legacy ? TABLES.legacyMouse : TABLES.mouse;
+    return role === 'keyboard' || role === 'headset' ? TABLES[role] : this.opts.legacy ? TABLES.legacyMouse : TABLES.mouse;
   }
 
   receive(reportId: number, req: Uint8Array) {
@@ -145,7 +147,7 @@ export class HidppSim {
         return set(1, 0x12, 0x34, 0x56, 0x78, 0, (w ? 0x04 : 0) | (u ? 0x08 : 0), ...pids);
       }
       case FEATURE.deviceName: {
-        const name = new TextEncoder().encode(this.opts.name ?? (role === 'keyboard' ? 'G915 TKL' : 'G502 LIGHTSPEED'));
+        const name = new TextEncoder().encode(this.opts.name ?? { keyboard: 'G915 TKL', headset: 'G933 Gaming Headset', mouse: 'G502 LIGHTSPEED' }[role]);
         return fn === 0 ? set(name.length) : set(...name.subarray(p[0]!, p[0]! + 16));
       }
       case FEATURE.unifiedBattery:
@@ -179,6 +181,12 @@ export class HidppSim {
         if (fn === 0) return set(0x8b); // the G402's bitmap: 1, 2, 4 and 8 ms
         if (fn === 1) return set(this.rateMs);
         if (fn === 2) return write(() => (this.rateMs = p[0]!));
+        return error(2, 0x07);
+      case FEATURE.adcMeasurement:
+        return set(0x0f, 0x46, 0x03); // 3910 mV, valid, charging
+      case FEATURE.sidetone:
+        if (fn === 0) return set(this.sidetone);
+        if (fn === 1) return write(() => (this.sidetone = p[0]!));
         return error(2, 0x07);
       case FEATURE.onboardProfiles:
         return fn === 2 ? set(this.onboard) : error(2, 0x07);

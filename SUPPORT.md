@@ -387,8 +387,27 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 
 ## Headsets
 
-### Not yet seen on hardware by UDB (1)
+### Not yet seen on hardware by UDB (20)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
+| HyperX Cloud Alpha Wireless | 03F0:098D | `hyperx` | – | battery, inactive-time-min, sidetone, voice-prompts |
+| HyperX Cloud Flight Wireless | 0951:16C4 0951:1723 | `hyperx` | – | battery |
+| HyperX Cloud II Wireless | 03F0:0696 03F0:018B | `hyperx` | – | battery, inactive-time-min |
+| HyperX Cloud II Wireless (Kingston) | 0951:1718 | `hyperx` | – | battery, sidetone, inactive-time-min |
+| HyperX Cloud III | 03F0:089D 03F0:03CC | `hyperx` | – | sidetone |
+| Logitech G PRO headset | 046D:0AA7 | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G PRO X 2 headset | 046D:0AFB 046D:0AFC | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G PRO X headset | 046D:0AAA 046D:0ABA | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G431 headset | 046D:0A9B | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G432 headset | 046D:0A9C | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G433 headset | 046D:0A6D | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G533 headset | 046D:0A66 | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G633 headset | 046D:0A5C | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G635 headset | 046D:0A89 | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G733 headset | 046D:0AB5 046D:0AFE 046D:0B1F | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G933 headset | 046D:0A5B | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech G935 headset | 046D:0A87 | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech Zone 750 headset | 046D:0ADE | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
+| Logitech Zone Wired headset | 046D:0AAD | `logitech-hidpp` | battery, sidetone | lighting, inactive-time-min, eq.software |
 | SteelSeries Arctis Nova 7 | 1038:2202 1038:22A1 1038:227E | `steelseries-arctis` | sidetone, inactive-time-min, battery | eq.software |

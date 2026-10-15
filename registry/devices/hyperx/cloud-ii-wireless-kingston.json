@@ -1,0 +1,95 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "hyperx/cloud-ii-wireless-kingston",
+  "vendor": "HyperX",
+  "model": "Cloud II Wireless (Kingston)",
+  "category": "headset",
+  "identities": [
+    {
+      "vid": "0x0951",
+      "pid": "0x1718",
+      "connection": "dongle"
+    }
+  ],
+  "protocol": {
+    "family": "hyperx",
+    "doc": "docs/protocols/hyperx.md",
+    "references": [
+      {
+        "title": "HeadsetControl",
+        "url": "https://github.com/Sapd/HeadsetControl",
+        "license": "GPL-3.0",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Detection only"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "HyperX NGENUITY"
+  ],
+  "limitations": [
+    "Detection only: UDB sends nothing to HyperX headsets yet. HeadsetControl documents the commands, but not which HID collection carries them in a browser; a device report would settle it.",
+    "Most of these settings are write-only in HeadsetControl: only battery reads back, so the others could never reach write-verified."
+  ],
+  "features": [
+    {
+      "id": "battery",
+      "kind": "readonly",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "HeadsetControl @fbbce846 lib/devices/hyperx_*.hpp (GPL-3.0): hyperx_cloud_2_wireless_kingston.hpp: a different protocol from the HP-branded version (report 0x06 frames)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "sidetone",
+      "kind": "range",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "HeadsetControl @fbbce846 lib/devices/hyperx_*.hpp (GPL-3.0): hyperx_cloud_2_wireless_kingston.hpp: a different protocol from the HP-branded version (report 0x06 frames)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low",
+          "notes": "Write-only per HeadsetControl"
+        }
+      ]
+    },
+    {
+      "id": "inactive-time-min",
+      "kind": "range",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "HeadsetControl @fbbce846 lib/devices/hyperx_*.hpp (GPL-3.0): hyperx_cloud_2_wireless_kingston.hpp: a different protocol from the HP-branded version (report 0x06 frames)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low",
+          "notes": "Write-only per HeadsetControl"
+        }
+      ]
+    }
+  ]
+}

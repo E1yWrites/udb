@@ -20,8 +20,8 @@
   let { device }: { device: UdbDevice } = $props();
   const entry = $derived(device.match!.entry);
 
-  type Row = 'dpi' | 'rate';
-  const LABEL: Record<Row, string> = { dpi: 'DPI', rate: 'Report rate' };
+  type Row = 'dpi' | 'rate' | 'sidetone';
+  const LABEL: Record<Row, string> = { dpi: 'DPI', rate: 'Report rate', sidetone: 'Sidetone' };
 
   let phase = $state<'idle' | 'reading' | 'ready' | 'error'>('idle');
   let error = $state('');
@@ -31,6 +31,7 @@
   let mode = $state<'onboard' | 'host' | null>(null);
   let dpiOptions = $state<number[] | null>(null);
   let rateOptions = $state<number[] | null>(null);
+  let sidetone = $state<Setting<number> | null>(null);
   let readings = $state<Partial<Record<Row, { value: number | null; at: string }>>>({});
   let requested = $state<Partial<Record<Row, number>>>({});
   let results = $state<Partial<Record<Row, WriteResult<number> & { at: string }>>>({});
@@ -48,17 +49,29 @@
   const now = () => new Date().toISOString();
   const pairs = (list: Collection[]) => list.map((c) => ({ usagePage: hex(c.usagePage), usage: hex(c.usage) }));
   const pid = (n: number | null) => (n === null ? '–' : n.toString(16).toUpperCase().padStart(4, '0'));
-  const rows = $derived((['dpi', 'rate'] as Row[]).filter((r) => (r === 'dpi' ? dpiOptions : rateOptions)?.length));
+  const rows = $derived((['dpi', 'rate', 'sidetone'] as Row[]).filter((r) => (r === 'sidetone' ? sidetone : (r === 'dpi' ? dpiOptions : rateOptions)?.length)));
   /** The common step of the advertised DPI values, for the number input. */
   const dpiStep = $derived(dpiOptions && dpiOptions.length > 1 ? Math.min(...dpiOptions.slice(1).map((v, i) => v - dpiOptions![i]!)) : 1);
 
   function setting(row: Row): Setting<number> {
+    if (row === 'sidetone') return sidetone!;
     return row === 'dpi' ? session!.dpi(dpiOptions!) : session!.reportRate(rateOptions!, identity!.wired);
   }
 
   function show(row: Row, v: number | null | undefined): string {
     if (v == null) return 'Unreadable';
+    if (row === 'sidetone') return `${v} of 100`;
     return row === 'dpi' ? `${v.toLocaleString()} DPI` : `${v.toLocaleString()} Hz`;
+  }
+
+  /** How the device is connected. Without transport PIDs (e.g. a headset on its own dongle), the registry's connection. */
+  function link(id: Identity): string {
+    const { usbPid, wirelessPid, blePid, bluetoothPid } = id.info;
+    if (usbPid === null && wirelessPid === null && blePid === null && bluetoothPid === null) {
+      const c = device.match?.identity.connection;
+      return c === 'dongle' ? 'Wireless dongle' : c === 'bluetooth' ? 'Bluetooth' : c === 'wired' ? 'Cable' : 'Not reported';
+    }
+    return id.wired ? 'Cable' : id.deviceIndex === DIRECT ? 'Wireless' : `Receiver slot ${id.deviceIndex}`;
   }
 
   /** The registry model for the PID the device reports for its current link. */
@@ -98,6 +111,7 @@
       mode = await session.onboardMode();
       dpiOptions = await session.dpiOptions();
       rateOptions = await session.rateOptions(identity.wired);
+      sidetone = await session.sidetone();
       readings = {};
       results = {};
       for (const row of rows) {
@@ -163,8 +177,8 @@
 
   {#if phase !== 'ready'}
     <p class="lede">
-      UDB finds which HID++ device answers on this connection, asks its name and features, then reads battery, DPI and
-      report rate. Reading changes nothing. UDB never switches the onboard-profile mode, and never sends firmware,
+      UDB finds which HID++ device answers on this connection, asks its name and features, then reads battery, DPI,
+      report rate and sidetone, whichever the device has. Reading changes nothing. UDB never switches the onboard-profile mode, and never sends firmware,
       reset or pairing commands.
     </p>
     {#if phase === 'error'}<p class="problem" role="alert"><Icon name="alert" />{error}</p>{/if}
@@ -187,7 +201,7 @@
       <div>
         <dt>Link</dt>
         <dd>
-          {identity.wired ? 'Cable' : identity.deviceIndex === DIRECT ? 'Wireless' : `Receiver slot ${identity.deviceIndex}`}
+          {link(identity)}
           {#if identity.info.wirelessPid !== null}<span class="data">wireless PID {pid(identity.info.wirelessPid)}</span>{/if}
         </dd>
       </div>
@@ -265,6 +279,17 @@
                 bind:value={requested.dpi}
                 disabled={!allowUnverified || busy !== null}
               />
+            {:else if row === 'sidetone'}
+              <input
+                id="hidpp-sidetone"
+                type="number"
+                inputmode="numeric"
+                min="0"
+                max="100"
+                step="1"
+                bind:value={requested.sidetone}
+                disabled={!allowUnverified || busy !== null}
+              />
             {:else if rateOptions}
               <select id="hidpp-rate" bind:value={requested.rate} disabled={!allowUnverified || busy !== null}>
                 {#each rateOptions as hz (hz)}<option value={hz}>{hz.toLocaleString()} Hz</option>{/each}
@@ -281,7 +306,7 @@
         {/each}
       </div>
     {:else}
-      <p class="note">This device reports no DPI or report-rate feature that UDB can change.</p>
+      <p class="note">This device reports no DPI, report-rate or sidetone feature that UDB can change.</p>
     {/if}
 
     <footer class="actions">

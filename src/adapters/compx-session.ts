@@ -2,6 +2,7 @@
 // the adapter allowlist and the registry's denied collections.
 
 import * as cx from './compx.ts';
+import { packDpiStage, unpackDpiStage, type DpiSensor } from './compx-dpi.ts';
 import { request, type Guard, type LogEntry, type UsagePair } from '../lib/transport.ts';
 import type { Setting } from '../lib/write.ts';
 
@@ -13,9 +14,10 @@ export class CompxSession {
   private readonly guard: Guard;
 
   /** `log` may be shared across sessions so evidence spans reconnects. */
-  constructor(device: Device, deny: UsagePair[], log: LogEntry[] = []) {
+  /** `sensor` enables DPI-row writes for this model (null: DPI is read-only). */
+  constructor(device: Device, deny: UsagePair[], log: LogEntry[] = [], sensor: DpiSensor | null = null) {
     this.device = device;
-    this.guard = { allow: cx.allow, deny };
+    this.guard = { allow: cx.allowFor(sensor), deny };
     this.log = log;
   }
 
@@ -85,6 +87,27 @@ export class CompxSession {
       validate: (ms) => (Number.isInteger(ms) && ms >= 0 && ms <= maxMs ? null : `Debounce must be 0 to ${maxMs} ms`),
       write: (ms) => this.writePair(cx.ADDR.debounce, ms),
       read: () => this.readPair(cx.ADDR.debounce),
+    };
+  }
+
+  async identifyCidMid(): Promise<{ cid: number; mid: number }> {
+    return cx.decodeCidMid(await this.ask(cx.readCidMid()));
+  }
+
+  /** DPI of one stage (X and Y), encoded for `sensor`. */
+  dpiStage(index: number, sensor: DpiSensor): Setting<{ x: number; y: number }> {
+    const addr = cx.dpiStageAddr(index);
+    return {
+      validate: (v) => (packDpiStage(sensor, v.x, v.y) ? null : `${v.x}×${v.y} DPI is not a value this sensor accepts`),
+      write: async (v) => {
+        await this.requireOnline();
+        cx.decodeWrite(await this.ask(cx.writeFlash(addr, packDpiStage(sensor, v.x, v.y)!)));
+      },
+      read: async () => {
+        await this.requireOnline();
+        return unpackDpiStage(sensor, await this.readFlash(addr, 4));
+      },
+      equals: (a, b) => a.x === b.x && a.y === b.y,
     };
   }
 

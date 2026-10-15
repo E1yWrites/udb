@@ -3,6 +3,7 @@
 // Every fact here is documented, with its source, in docs/protocols/compx.md.
 
 import type { OutgoingReport } from '../lib/transport.ts';
+import { packDpiStage, unpackDpiStage, type DpiSensor } from './compx-dpi.ts';
 
 export const REPORT_ID = 8;
 const LEN = 16;
@@ -13,9 +14,12 @@ export const CMD = {
   BatteryLevel: 4,
   WriteFlashData: 7,
   ReadFlashData: 8,
+  ReadCIDMID: 0x10,
 } as const;
 
-export const ADDR = { pollingRate: 0x00, stageCount: 0x02, currentStage: 0x04, debounce: 0xa9 } as const;
+export const ADDR = { pollingRate: 0x00, stageCount: 0x02, currentStage: 0x04, dpiStages: 0x0c, debounce: 0xa9 } as const;
+export const MAX_STAGES = 8;
+export const dpiStageAddr = (index: number) => ADDR.dpiStages + 4 * index;
 
 export const POLLING_CODES = [8, 4, 2, 1, 16, 32, 64] as const;
 
@@ -50,6 +54,8 @@ export function encryptionData(random: [number, number, number, number]): Outgoi
 }
 
 export const deviceOnLine = () => out(frame({ 0: CMD.DeviceOnLine }));
+/** ATK's identity read (OpenMouse captures): reply bytes 5-6 are CID and MID. */
+export const readCidMid = () => out(frame({ 0: CMD.ReadCIDMID }));
 export const batteryLevel = () => out(frame({ 0: CMD.BatteryLevel }));
 
 export function readFlash(addr: number, len: number): OutgoingReport {
@@ -64,6 +70,15 @@ export function writeFlash(addr: number, data: number[]): OutgoingReport {
 
 /** The adapter allowlist the transport enforces. Exact bytes, not just command IDs. */
 export function allow(r: OutgoingReport): boolean {
+  return allowFor(null)(r);
+}
+
+/**
+ * Allowlist for one model. DPI rows (0x0C + 4n) are writable only when the
+ * model's sensor is known and the row is a canonical, checksummed encoding
+ * of a DPI the sensor accepts.
+ */
+export const allowFor = (sensor: DpiSensor | null) => (r: OutgoingReport): boolean => {
   const b = r.data;
   if (r.type !== 'output' || r.reportId !== REPORT_ID || b.length !== LEN || b[1] !== 0) return false;
   if (b[LEN - 1] !== checksum(b)) return false;
@@ -73,6 +88,8 @@ export function allow(r: OutgoingReport): boolean {
   switch (b[0]) {
     case CMD.EncryptionData:
       return addr === 0 && len === 8 && zeroFrom(9);
+    case CMD.ReadCIDMID:
+      return zeroFrom(2);
     case CMD.DeviceOnLine: // only the plain query; the byte-5 variant's effect is unknown
     case CMD.BatteryLevel:
       return zeroFrom(2);
@@ -80,12 +97,18 @@ export function allow(r: OutgoingReport): boolean {
       return len >= 1 && len <= MAX_CHUNK && addr + len <= READABLE_END && zeroFrom(5);
     case CMD.WriteFlashData: {
       const valueOk = WRITABLE[addr];
-      return len === 2 && !!valueOk && valueOk(b[5]!) && ((b[5]! + b[6]!) & 0xff) === 0x55 && zeroFrom(7);
+      if (valueOk) return len === 2 && valueOk(b[5]!) && ((b[5]! + b[6]!) & 0xff) === 0x55 && zeroFrom(7);
+      const stage = (addr - ADDR.dpiStages) / 4;
+      if (!sensor || len !== 4 || !Number.isInteger(stage) || stage < 0 || stage >= MAX_STAGES || !zeroFrom(9)) return false;
+      const row = b.subarray(5, 9);
+      const dpi = unpackDpiStage(sensor, row);
+      const canonical = dpi && packDpiStage(sensor, dpi.x, dpi.y);
+      return !!canonical && canonical.every((v, i) => v === row[i]);
     }
     default:
       return false;
   }
-}
+};
 
 /** Is `res` (an input report 8 payload) the device's answer to `req`? Mirrors the vendor driver. */
 export function isResponse(req: Uint8Array, res: Uint8Array): boolean {
@@ -133,6 +156,11 @@ export function decodeInfo(res: Uint8Array): Info {
   const t = TYPE_MAX_RATE[type];
   if (!t) throw new CompxError(`Identify: unknown connection type ${type}`);
   return { cid: res[9]!, mid: res[10]!, type, ...t };
+}
+
+export function decodeCidMid(res: Uint8Array): { cid: number; mid: number } {
+  ok(res, 'Identify');
+  return { cid: res[5]!, mid: res[6]! };
 }
 
 export function decodeOnline(res: Uint8Array): { online: boolean; busy: boolean } {

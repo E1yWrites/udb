@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "asus/rog-zephyrus-g14-ga403-keyboard",
+  "vendor": "ASUS",
+  "model": "ROG Zephyrus G14 (GA403) built-in keyboard",
+  "category": "keyboard",
+  "identities": [
+    { "vid": "0x0B05", "pid": "0x19B6", "connection": "wired", "productName": "ITE Device(8910)", "notes": "Internal laptop keyboard; the unplug test does not apply" }
+  ],
+  "protocol": {
+    "family": "asus-aura",
+    "doc": "docs/protocols/asus-aura.md",
+    "references": [
+      { "title": "OpenRGB AsusAuraUSBController", "url": "https://github.com/CalcProgrammer1/OpenRGB", "license": "GPL-2.0-or-later", "use": "code" }
+    ]
+  },
+  "collections": {
+    "use": [],
+    "deny": [
+      { "usagePage": "0xFF82", "usage": "0x00CF", "purpose": "ASUS Component Firmware Update. Never opened." }
+    ]
+  },
+  "platform": {
+    "windows": { "status": "unknown" },
+    "linux": { "status": "unknown" },
+    "macos": { "status": "unsupported", "notes": "Windows laptop" }
+  },
+  "conflictingSoftware": ["Armoury Crate", "Windows Dynamic Lighting"],
+  "limitations": ["Phase 4 target. Not researched beyond descriptor metadata."],
+  "features": [
+    { "id": "lighting.lamparray", "kind": "color", "location": "device", "readBack": false, "status": "unsupported", "evidence": [ { "source": "HidP_GetCaps on the dev machine: LampArray 0x0059:0x0001 collection, 51-byte feature reports", "hardware": null, "date": "2026-10-15", "confidence": "medium", "notes": "LampArray colour updates are write-only by spec" } ] }
+  ]
+}

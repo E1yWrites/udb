@@ -1,0 +1,39 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "steelseries/arctis-nova-7",
+  "vendor": "SteelSeries",
+  "model": "Arctis Nova 7",
+  "category": "headset",
+  "identities": [
+    { "vid": "0x1038", "pid": "0x2202", "connection": "dongle", "notes": "Discrete battery 0-4" },
+    { "vid": "0x1038", "pid": "0x22A1", "connection": "dongle", "notes": "Percentage battery" },
+    { "vid": "0x1038", "pid": "0x227E", "connection": "dongle", "notes": "Wireless Gen 2: sidetone read-back and save command" }
+  ],
+  "protocol": {
+    "family": "steelseries-arctis",
+    "doc": "docs/protocols/steelseries-arctis.md",
+    "references": [
+      { "title": "HeadsetControl steelseries_arctis_nova_7.hpp", "url": "https://github.com/Sapd/HeadsetControl", "license": "GPL-3.0", "use": "code" }
+    ]
+  },
+  "collections": {
+    "use": [ { "interface": 3, "usagePage": "0xFFC0", "usage": "0x0001", "purpose": "Command and status channel" } ],
+    "deny": []
+  },
+  "platform": {
+    "windows": { "status": "unknown" },
+    "linux": { "status": "unknown" },
+    "macos": { "status": "unknown" }
+  },
+  "conflictingSoftware": ["SteelSeries GG / Sonar"],
+  "limitations": [
+    "No hardware available. Every feature is at most experimental, from replayed traffic.",
+    "Only sidetone on PID 0x227E can be read back."
+  ],
+  "features": [
+    { "id": "sidetone", "kind": "range", "location": "device", "constraints": { "min": 0, "max": 3 }, "readBack": false, "status": "experimental", "evidence": [ { "source": "HeadsetControl source: 00 39 v; read-back only on 0x227E via 00 20", "hardware": null, "date": "2026-10-15", "confidence": "medium" } ], "notes": "readBack is true only for PID 0x227E; the adapter must check the PID" },
+    { "id": "inactive-time-min", "kind": "range", "location": "device", "readBack": false, "status": "experimental", "evidence": [ { "source": "HeadsetControl source: 00 A3 minutes", "hardware": null, "date": "2026-10-15", "confidence": "medium" } ] },
+    { "id": "battery", "kind": "readonly", "location": "device", "readBack": true, "status": "experimental", "evidence": [ { "source": "HeadsetControl source: status report 0xB0", "hardware": null, "date": "2026-10-15", "confidence": "medium" } ] },
+    { "id": "eq.software", "kind": "range", "location": "companion", "status": "unsupported", "evidence": [ { "source": "Sonar EQ runs on the PC", "hardware": null, "date": "2026-10-15", "confidence": "high" } ] }
+  ]
+}

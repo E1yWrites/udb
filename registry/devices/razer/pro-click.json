@@ -1,0 +1,259 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "razer/pro-click",
+  "vendor": "Razer",
+  "model": "Pro Click",
+  "category": "mouse",
+  "identities": [
+    {
+      "vid": "0x1532",
+      "pid": "0x0077",
+      "connection": "dongle",
+      "params": {
+        "transactionId": 31,
+        "polling": "legacy",
+        "pollingRates": [
+          125,
+          500,
+          1000
+        ],
+        "dpiStorage": 1,
+        "maxDpi": 16000,
+        "battery": true,
+        "wireless": true
+      }
+    },
+    {
+      "vid": "0x1532",
+      "pid": "0x0080",
+      "connection": "wired",
+      "params": {
+        "transactionId": 31,
+        "polling": "legacy",
+        "pollingRates": [
+          125,
+          500,
+          1000
+        ],
+        "dpiStorage": 1,
+        "maxDpi": 16000,
+        "battery": true,
+        "wireless": false
+      }
+    }
+  ],
+  "protocol": {
+    "family": "razer",
+    "doc": "docs/protocols/razer.md",
+    "references": [
+      {
+        "title": "OpenMouse mouse-protocol (Razer codec, product table, captures)",
+        "url": "https://github.com/OpenMouse-Project/mouse-protocol",
+        "license": "AGPL-3.0-or-later",
+        "use": "code"
+      },
+      {
+        "title": "OpenRazer",
+        "url": "https://github.com/openrazer/openrazer",
+        "license": "GPL-2.0-or-later",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [
+      {
+        "usagePage": "0x0001",
+        "usage": "0x0002",
+        "reportIds": [
+          0
+        ],
+        "undeclaredFeatureReports": true,
+        "purpose": "Control channel: 90-byte feature report 0 on the interface whose only collection is Generic Desktop Mouse; Razer does not declare it in the descriptor"
+      }
+    ],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Target platform; not yet tested"
+    },
+    "linux": {
+      "status": "documented",
+      "notes": "Needs a udev rule for hidraw"
+    },
+    "macos": {
+      "status": "documented",
+      "notes": "The browser needs Input Monitoring permission to open mouse-class interfaces (OpenMouse)"
+    }
+  },
+  "conflictingSoftware": [
+    "Razer Synapse"
+  ],
+  "limitations": [
+    "Generated from OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts.",
+    "Nothing here has been verified on hardware by UDB.",
+    "Razer’s protocol is not self-describing: the transaction ID, polling command and DPI ceiling come from OpenMouse’s audit of OpenRazer, per product ID. A wrong transaction ID means the mouse does not answer; nothing is written.",
+    "On a receiver, two interfaces can look identical; UDB tries each granted mouse interface until one answers.",
+    "DPI stages, lift-off, button mapping and lighting are not implemented. The serial number is never read."
+  ],
+  "features": [
+    {
+      "id": "dpi",
+      "kind": "range",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts: 04/85, 04/05",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true,
+      "constraints": {
+        "min": 100,
+        "max": 16000
+      }
+    },
+    {
+      "id": "polling-rate",
+      "kind": "enum",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts: 00/85, 00/05 or 00/C0, 00/40",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true,
+      "constraints": {
+        "values": [
+          125,
+          500,
+          1000
+        ]
+      }
+    },
+    {
+      "id": "battery",
+      "kind": "readonly",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts: 07/80, 07/84",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true
+    },
+    {
+      "id": "sleep-timeout",
+      "kind": "range",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts: 07/83, 07/03",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true,
+      "constraints": {
+        "min": 60,
+        "max": 900,
+        "step": 60,
+        "unit": "s"
+      }
+    },
+    {
+      "id": "low-power-threshold",
+      "kind": "range",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts: 07/81, 07/01",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true,
+      "constraints": {
+        "min": 5,
+        "max": 100,
+        "step": 5,
+        "unit": "%"
+      }
+    },
+    {
+      "id": "dpi.stages",
+      "kind": "range",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts: 04/86, 04/06",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "notes": "The stage-table write is a fixed 38-byte block; planned for Phase 5"
+    },
+    {
+      "id": "lift-off-distance",
+      "kind": "enum",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts: class 0B",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "notes": "Not provable per model without hardware (OpenMouse)"
+    },
+    {
+      "id": "buttons",
+      "kind": "keymap",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts: class 02",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "lighting",
+      "kind": "color",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/razer/devices.ts (third_party/openmouse/razer-devices.ts) and src/razer/codec.ts: classes 03, 0F",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    }
+  ]
+}

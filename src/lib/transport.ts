@@ -1,6 +1,7 @@
 // The only module that talks to a HID device (ADR 5, THREAT_MODEL T2/T5).
 // Every report passes three checks before it reaches WebHID:
-//   1. the device declares this report ID for this report type,
+//   1. the device declares this report ID for this report type (or the
+//      registry names it as an undeclared feature report on that collection),
 //   2. the declaring top-level collection is not on the registry's deny list,
 //   3. the protocol adapter's allowlist accepts the exact bytes.
 // tests/guards.test.ts fails if any other module calls sendReport,
@@ -24,6 +25,12 @@ export interface Guard {
   allow: (report: OutgoingReport) => boolean;
   /** From the registry: collections UDB must never talk to. */
   deny: UsagePair[];
+  /**
+   * From the registry: feature reports a collection carries without declaring
+   * them in its descriptor (Razer's control channel on its mouse collection).
+   * WebHID does not check report IDs, so only this list lets UDB send them.
+   */
+  undeclared?: (UsagePair & { reportId: number })[];
 }
 
 export type RejectReason = 'not-open' | 'undeclared-report' | 'denied-collection' | 'not-allowlisted';
@@ -55,9 +62,17 @@ export function owningCollection(device: Pick<HIDDevice, 'collections'>, report:
   return device.collections.find((c) => declares(c, report.type, report.reportId));
 }
 
+/** A top-level collection the registry says carries this feature report undeclared. */
+function undeclaredOwner(device: Pick<HIDDevice, 'collections'>, report: OutgoingReport, guard: Guard): HIDCollectionInfo | undefined {
+  if (report.type === 'output') return undefined;
+  return device.collections.find((c) =>
+    guard.undeclared?.some((u) => u.usagePage === c.usagePage && u.usage === c.usage && u.reportId === report.reportId),
+  );
+}
+
 function check(device: DeviceLike, report: OutgoingReport, guard: Guard): void {
   if (!device.opened) throw new TransportRejected('not-open', report);
-  const owner = owningCollection(device, report);
+  const owner = owningCollection(device, report) ?? undeclaredOwner(device, report, guard);
   if (!owner) throw new TransportRejected('undeclared-report', report);
   if (guard.deny.some((d) => d.usagePage === owner.usagePage && d.usage === owner.usage)) {
     throw new TransportRejected('denied-collection', report);

@@ -22,6 +22,8 @@ const FEATURE_LABELS: Record<string, string> = {
   'screen-image': 'Screen image',
   sidetone: 'Sidetone',
   'inactive-time-min': 'Auto power-off',
+  'sleep-timeout': 'Auto sleep',
+  'low-power-threshold': 'Low-power threshold',
   'eq.software': 'Software EQ',
 };
 

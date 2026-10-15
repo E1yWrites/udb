@@ -159,6 +159,24 @@ checks happen in the Phase 6 compatibility pass.
 - Onboard-profile writes and button remapping move to Phase 5. Both need
   hardware evidence first.
 
+### Razer: branch `phase-4-razer` (stacked on Logitech)
+- [x] `docs/protocols/razer.md`: the 90-byte packet, checksum, exchange
+  timing, commands, persistence, refusals. Sources: OpenMouse
+  (AGPL-3.0-or-later, code and captures), OpenRazer (facts).
+- [x] The codec replays **two real hardware captures** byte for byte
+  (OpenMouse's DeathAdder V3 Pro sessions, cable and receiver, 243 exchanges
+  each): every request re-encodes identically, the allowlist accepts it
+  (except the serial read, which UDB refuses), and every reply decodes to the
+  recorded values.
+- [x] The transport gains a registry-named exception for feature reports a
+  collection carries without declaring them (`undeclaredFeatureReports`).
+  Razer's control report is undeclared on its mouse collection.
+- [x] 82 registry entries (`npm run import:razer`) with per-connection
+  `params` (transaction ID, polling command, DPI store and ceiling, battery).
+- [x] Panel: firmware, battery; DPI, polling, auto sleep and low-power
+  threshold through the write procedure.
+- DPI stage tables, lift-off, button mapping and lighting move to Phase 5.
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

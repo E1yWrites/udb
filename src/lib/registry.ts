@@ -26,6 +26,8 @@ export interface Identity {
   productName?: string;
   requireProductName?: boolean;
   protocolIdentity?: Record<string, number | null>;
+  /** Protocol parameters for this connection the device cannot report (e.g. Razer's transaction ID). */
+  params?: Record<string, number | string | boolean | number[]>;
   evidence?: Evidence[];
   notes?: string;
 }
@@ -35,6 +37,8 @@ export interface Collection {
   usagePage: Hex16;
   usage: Hex16;
   reportIds?: number[];
+  /** `reportIds` are feature reports the descriptor does not declare (Razer); the transport allows them only then. */
+  undeclaredFeatureReports?: boolean;
   purpose: string;
 }
 

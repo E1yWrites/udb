@@ -27,7 +27,7 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | debounce-ms | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
-### Not yet seen on hardware by UDB (224)
+### Not yet seen on hardware by UDB (306)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
@@ -226,6 +226,88 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | Logitech PRO X SUPERLIGHT 2 DEX | 046D:C0A0 | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
 | Logitech T650 | 046D:4101 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
 | Logitech Wireless Touchpad | 046D:4011 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
+| Razer Abyssus 1800 | 1532:0020 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Abyssus 2000 | 1532:005E | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Abyssus 2014 | 1532:0042 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Abyssus Elite (D.Va Edition) | 1532:006A | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Abyssus Essential | 1532:006B | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Abyssus V2 | 1532:005B | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Atheris | 1532:0062 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk | 1532:0064 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk Essential | 1532:0065 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk Mobile | 1532:00D3 1532:00D4 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk Ultimate | 1532:0086 1532:0088 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk V2 | 1532:0085 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk V3 | 1532:0099 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk V3 35K | 1532:00CB | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk V3 Pro | 1532:00AA 1532:00AB | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk V3 Pro 35K | 1532:00CC 1532:00CD | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk V3 Pro 35K Phantom Green | 1532:00D6 1532:00D7 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk V3 X HyperSpeed | 1532:00B9 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Basilisk X HyperSpeed | 1532:0083 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Cobra Pro | 1532:00AF 1532:00B0 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder 1800 | 1532:0038 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder 2000 | 1532:004F | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder 2013 | 1532:0037 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder 3500 | 1532:0054 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder Chroma | 1532:0043 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder Elite | 1532:005C | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder Essential | 1532:006E | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder Essential (2021) | 1532:0098 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder Essential White Edition | 1532:0071 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V2 | 1532:0084 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V2 Lite | 1532:00A1 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V2 Mini | 1532:008C | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V2 Pro | 1532:007C 1532:007D | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V2 X HyperSpeed | 1532:009C | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V3 | 1532:00B2 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V3 HyperSpeed | 1532:00C4 1532:00C5 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V3 Pro | 1532:00B6 1532:00B7 1532:00C2 1532:00C3 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V4 Pro | 1532:00BE 1532:00BF | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer DeathAdder V4 Pro Carbon Fiber Edition | 1532:00EF 1532:00F0 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Diamondback Chroma | 1532:004C | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer HyperPolling Wireless Dongle | 1532:00B3 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Imperator 2012 | 1532:002F | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Lancehead | 1532:0059 1532:005A | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Lancehead Tournament Edition | 1532:0060 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Lancehead Wireless | 1532:006F 1532:0070 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Mamba | 1532:0044 1532:0045 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Mamba 2012 | 1532:0024 1532:0025 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Mamba Elite | 1532:006C | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Mamba Tournament Edition | 1532:0046 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Mamba Wireless | 1532:0072 1532:0073 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Mouse Dock Pro | 1532:00A4 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga | 1532:0015 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga 2012 | 1532:002E | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga 2014 | 1532:0040 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga Chroma | 1532:0053 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga Epic | 1532:001F | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga Epic Chroma | 1532:003E 1532:003F | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga Hex | 1532:0041 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga Hex (Red) | 1532:0036 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga Hex V2 | 1532:0050 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga Left-Handed Edition 2020 | 1532:008D | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga Pro | 1532:008F 1532:0090 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga Trinity | 1532:0067 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga V2 HyperSpeed | 1532:00B4 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga V2 Pro | 1532:00A7 1532:00A8 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Naga X | 1532:0096 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Orochi | 1532:0048 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Orochi 2013 | 1532:0039 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Orochi V2 | 1532:0094 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Ouroboros 2012 | 1532:0032 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Pro Click | 1532:0077 1532:0080 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Pro Click Mini | 1532:009A | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Pro Click V2 | 1532:00D0 1532:00D1 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Pro Click V2 Vertical Edition | 1532:00C7 1532:00C8 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Taipan | 1532:0034 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Viper 8KHz | 1532:0091 | `razer` | dpi, polling-rate | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Viper Mini Signature Edition | 1532:009E 1532:009F | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Viper Ultimate | 1532:007A 1532:007B | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Viper V2 Pro | 1532:00A5 1532:00A6 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Viper V3 HyperSpeed | 1532:00B8 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Viper V3 Pro | 1532:00C0 1532:00C1 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| Razer Viper V3 Pro SE | 1532:00DE 1532:00DF | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
 | VXE R1 | 3554:F58F | `compx` | dpi.stages, dpi.current-stage, debounce-ms | polling-rate |
 | VXE R1 NK | 373B:1065 373B:1066 373B:10C7 373B:10C8 373B:124C | `compx` | dpi.stages, dpi.current-stage, debounce-ms | polling-rate |
 | VXE R1 | 373B:1271 | `compx` | dpi.stages, dpi.current-stage, debounce-ms | polling-rate |

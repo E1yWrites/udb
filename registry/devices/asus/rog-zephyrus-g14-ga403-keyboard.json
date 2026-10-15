@@ -5,29 +5,153 @@
   "model": "ROG Zephyrus G14 (GA403) built-in keyboard",
   "category": "keyboard",
   "identities": [
-    { "vid": "0x0B05", "pid": "0x19B6", "connection": "wired", "productName": "ITE Device(8910)", "notes": "Internal laptop keyboard; the unplug test does not apply" }
+    {
+      "vid": "0x0B05",
+      "pid": "0x19B6",
+      "connection": "wired",
+      "productName": "ITE Device(8910)",
+      "notes": "Internal laptop keyboard; the unplug test does not apply"
+    }
   ],
   "protocol": {
-    "family": "asus-aura",
-    "doc": "docs/protocols/asus-aura.md",
+    "family": "lamparray",
+    "doc": "docs/protocols/lamparray.md",
     "references": [
-      { "title": "OpenRGB AsusAuraUSBController", "url": "https://github.com/CalcProgrammer1/OpenRGB", "license": "GPL-2.0-or-later", "use": "code" }
+      {
+        "title": "USB HID Usage Tables 1.4 (Lighting And Illumination page)",
+        "url": "https://usb.org/document-library/hid-usage-tables-14",
+        "license": "USB-IF specification",
+        "use": "facts-only"
+      },
+      {
+        "title": "Microsoft ArduinoHidForWindows (LampArray reference device)",
+        "url": "https://github.com/microsoft/ArduinoHidForWindows",
+        "license": "MIT",
+        "use": "facts-only"
+      },
+      {
+        "title": "OpenRGB AsusAuraUSBController (Aura, for later)",
+        "url": "https://gitlab.com/CalcProgrammer1/OpenRGB",
+        "license": "GPL-2.0-or-later",
+        "use": "facts-only"
+      }
     ]
   },
   "collections": {
-    "use": [],
+    "use": [
+      {
+        "usagePage": "0x0059",
+        "usage": "0x0001",
+        "purpose": "HID LampArray: attribute, lamp, range-update and control feature reports; IDs and layout read from the descriptor"
+      }
+    ],
     "deny": [
-      { "usagePage": "0xFF82", "usage": "0x00CF", "purpose": "ASUS Component Firmware Update. Never opened." }
+      {
+        "usagePage": "0xFF82",
+        "usage": "0x00CF",
+        "purpose": "ASUS Component Firmware Update. Never opened."
+      }
     ]
   },
   "platform": {
-    "windows": { "status": "unknown" },
-    "linux": { "status": "unknown" },
-    "macos": { "status": "unsupported", "notes": "Windows laptop" }
+    "windows": {
+      "status": "unknown"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unsupported",
+      "notes": "Windows laptop"
+    }
   },
-  "conflictingSoftware": ["Armoury Crate", "Windows Dynamic Lighting"],
-  "limitations": ["Phase 4 target. Not researched beyond descriptor metadata."],
+  "conflictingSoftware": [
+    "Armoury Crate",
+    "Windows Dynamic Lighting"
+  ],
+  "limitations": [
+    "Lighting through the standard LampArray collection (0059:0001). The Aura collections (FF31) are not researched yet; see docs/protocols/asus-aura.md.",
+    "Colours and autonomous mode cannot be read back; UDB reports them as sent.",
+    "The firmware-update collection (FF82:00CF) is denied."
+  ],
   "features": [
-    { "id": "lighting.lamparray", "kind": "color", "location": "device", "readBack": false, "status": "unsupported", "evidence": [ { "source": "HidP_GetCaps on the dev machine: LampArray 0x0059:0x0001 collection, 51-byte feature reports", "hardware": null, "date": "2026-10-15", "confidence": "medium", "notes": "LampArray colour updates are write-only by spec" } ] }
+    {
+      "id": "lighting.lamparray-info",
+      "kind": "readonly",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "HID Usage Tables 1.4, page 0x59; Microsoft ArduinoHidForWindows reference device @deb7e5e2: LampArrayAttributesReport (02) and LampAttributesResponseReport (22) via GET_FEATURE",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ],
+      "notes": "Lamp count, size, kind and per-lamp attributes"
+    },
+    {
+      "id": "lighting.color",
+      "kind": "color",
+      "location": "device",
+      "readBack": false,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "HID Usage Tables 1.4, page 0x59; Microsoft ArduinoHidForWindows reference device @deb7e5e2: LampRangeUpdateReport (60)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "No read-back exists; UDB reports colours as sent"
+        }
+      ]
+    },
+    {
+      "id": "lighting.autonomous",
+      "kind": "bool",
+      "location": "device",
+      "readBack": false,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "HID Usage Tables 1.4, page 0x59; Microsoft ArduinoHidForWindows reference device @deb7e5e2: LampArrayControlReport (70)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "The reference device does not answer GET on this report"
+        }
+      ]
+    },
+    {
+      "id": "lighting.per-key",
+      "kind": "color",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "HID Usage Tables 1.4, page 0x59; Microsoft ArduinoHidForWindows reference device @deb7e5e2: LampMultiUpdateReport (50)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "Refused until a per-key editor exists"
+        }
+      ]
+    },
+    {
+      "id": "lighting.aura",
+      "kind": "enum",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "Descriptor metadata only (HidP_GetCaps, 2026-10-15)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "Aura on FF31 is a later Phase 4 item"
+        }
+      ]
+    }
   ]
 }

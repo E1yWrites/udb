@@ -7,6 +7,7 @@ import { CompxSim } from '../../tests/compx-sim.ts';
 import { ViaSim } from '../../tests/qmk-via-sim.ts';
 import { HidppSim } from '../../tests/logitech-hidpp-sim.ts';
 import { RazerSim } from '../../tests/razer-sim.ts';
+import { LampArraySim } from '../../tests/lamparray-sim.ts';
 
 const rep = (id: number, bytes: number) => [{ reportId: id, items: [{ reportSize: 8, reportCount: bytes }] }];
 
@@ -49,11 +50,20 @@ const g933 = new HidppSim({ productId: 0x0a5b, roles: { 0xff: 'headset' } }).int
 const vibe = fake(0x05ac, 0x024f, 'Mechlands Vibe75', [
   { usagePage: 0xff13, usage: 0x0001, inputReports: rep(0, 64), outputReports: rep(0, 64), featureReports: rep(0, 64) },
 ]);
-const g14 = fake(0x0b05, 0x19b6, 'ITE Device(8910)', [
-  { usagePage: 0xff31, usage: 0x0079, inputReports: rep(0x5d, 32), outputReports: rep(0x5d, 127), featureReports: rep(0x5d, 127) },
-  { usagePage: 0xff82, usage: 0x00cf, inputReports: rep(0x5a, 16), outputReports: rep(0x5a, 60), featureReports: rep(0x5a, 60) },
-  { usagePage: 0x0059, usage: 0x0001, featureReports: rep(1, 50) },
-]);
+// The G14's LampArray answers through tests/lamparray-sim.ts (Microsoft's reference layout, not the G14's own).
+const g14Lamps = new LampArraySim(98);
+const g14 = Object.assign(g14Lamps, {
+  vendorId: 0x0b05,
+  productId: 0x19b6,
+  productName: 'ITE Device(8910)',
+  collections: [
+    { usagePage: 0xff31, usage: 0x0079, inputReports: rep(0x5d, 32), outputReports: rep(0x5d, 127), featureReports: rep(0x5d, 127) },
+    { usagePage: 0xff82, usage: 0x00cf, inputReports: rep(0x5a, 16), outputReports: rep(0x5a, 60), featureReports: rep(0x5a, 60) },
+    ...g14Lamps.collections,
+  ],
+  open: async () => {},
+  close: async () => {},
+}) as unknown as HIDDevice;
 const vxe = fake(0x25a7, 0xfa6c, 'VXE R1 SE+', [{ usagePage: 0xff00, usage: 0x0001, featureReports: rep(5, 32) }]);
 
 const SETS: Record<string, [HIDDevice | HIDDevice[], Presence][]> = {

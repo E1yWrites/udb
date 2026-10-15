@@ -200,6 +200,22 @@ checks happen in the Phase 6 compatibility pass.
   LIGHTSPEED and G522 (Logitech's "Centurion" protocol) and Astro A50 are left
   for a later pass.
 
+### HID LampArray: branch `phase-4-lamparray` (stacked on headsets)
+- [x] `docs/protocols/lamparray.md`: the standard (HUT 1.4, page `0x59`),
+  Microsoft's reference device (MIT), read-back limits, conflicts with Windows
+  Dynamic Lighting
+- [x] A descriptor-driven adapter: report IDs and field layout come from the
+  device's own report items, with bit-exact encode and decode tested on
+  Microsoft's reference descriptor
+- [x] The write procedure gains `sendSetting` for settings without
+  read-back. Colours are reported as *sent*, never confirmed (SPEC).
+- [x] A generic `lamparray/device` entry (any device exposing `0059:0001`).
+  The G14 entry moves to this family; Aura stays a later item.
+- [x] Panel: lamp count, kind, size, per-lamp summary; one colour on all lamps;
+  hand lighting back to the device
+- **Phase 6 on the G14:** read the attributes (they can become
+  `read-verified`) and record its descriptor.
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

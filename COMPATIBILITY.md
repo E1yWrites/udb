@@ -62,6 +62,11 @@ adapter, both `experimental`. Sidetone reads back, so it can be verified once
 someone with the headset tests it. Five HyperX headsets are detection only
 until a device report shows their collections (`docs/protocols/hyperx.md`).
 
+**Phase 4 update (2026-10-15):** HID LampArray is in: one descriptor-driven
+adapter for any device exposing `0059:0001` (Windows Dynamic Lighting), plus
+the G14's own entry. Lamp attributes read back; colours are sent and labelled
+as unconfirmed. See `docs/protocols/lamparray.md`.
+
 ## Keyboards
 
 | Brand | Protocol family | Reference (license) | WebHID | Read-back | Owned | Plan |
@@ -71,7 +76,7 @@ until a device report shows their collections (`docs/protocols/hyperx.md`).
 | Wooting | Wooting | Wootility (web app, proprietary), Wooting RGB SDK (MPL-2.0) | ⚠️ `FF55:0001`; framing unsettled | ❌ no documented write with read-back | – | Phase 4, #4: **detection only** |
 | Razer | Razer protocol | OpenRazer (GPL-2.0-or-later) | ✅ | ✅ | – | with Razer mice |
 | Logitech G | HID++ 2.0 | Solaar, libratbag | ✅ | ✅ | – | with Logitech mice: report rate experimental |
-| ASUS ROG (incl. laptops) | Aura / LampArray | OpenRGB, asusctl; Windows Dynamic Lighting | ✅ `FF31`, LampArray `0x59` | ⚠️ LampArray colours are write-only | **G14 built-in** | Phase 4, #6 |
+| ASUS ROG (incl. laptops) | LampArray (Aura later) | HID Usage Tables 1.4; Microsoft LampArray reference (MIT); OpenRGB for Aura | ✅ `FF31`, LampArray `0x59` | ⚠️ LampArray: attributes read back, colours write-only | **G14 built-in** | Phase 4, #6: LampArray experimental |
 | SteelSeries, Corsair, HyperX, MSI | vendor protocols | OpenRGB (lighting) | ❓ | ❓ | – | Phase 4, later |
 | Ducky | mostly no software | – | – | – | – | detect only |
 

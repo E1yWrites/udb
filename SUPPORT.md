@@ -359,11 +359,12 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 | keymap | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 | screen-image | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 
-### Not yet seen on hardware by UDB (21)
+### Not yet seen on hardware by UDB (22)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
-| ASUS ROG Zephyrus G14 (GA403) built-in keyboard | 0B05:19B6 | `asus-aura` | – | lighting.lamparray |
+| ASUS ROG Zephyrus G14 (GA403) built-in keyboard | 0B05:19B6 | `lamparray` | lighting.lamparray-info, lighting.color, lighting.autonomous | lighting.per-key, lighting.aura |
+| HID LampArray Lighting device (Windows Dynamic Lighting) | any device with 0059:0001 | `lamparray` | lighting.lamparray-info, lighting.color, lighting.autonomous | lighting.per-key |
 | Logitech G PRO Keyboard | 046D:C339 | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
 | Logitech G413 | 046D:C33A | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
 | Logitech G513 | 046D:C33C | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |

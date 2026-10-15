@@ -90,3 +90,67 @@ export async function open(device: Pick<HIDDevice, 'opened' | 'open'>): Promise<
     return { ok: false, error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) };
   }
 }
+
+export interface LogEntry {
+  at: string;
+  dir: 'tx' | 'rx';
+  reportId: number;
+  hex: string;
+}
+
+export const toHex = (b: Uint8Array) => Array.from(b, (v) => v.toString(16).padStart(2, '0')).join(' ');
+
+export class TransportTimeout extends Error {
+  constructor(report: OutgoingReport, attempts: number) {
+    super(`No reply to report 0x${report.reportId.toString(16).padStart(2, '0')} after ${attempts} attempts`);
+    this.name = 'TransportTimeout';
+  }
+}
+
+type Listening = DeviceLike & Pick<HIDDevice, 'addEventListener' | 'removeEventListener'>;
+
+export interface RequestOptions {
+  timeoutMs?: number;
+  attempts?: number;
+  log?: (entry: LogEntry) => void;
+}
+
+/**
+ * Send a guarded report and wait for the input report `isReply` accepts.
+ * Retries like the vendor driver (it tries 5 times, 200 ms each).
+ */
+export async function request(
+  device: Listening,
+  report: OutgoingReport,
+  guard: Guard,
+  isReply: (data: Uint8Array) => boolean,
+  { timeoutMs = 200, attempts = 3, log }: RequestOptions = {},
+): Promise<Uint8Array> {
+  check(device, report, guard);
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    let onReport: ((e: Event) => void) | undefined;
+    const reply = new Promise<Uint8Array | null>((resolve) => {
+      const timer = setTimeout(() => resolve(null), timeoutMs);
+      onReport = (e: Event) => {
+        const ev = e as HIDInputReportEvent;
+        const data = new Uint8Array(ev.data.buffer.slice(ev.data.byteOffset, ev.data.byteOffset + ev.data.byteLength));
+        if (ev.reportId !== report.reportId || !isReply(data)) return;
+        clearTimeout(timer);
+        resolve(data);
+      };
+      device.addEventListener('inputreport', onReport);
+    });
+    try {
+      log?.({ at: new Date().toISOString(), dir: 'tx', reportId: report.reportId, hex: toHex(report.data) });
+      await send(device, report, guard);
+      const data = await reply;
+      if (data) {
+        log?.({ at: new Date().toISOString(), dir: 'rx', reportId: report.reportId, hex: toHex(data) });
+        return data;
+      }
+    } finally {
+      device.removeEventListener('inputreport', onReport!);
+    }
+  }
+  throw new TransportTimeout(report, attempts);
+}

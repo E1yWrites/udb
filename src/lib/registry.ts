@@ -3,7 +3,7 @@
 
 export type Hex16 = `0x${string}`;
 export type Category = 'mouse' | 'keyboard' | 'headset';
-export type Connection = 'wired' | 'dongle' | 'bluetooth';
+export type Connection = 'wired' | 'dongle' | 'bluetooth' | 'unknown';
 export type FeatureStatus = 'detected' | 'read-verified' | 'write-verified' | 'experimental' | 'unsupported';
 export type Location = 'device' | 'browser' | 'companion';
 
@@ -51,7 +51,12 @@ export interface DeviceEntry {
   model: string;
   category: Category;
   identities: Identity[];
-  protocol: { family: string; doc: string; references: { title: string; url: string; license: string; use: 'code' | 'facts-only' }[] };
+  protocol: {
+    family: string;
+    doc: string;
+    references: { title: string; url: string; license: string; use: 'code' | 'facts-only' }[];
+    params?: { identify?: 'encryption' | 'cidmid' };
+  };
   collections: { use: Collection[]; deny: Collection[] };
   platform: Record<'windows' | 'linux' | 'macos', { status: string; notes?: string }>;
   conflictingSoftware?: string[];

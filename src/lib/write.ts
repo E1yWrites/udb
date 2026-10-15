@@ -6,6 +6,8 @@ export interface Setting<T> {
   write(value: T): Promise<void>;
   /** Reads the value from the device. Null if the device returned something undecodable. */
   read(): Promise<T | null>;
+  /** Value equality for non-primitive settings (e.g. a DPI stage's X and Y). Defaults to ===. */
+  equals?(a: T, b: T): boolean;
 }
 
 export type WriteResult<T> =
@@ -25,6 +27,7 @@ async function tryRead<T>(s: Setting<T>): Promise<T | null> {
 }
 
 export async function applySetting<T>(s: Setting<T>, requested: T, previous: T): Promise<WriteResult<T>> {
+  const same = (a: T | null, b: T) => a !== null && (s.equals ? s.equals(a, b) : a === b);
   const reason = s.validate(requested);
   if (reason) return { kind: 'invalid', reason };
   try {
@@ -38,7 +41,7 @@ export async function applySetting<T>(s: Setting<T>, requested: T, previous: T):
   } catch (e) {
     return { kind: 'failed', error: `Read-back failed: ${message(e)}`, actual: null };
   }
-  if (actual !== null && actual === requested) return { kind: 'confirmed', value: actual };
+  if (same(actual, requested)) return { kind: 'confirmed', value: actual! };
 
   // Mismatch: put the previous value back and report what the device says now.
   let restored: T | null = null;
@@ -48,5 +51,5 @@ export async function applySetting<T>(s: Setting<T>, requested: T, previous: T):
   } catch {
     restored = await tryRead(s);
   }
-  return { kind: 'mismatch', requested, actual, restored, restoreConfirmed: restored === previous };
+  return { kind: 'mismatch', requested, actual, restored, restoreConfirmed: same(restored, previous) };
 }

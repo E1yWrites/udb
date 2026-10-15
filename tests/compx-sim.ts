@@ -2,6 +2,7 @@
 // (docs/protocols/compx.md). A simulator result is never hardware evidence.
 
 import { checksum, CMD, REPORT_ID } from '../src/adapters/compx.ts';
+import { DPI_SENSORS, packDpiStage } from '../src/adapters/compx-dpi.ts';
 
 export interface SimOptions {
   type?: number;
@@ -25,6 +26,7 @@ export class CompxSim {
     this.opts = opts;
     this.flash.set([1, 0x54, 6, 0x4f, 1, 0x54]); // 1000 Hz, 6 stages, stage index 1
     this.flash.set([2, 0x53], 0xa9); // debounce 2 ms
+    [400, 800, 1600, 3200, 6400, 12800].forEach((dpi, i) => this.flash.set(packDpiStage(DPI_SENSORS['pulsar x1']!, dpi, dpi)!, 0x0c + 4 * i));
   }
 
   addEventListener(_type: string, l: (e: Event) => void) {

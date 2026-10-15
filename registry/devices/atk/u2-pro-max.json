@@ -1,0 +1,153 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "atk/u2-pro-max",
+  "vendor": "ATK",
+  "model": "U2 Pro Max",
+  "category": "mouse",
+  "identities": [
+    {
+      "vid": "0x373B",
+      "pid": "0x1158",
+      "connection": "unknown",
+      "protocolIdentity": {
+        "cid": 2,
+        "mid": 100
+      }
+    }
+  ],
+  "protocol": {
+    "family": "compx",
+    "doc": "docs/protocols/compx.md",
+    "references": [
+      {
+        "title": "OpenMouse mouse-protocol (ATK driver and catalog)",
+        "url": "https://github.com/OpenMouse-Project/mouse-protocol",
+        "license": "AGPL-3.0-or-later",
+        "use": "code"
+      },
+      {
+        "title": "ATK HUB 3.2.27 (web)",
+        "url": "https://hub.atk.pro/",
+        "license": "proprietary",
+        "use": "facts-only"
+      }
+    ],
+    "params": {
+      "identify": "cidmid"
+    }
+  },
+  "collections": {
+    "use": [
+      {
+        "usagePage": "0xFF02",
+        "usage": "0x0002",
+        "reportIds": [
+          8
+        ],
+        "purpose": "Command channel per OpenMouse (16-byte report 0x08); the vendor hub lists 0xFF04 on the same device"
+      }
+    ],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "unknown"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "ATK HUB (open in another tab)"
+  ],
+  "limitations": [
+    "Generated from OpenMouse’s copy of the ATK HUB catalog. Nothing here has been verified on hardware by UDB.",
+    "Same platform and framing as the Pulsar X2 CrazyLight, which UDB has verified; register layout per OpenMouse’s ATK captures."
+  ],
+  "features": [
+    {
+      "id": "polling-rate",
+      "kind": "enum",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "constraints": {
+        "values": [
+          125,
+          250,
+          500,
+          1000,
+          2000,
+          4000,
+          8000
+        ]
+      },
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @c3b1bc20: ATK HUB 3.2.27 catalog (third_party/openmouse/atk-device-catalog.ts) and its ATK driver",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "dpi.stages",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "constraints": {
+        "sensor": "PAW3395Ultra",
+        "family": "step50",
+        "minDpi": 100,
+        "maxDpi": 30000
+      },
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @c3b1bc20: ATK HUB 3.2.27 catalog (third_party/openmouse/atk-device-catalog.ts) and its ATK driver",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "dpi.current-stage",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @c3b1bc20: ATK HUB 3.2.27 catalog (third_party/openmouse/atk-device-catalog.ts) and its ATK driver",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "debounce-ms",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "constraints": {
+        "min": 0,
+        "max": 20
+      },
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @c3b1bc20: ATK HUB 3.2.27 catalog (third_party/openmouse/atk-device-catalog.ts) and its ATK driver",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    }
+  ]
+}

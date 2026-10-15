@@ -109,6 +109,21 @@ Exit criteria for each PR:
 - `write-verified` only where owned hardware produced the evidence; everything
   else `experimental`
 
+**Hardware testing is deferred to Phase 6** (owner decision, 2026-10-15). The
+owner has little hardware available, so Phase 4 families land as
+`experimental`, tested against fixtures and simulators only. Owned-device
+checks happen in the Phase 6 compatibility pass.
+
+### `compx` family (Pulsar, ATK, VXE): branch `phase-4-more-families`
+- [x] `docs/protocols/compx.md`: family members, DPI row encodings, sources
+  (OpenMouse under AGPL-3.0-or-later, ADR 8)
+- [x] DPI encode/decode tests on OpenMouse's ATK X1 Pro Max capture
+  (`tests/fixtures/openmouse-atk-x1-pro-max.json`)
+- [x] 169 ATK/VXE entries generated from the ATK HUB catalog
+  (`npm run import:atk`), all `experimental` or `unsupported`
+- [x] Shared receivers resolve to a model by CID/MID; the panel edits DPI
+  stages through the write procedure
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with
@@ -124,5 +139,6 @@ Exit criteria for each PR:
 ## Phase 6: Security review, compatibility testing, releases
 
 - Review against `THREAT_MODEL.md`.
-- A compatibility test pass on every owned device.
+- A compatibility test pass on every owned device, including the Phase 4
+  families' features (deferred there from Phase 4).
 - Tagged releases with a changelog; a self-host guide.

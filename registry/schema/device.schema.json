@@ -4,25 +4,70 @@
   "title": "UDB device registry entry",
   "type": "object",
   "additionalProperties": false,
-  "required": ["id", "vendor", "model", "category", "identities", "protocol", "collections", "platform", "limitations", "features"],
+  "required": [
+    "id",
+    "vendor",
+    "model",
+    "category",
+    "identities",
+    "protocol",
+    "collections",
+    "platform",
+    "limitations",
+    "features"
+  ],
   "properties": {
-    "$schema": { "type": "string" },
-    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*$" },
-    "vendor": { "type": "string", "minLength": 1 },
-    "model": { "type": "string", "minLength": 1 },
-    "category": { "enum": ["mouse", "keyboard", "headset"] },
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*/[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "vendor": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model": {
+      "type": "string",
+      "minLength": 1
+    },
+    "category": {
+      "enum": [
+        "mouse",
+        "keyboard",
+        "headset"
+      ]
+    },
     "identities": {
       "type": "array",
       "minItems": 1,
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["vid", "pid", "connection"],
+        "required": [
+          "vid",
+          "pid",
+          "connection"
+        ],
         "properties": {
-          "vid": { "$ref": "#/$defs/hex16" },
-          "pid": { "$ref": "#/$defs/hex16" },
-          "connection": { "enum": ["wired", "dongle", "bluetooth"] },
-          "productName": { "type": "string" },
+          "vid": {
+            "$ref": "#/$defs/hex16"
+          },
+          "pid": {
+            "$ref": "#/$defs/hex16"
+          },
+          "connection": {
+            "enum": [
+              "wired",
+              "dongle",
+              "bluetooth",
+              "unknown"
+            ]
+          },
+          "productName": {
+            "type": "string"
+          },
           "requireProductName": {
             "description": "Match only when the HID product name equals productName. Needed when the VID/PID is borrowed (e.g. Apple's 05AC:024F).",
             "type": "boolean"
@@ -32,38 +77,95 @@
             "type": "array",
             "items": {
               "allOf": [
-                { "$ref": "#/$defs/evidence" },
-                { "type": "object", "properties": { "hardware": { "type": "string", "minLength": 1 } } }
+                {
+                  "$ref": "#/$defs/evidence"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "hardware": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
               ]
             }
           },
           "protocolIdentity": {
             "description": "In-protocol identity of the device behind a receiver, e.g. compx CID/MID. Null values mean not yet read from hardware.",
             "type": "object",
-            "additionalProperties": { "type": ["integer", "null"] }
+            "additionalProperties": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
           },
-          "notes": { "type": "string" }
+          "notes": {
+            "type": "string"
+          }
         }
       }
     },
     "protocol": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["family", "doc", "references"],
+      "required": [
+        "family",
+        "doc",
+        "references"
+      ],
       "properties": {
-        "family": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
-        "doc": { "type": "string", "pattern": "^docs/protocols/[a-z0-9-]+\\.md$" },
+        "family": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        },
+        "doc": {
+          "type": "string",
+          "pattern": "^docs/protocols/[a-z0-9-]+\\.md$"
+        },
         "references": {
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["title", "url", "license", "use"],
+            "required": [
+              "title",
+              "url",
+              "license",
+              "use"
+            ],
             "properties": {
-              "title": { "type": "string" },
-              "url": { "type": "string", "format": "uri" },
-              "license": { "type": "string" },
-              "use": { "enum": ["code", "facts-only"] }
+              "title": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              },
+              "license": {
+                "type": "string"
+              },
+              "use": {
+                "enum": [
+                  "code",
+                  "facts-only"
+                ]
+              }
+            }
+          }
+        },
+        "params": {
+          "description": "Family-specific parameters, e.g. which identity handshake the model's vendor software uses.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "identify": {
+              "enum": [
+                "encryption",
+                "cidmid"
+              ]
             }
           }
         }
@@ -72,101 +174,284 @@
     "collections": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["use", "deny"],
+      "required": [
+        "use",
+        "deny"
+      ],
       "properties": {
-        "use": { "type": "array", "items": { "$ref": "#/$defs/collection" } },
+        "use": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/collection"
+          }
+        },
         "deny": {
           "description": "Collections UDB must never open, enforced by the transport.",
           "type": "array",
-          "items": { "$ref": "#/$defs/collection" }
+          "items": {
+            "$ref": "#/$defs/collection"
+          }
         }
       }
     },
     "platform": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["windows", "linux", "macos"],
+      "required": [
+        "windows",
+        "linux",
+        "macos"
+      ],
       "properties": {
-        "windows": { "$ref": "#/$defs/platformStatus" },
-        "linux": { "$ref": "#/$defs/platformStatus" },
-        "macos": { "$ref": "#/$defs/platformStatus" }
+        "windows": {
+          "$ref": "#/$defs/platformStatus"
+        },
+        "linux": {
+          "$ref": "#/$defs/platformStatus"
+        },
+        "macos": {
+          "$ref": "#/$defs/platformStatus"
+        }
       }
     },
-    "conflictingSoftware": { "type": "array", "items": { "type": "string" } },
-    "limitations": { "type": "array", "items": { "type": "string" } },
-    "features": { "type": "array", "items": { "$ref": "#/$defs/feature" } }
+    "conflictingSoftware": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/feature"
+      }
+    }
   },
   "$defs": {
-    "hex16": { "type": "string", "pattern": "^0x[0-9A-F]{4}$" },
+    "hex16": {
+      "type": "string",
+      "pattern": "^0x[0-9A-F]{4}$"
+    },
     "collection": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["usagePage", "usage", "purpose"],
+      "required": [
+        "usagePage",
+        "usage",
+        "purpose"
+      ],
       "properties": {
-        "interface": { "type": "integer", "minimum": 0 },
-        "usagePage": { "$ref": "#/$defs/hex16" },
-        "usage": { "$ref": "#/$defs/hex16" },
-        "reportIds": { "type": "array", "items": { "type": "integer", "minimum": 0, "maximum": 255 } },
-        "purpose": { "type": "string" }
+        "interface": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "usagePage": {
+          "$ref": "#/$defs/hex16"
+        },
+        "usage": {
+          "$ref": "#/$defs/hex16"
+        },
+        "reportIds": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+          }
+        },
+        "purpose": {
+          "type": "string"
+        }
       }
     },
     "platformStatus": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status"],
+      "required": [
+        "status"
+      ],
       "properties": {
-        "status": { "enum": ["tested", "documented", "unsupported", "unknown"] },
-        "notes": { "type": "string" }
+        "status": {
+          "enum": [
+            "tested",
+            "documented",
+            "unsupported",
+            "unknown"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     },
     "evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["source", "hardware", "date", "confidence"],
+      "required": [
+        "source",
+        "hardware",
+        "date",
+        "confidence"
+      ],
       "properties": {
-        "source": { "type": "string", "minLength": 1 },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
         "hardware": {
           "description": "Model and firmware the result was observed on. Null for static analysis, documentation, simulator or replay evidence.",
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
-        "date": { "type": "string", "format": "date" },
-        "confidence": { "enum": ["low", "medium", "high"] },
-        "notes": { "type": "string" }
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     },
     "feature": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "kind", "location", "status", "evidence"],
+      "required": [
+        "id",
+        "kind",
+        "location",
+        "status",
+        "evidence"
+      ],
       "properties": {
-        "id": { "type": "string", "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$" },
-        "kind": { "enum": ["range", "enum", "bool", "color", "keymap", "macro", "profile", "readonly"] },
-        "location": { "enum": ["device", "browser", "companion"] },
-        "constraints": { "type": "object" },
-        "readBack": { "type": "boolean" },
-        "status": { "enum": ["detected", "read-verified", "write-verified", "experimental", "unsupported"] },
-        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } },
-        "notes": { "type": "string" }
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+([.-][a-z0-9]+)*$"
+        },
+        "kind": {
+          "enum": [
+            "range",
+            "enum",
+            "bool",
+            "color",
+            "keymap",
+            "macro",
+            "profile",
+            "readonly"
+          ]
+        },
+        "location": {
+          "enum": [
+            "device",
+            "browser",
+            "companion"
+          ]
+        },
+        "constraints": {
+          "type": "object"
+        },
+        "readBack": {
+          "type": "boolean"
+        },
+        "status": {
+          "enum": [
+            "detected",
+            "read-verified",
+            "write-verified",
+            "experimental",
+            "unsupported"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
       },
       "allOf": [
         {
-          "if": { "properties": { "status": { "enum": ["read-verified", "write-verified"] } } },
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "read-verified",
+                  "write-verified"
+                ]
+              }
+            }
+          },
           "then": {
             "properties": {
               "evidence": {
                 "type": "array",
-                "contains": { "type": "object", "properties": { "hardware": { "type": "string" } }, "required": ["hardware"] }
+                "contains": {
+                  "type": "object",
+                  "properties": {
+                    "hardware": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "hardware"
+                  ]
+                }
               }
             }
           }
         },
         {
-          "if": { "properties": { "status": { "const": "write-verified" } } },
-          "then": { "properties": { "readBack": { "const": true } }, "required": ["readBack"] }
+          "if": {
+            "properties": {
+              "status": {
+                "const": "write-verified"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "readBack": {
+                "const": true
+              }
+            },
+            "required": [
+              "readBack"
+            ]
+          }
         },
         {
-          "if": { "properties": { "location": { "const": "companion" } } },
-          "then": { "properties": { "status": { "const": "unsupported" } } }
+          "if": {
+            "properties": {
+              "location": {
+                "const": "companion"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "const": "unsupported"
+              }
+            }
+          }
         }
       ]
     }

@@ -37,6 +37,6 @@ export const LOCATION: Record<Location, string> = {
   companion: 'Companion',
 };
 
-export const CONNECTION_ICON = { wired: 'wired', dongle: 'dongle', bluetooth: 'bluetooth' } as const satisfies Record<string, IconName>;
+export const CONNECTION_ICON = { wired: 'wired', dongle: 'dongle', bluetooth: 'bluetooth', unknown: 'dongle' } as const satisfies Record<string, IconName>;
 
 export const hex4 = (n: number) => n.toString(16).toUpperCase().padStart(4, '0');

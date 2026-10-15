@@ -4,6 +4,45 @@ Status: **research only.** Everything below comes from static reading of
 Pulsar's shipped web driver. Nothing has been sent to a device. No feature is
 `read-verified` or `write-verified` yet.
 
+## Family members
+
+The same platform (CX52650-class receivers, 16-byte frames on report `0x08`,
+everything summing to `0x55`) is used by:
+
+| Brand | Evidence | UDB status |
+|---|---|---|
+| **Pulsar** (Bibimbap /cMouse) | the vendor web driver; **owner hardware** | write-verified on the X2 CrazyLight Mini |
+| **ATK** (A9 family and siblings) | OpenMouse mouse-protocol's ATK driver and captures (ATK X1 Pro Max, A9 Plus NK); the ATK HUB catalog | experimental (140 models generated) |
+| **VXE** | the same catalog; OpenMouse notes VXE R1 receivers keep polling in a live-settings row (`0x0070`) | experimental (29 models); R1 polling unsupported |
+| Endgame Gear WE | OpenMouse describes ATK as sharing "the Endgame Gear WE framing" | not added |
+
+OpenMouse's ATK capture uses the same register map as Pulsar: polling at
+`0x00`, stage count at `0x02`, active stage at `0x04`, DPI rows at
+`0x0C + 4n`, debounce at `0xA9`. Battery reply bytes 7–8 are millivolts
+(`0x0E46` = 3654 mV on the ATK; `0x1022` = 4130 mV on the CrazyLight).
+Identity: Pulsar's app uses `EncryptionData` (reply bytes 9–11); ATK HUB uses
+`0x10` ReadCIDMID (reply bytes 5–6 = CID, MID).
+
+## DPI stage rows
+
+Each stage is `[x, y, nibbles, checksum]` at `0x0C + 4n`, with the checksum
+making the row sum to `0x55`. The value encoding depends on the sensor
+(`src/adapters/compx-dpi.ts`, ported from OpenMouse under AGPL-3.0-or-later,
+ADR 8):
+
+- **ultra:** `dpi/10 − 1` up to 10,000; `(dpi − 10050)/50` with nibble bit 1
+  up to 30,000; halved with bit 0 above. Pulsar's `sensor.json` for
+  "pulsar x1" (10–10,000/10, 10,050–30,000/50 with DPIex `0x22`,
+  30,100–32,000/100 with `0x33`) is exactly this.
+- **step50:** `dpi/50 − 1` (PAW3950, PAW3395, CORE26K). The OpenMouse ATK X1
+  Pro Max capture decodes as 800 and 1200 and writes 1250 as
+  `18 18 00 25`.
+- **stepped** (PAW3315/3311/3320) and **paw3395se** (code table).
+- PAW3955 six-byte rows are not implemented.
+
+The allowlist accepts a DPI row only when the model's sensor is known and the
+row is the canonical encoding of a value that sensor accepts.
+
 ## Sources
 
 | Source | What it gave | Identity |

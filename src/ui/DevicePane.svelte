@@ -54,7 +54,11 @@
       <Icon name="unplug" size={20} />
       <div>
         <h2>Disconnected</h2>
-        <p>Plug it back in or wake it. UDB picks it up again on its own.</p>
+        <p>
+          Plug it back in or wake it. Devices with a USB serial number come back on their own. Devices without one
+          (like the Vibe75) lose the browser’s permission when unplugged, so you have to pick them again.
+        </p>
+        <button class="btn" onclick={() => devices.request('supported')}>Pick it again</button>
       </div>
     </div>
   {:else if device.presence === 'busy'}

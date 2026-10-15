@@ -48,6 +48,10 @@ Confirmed constraints:
   the receiver; the device behind it is identified by a protocol query (for
   example, `compx` CID/MID).
 - Vendor software that is running can hold an interface or fight over it.
+- Chromium persists a HID permission only for devices with a USB serial
+  number and product name (`HidChooserContext::CanStorePersistentEntry`).
+  Without a serial (e.g. the Vibe75), the grant is keyed to the connection
+  and must be given again after every replug.
 
 ## Architecture
 

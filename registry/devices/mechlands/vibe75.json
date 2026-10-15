@@ -80,7 +80,8 @@
   "limitations": [
     "Command bytes recovered from the vendor driver statically; the driver itself never reads settings back.",
     "Lighting read (04 12, then poll GET_FEATURE) works on the Vibe75; field meanings follow the XVX G75 layout.",
-    "The vendor driver ships a FirmwareUpdateTool. UDB never uses it."
+    "The vendor driver ships a FirmwareUpdateTool. UDB never uses it.",
+    "No USB serial number: the browser grants access only until the keyboard is unplugged; it must be picked again after replugging (Chromium HidChooserContext ephemeral permissions)."
   ],
   "features": [
     {

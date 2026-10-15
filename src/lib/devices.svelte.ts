@@ -32,9 +32,14 @@ function usesCollection(match: Match | null, hid: HIDDevice): boolean {
   return hid.collections.some((c) => use.some((u) => parseInt(u.usagePage, 16) === c.usagePage && parseInt(u.usage, 16) === c.usage));
 }
 
-class Devices {
-  readonly hid: HID | undefined = typeof navigator === 'undefined' ? undefined : navigator.hid;
+export class Devices {
+  readonly hid: HID | undefined;
   readonly secure = typeof isSecureContext === 'undefined' ? false : isSecureContext;
+
+  constructor(hid: HID | undefined = typeof navigator === 'undefined' ? undefined : navigator.hid) {
+    this.hid = hid;
+  }
+
   list = $state<UdbDevice[]>([]);
   outcome = $state<RequestOutcome>({ kind: 'idle' });
   /** Last connection change, for the polite live region. */

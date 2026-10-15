@@ -4,6 +4,14 @@
 interface HIDReportItem {
   reportSize?: number;
   reportCount?: number;
+  /** Extended usages ((page << 16) | id), one per field; the last repeats when there are fewer than reportCount. */
+  usages?: number[];
+  isRange?: boolean;
+  usageMinimum?: number;
+  usageMaximum?: number;
+  isConstant?: boolean;
+  logicalMinimum?: number;
+  logicalMaximum?: number;
 }
 
 interface HIDReportInfo {

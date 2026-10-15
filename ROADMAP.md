@@ -140,6 +140,25 @@ checks happen in the Phase 6 compatibility pass.
 - Keymap and macro editing need the board's VIA definition (matrix size,
   layout). They move to Phase 5, loaded from a file the user picks.
 
+### Logitech HID++ 2.0: branch `phase-4-logitech-hidpp` (stacked on QMK/VIA)
+- [x] `docs/protocols/logitech-hidpp.md`: transport over split collections,
+  device-index probing, the features and functions UDB uses, persistence,
+  refusals. Sources: OpenMouse (AGPL-3.0-or-later, code ported per ADR 8),
+  libratbag (MIT, device data), Solaar (GPL-2.0-or-later, facts).
+- [x] Decoders tested against OpenMouse's recorded hardware observations
+  (`tests/fixtures/openmouse-logitech-observations.json`). The session is
+  tested against a simulator: receivers with several slots, split interfaces,
+  legacy and extended features, refused and ignored writes.
+- [x] 62 registry entries (`npm run import:logitech`): 61 models with wired,
+  wireless and Bluetooth PIDs, plus `logitech/hidpp-device`, a `byCollection`
+  identity limited to VID `046D`. The model behind a receiver resolves from
+  the wireless PID the device reports.
+- [x] Panel: device, link, HID++ version, battery, onboard mode; DPI and
+  report rate through the write procedure. It never switches the onboard
+  mode.
+- Onboard-profile writes and button remapping move to Phase 5. Both need
+  hardware evidence first.
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

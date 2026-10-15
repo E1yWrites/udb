@@ -5,6 +5,7 @@ import { matchDevice } from '../lib/match.ts';
 import { registry } from '../lib/registry.ts';
 import { CompxSim } from '../../tests/compx-sim.ts';
 import { ViaSim } from '../../tests/qmk-via-sim.ts';
+import { HidppSim } from '../../tests/logitech-hidpp-sim.ts';
 
 const rep = (id: number, bytes: number) => [{ reportId: id, items: [{ reportSize: 8, reportCount: bytes }] }];
 
@@ -28,6 +29,10 @@ const keychron = Object.assign(new ViaSim({ channels: { rgbMatrix: { max: 200 } 
   open: async () => {},
   close: async () => {},
 }) as unknown as HIDDevice;
+// A Lightspeed receiver with a G502 LIGHTSPEED on slot 1, one HIDDevice per collection as on Windows.
+const lightspeed = new HidppSim({ productId: 0xc539, roles: { 1: 'mouse' }, split: true, wirelessPid: 0x407f, usbPid: 0xc08d }).interfaces.map(
+  (i) => Object.assign(i, { vendorId: 0x046d, productId: 0xc539, productName: 'USB Receiver' }) as unknown as HIDDevice,
+);
 const vibe = fake(0x05ac, 0x024f, 'Mechlands Vibe75', [
   { usagePage: 0xff13, usage: 0x0001, inputReports: rep(0, 64), outputReports: rep(0, 64), featureReports: rep(0, 64) },
 ]);
@@ -38,21 +43,23 @@ const g14 = fake(0x0b05, 0x19b6, 'ITE Device(8910)', [
 ]);
 const vxe = fake(0x25a7, 0xfa6c, 'VXE R1 SE+', [{ usagePage: 0xff00, usage: 0x0001, featureReports: rep(5, 32) }]);
 
-const SETS: Record<string, [HIDDevice, Presence][]> = {
-  preview: [[pulsar, 'connected'], [vibe, 'connected'], [keychron, 'connected'], [g14, 'connected'], [vxe, 'connected']],
+const SETS: Record<string, [HIDDevice | HIDDevice[], Presence][]> = {
+  preview: [[pulsar, 'connected'], [lightspeed, 'connected'], [vibe, 'connected'], [keychron, 'connected'], [g14, 'connected'], [vxe, 'connected']],
   busy: [[vibe, 'busy'], [pulsar, 'disconnected']],
 };
 
 export function load(search: string): void {
   const name = new URLSearchParams(search).get('preview') || 'preview';
   if (name === 'cancelled') devices.outcome = { kind: 'cancelled' };
-  for (const [hid, presence] of SETS[name] ?? []) {
+  for (const [set, presence] of SETS[name] ?? []) {
+    const hids = [set].flat();
+    const hid = hids[0]!;
     devices.list.push({
       key: keyOf(hid),
       vendorId: hid.vendorId,
       productId: hid.productId,
       productName: hid.productName,
-      interfaces: presence === 'disconnected' ? [] : [hid],
+      interfaces: presence === 'disconnected' ? [] : hids,
       match: matchDevice(hid, registry),
       presence,
       reconnects: 0,

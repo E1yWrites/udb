@@ -16,10 +16,11 @@ export interface Evidence {
 }
 
 export interface Identity {
-  /** Absent only on a `byCollection` identity. */
+  /** Absent on a `byCollection` identity, unless it is limited to one vendor. */
   vid?: Hex16;
+  /** Absent only on a `byCollection` identity. */
   pid?: Hex16;
-  /** Matches any VID/PID exposing one of the entry's collections (vendor-neutral families like QMK/VIA). */
+  /** Matches any device exposing one of the entry's collections: any VID (QMK/VIA) or any PID of `vid` (Logitech HID++). */
   byCollection?: true;
   connection: Connection;
   productName?: string;

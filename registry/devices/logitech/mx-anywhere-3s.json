@@ -1,0 +1,195 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "logitech/mx-anywhere-3s",
+  "vendor": "Logitech",
+  "model": "MX Anywhere 3S",
+  "category": "mouse",
+  "identities": [
+    {
+      "vid": "0x046D",
+      "pid": "0xB037",
+      "connection": "bluetooth"
+    }
+  ],
+  "protocol": {
+    "family": "logitech-hidpp",
+    "doc": "docs/protocols/logitech-hidpp.md",
+    "references": [
+      {
+        "title": "OpenMouse mouse-protocol (Logitech HID++ driver)",
+        "url": "https://github.com/OpenMouse-Project/mouse-protocol",
+        "license": "AGPL-3.0-or-later",
+        "use": "code"
+      },
+      {
+        "title": "libratbag device data",
+        "url": "https://github.com/libratbag/libratbag/tree/master/data/devices",
+        "license": "MIT",
+        "use": "code"
+      },
+      {
+        "title": "Solaar settings templates",
+        "url": "https://github.com/pwr-Solaar/Solaar",
+        "license": "GPL-2.0-or-later",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [
+      {
+        "usagePage": "0xFF00",
+        "usage": "0x0001",
+        "reportIds": [
+          16
+        ],
+        "purpose": "HID++ short reports (7 bytes); receivers and wired devices"
+      },
+      {
+        "usagePage": "0xFF00",
+        "usage": "0x0002",
+        "reportIds": [
+          17
+        ],
+        "purpose": "HID++ long reports (20 bytes); the only ones Bolt devices answer on"
+      },
+      {
+        "usagePage": "0xFF43",
+        "usage": "0x0202",
+        "reportIds": [
+          17
+        ],
+        "purpose": "HID++ long reports over Bluetooth and on some newer USB mice"
+      }
+    ],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Target platform; not yet tested"
+    },
+    "linux": {
+      "status": "documented",
+      "notes": "Needs a udev rule for hidraw. hid-logitech-dj exposes a receiver’s mouse under its wireless PID."
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "Logitech G HUB",
+    "Logi Options+",
+    "Solaar"
+  ],
+  "limitations": [
+    "Generated from libratbag data/devices @8235b5bb (third_party/libratbag), logitech-MX-Anywhere-3S.device.",
+    "Nothing here has been verified on hardware by UDB.",
+    "Which settings appear depends on the HID++ features the device reports when UDB reads it.",
+    "UDB never switches the onboard-profile mode. In host mode, live DPI and report-rate changes are lost at power-off; in onboard mode some mice refuse them.",
+    "Onboard profiles, button mapping and lighting are not implemented. DFU, reset and host-change features are refused."
+  ],
+  "features": [
+    {
+      "id": "dpi",
+      "kind": "range",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5 (src/logitech/index.ts, src/drivers/logitech/hidpp.ts): 0x2202 functions 5/6, 0x2201 functions 2/3",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true,
+      "notes": "Sensor 0, X = Y, values the sensor advertises (0x2202 preferred over 0x2201)"
+    },
+    {
+      "id": "polling-rate",
+      "kind": "enum",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5 (src/logitech/index.ts, src/drivers/logitech/hidpp.ts): 0x8061 functions 1-3, 0x8060 functions 0-2",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true,
+      "constraints": {
+        "values": [
+          125,
+          250,
+          500,
+          1000,
+          2000,
+          4000,
+          8000
+        ]
+      },
+      "notes": "Rates the link advertises"
+    },
+    {
+      "id": "battery",
+      "kind": "readonly",
+      "location": "device",
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5 (src/logitech/index.ts, src/drivers/logitech/hidpp.ts): 0x1004, 0x1000, 0x1001",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "readBack": true
+    },
+    {
+      "id": "onboard-profiles",
+      "kind": "profile",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5 (src/logitech/index.ts, src/drivers/logitech/hidpp.ts): 0x8100",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ],
+      "notes": "Mode is shown read-only; profile writes are Phase 5"
+    },
+    {
+      "id": "buttons",
+      "kind": "keymap",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5 (src/logitech/index.ts, src/drivers/logitech/hidpp.ts): 0x1B04",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "lighting",
+      "kind": "color",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5 (src/logitech/index.ts, src/drivers/logitech/hidpp.ts): 0x8070, 0x8071, 0x8081",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    }
+  ]
+}

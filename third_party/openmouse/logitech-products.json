@@ -1,0 +1,129 @@
+{
+ "source": "OpenMouse mouse-protocol src/logitech/index.ts LOGITECH_PRODUCTS (Logitech mice whose USB interface is the mouse itself), https://github.com/OpenMouse-Project/mouse-protocol commit e53af6d57197074bb8afd31f0fc1522ece68c890. AGPL-3.0-or-later (ADR 8).",
+ "products": [
+  {
+   "pid": "0xC084",
+   "name": "G203 PRODIGY"
+  },
+  {
+   "pid": "0xC089",
+   "name": "G102 LIGHTSYNC"
+  },
+  {
+   "pid": "0xC092",
+   "name": "G203 LIGHTSYNC"
+  },
+  {
+   "pid": "0xC07D",
+   "name": "G502 (all variants)"
+  },
+  {
+   "pid": "0xC07E",
+   "name": "G402 Hyperion Fury"
+  },
+  {
+   "pid": "0xC07F",
+   "name": "G302 Daedalus Prime"
+  },
+  {
+   "pid": "0xC080",
+   "name": "G303 Daedalus Apex"
+  },
+  {
+   "pid": "0xC097",
+   "name": "G303 Shroud Edition"
+  },
+  {
+   "pid": "0xC332",
+   "name": "G502 Proteus Spectrum"
+  },
+  {
+   "pid": "0xC081",
+   "name": "G900 Chaos Spectrum"
+  },
+  {
+   "pid": "0xC082",
+   "name": "G403 Wireless"
+  },
+  {
+   "pid": "0xC083",
+   "name": "G403"
+  },
+  {
+   "pid": "0xC085",
+   "name": "G Pro (2017)"
+  },
+  {
+   "pid": "0xC086",
+   "name": "G903 Lightspeed"
+  },
+  {
+   "pid": "0xC087",
+   "name": "G703 (wired)"
+  },
+  {
+   "pid": "0xC088",
+   "name": "G Pro Wireless"
+  },
+  {
+   "pid": "0xC08B",
+   "name": "G502 HERO"
+  },
+  {
+   "pid": "0xC08C",
+   "name": "G Pro Hero"
+  },
+  {
+   "pid": "0xC08D",
+   "name": "G502 Lightspeed"
+  },
+  {
+   "pid": "0xC08E",
+   "name": "MX518 (Legendary)"
+  },
+  {
+   "pid": "0xC08F",
+   "name": "G403 HERO"
+  },
+  {
+   "pid": "0xC090",
+   "name": "G703 HERO"
+  },
+  {
+   "pid": "0xC091",
+   "name": "G903 HERO"
+  },
+  {
+   "pid": "0xC096",
+   "name": "G705"
+  },
+  {
+   "pid": "0xC094",
+   "name": "G Pro X Superlight"
+  },
+  {
+   "pid": "0xC09B",
+   "name": "PRO X SUPERLIGHT 2"
+  },
+  {
+   "pid": "0xC0A0",
+   "name": "PRO X SUPERLIGHT 2 DEX"
+  },
+  {
+   "pid": "0xC09A",
+   "name": "G PRO 2 LIGHTSPEED"
+  },
+  {
+   "pid": "0xC095",
+   "name": "G502 X PLUS"
+  },
+  {
+   "pid": "0xC098",
+   "name": "G502 X LIGHTSPEED"
+  },
+  {
+   "pid": "0xC099",
+   "name": "G502 X"
+  }
+ ]
+}

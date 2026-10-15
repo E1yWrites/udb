@@ -37,7 +37,8 @@ export function candidates(dev: HidInfo, entries: DeviceEntry[]): { entry: Devic
   const hits = (keep: (id: Identity, entry: DeviceEntry) => boolean) =>
     entries.flatMap((entry) => entry.identities.filter((id) => keep(id, entry)).map((identity) => ({ entry, identity })));
   const specific = hits((id) => identityMatches(id, dev));
-  return specific.length ? specific : hits((id, entry) => !!id.byCollection && exposes(entry, dev));
+  if (specific.length) return specific;
+  return hits((id, entry) => !!id.byCollection && (!id.vid || hex(id.vid) === dev.vendorId) && exposes(entry, dev));
 }
 
 /** Narrows candidates by the CID/MID the device reported. Null when nothing matches. */
@@ -69,7 +70,7 @@ export function chooserFilters(entries: DeviceEntry[]): HIDDeviceFilter[] {
     for (const id of entry.identities) {
       for (const c of entry.collections.use) {
         const usage = { usagePage: hex(c.usagePage), usage: hex(c.usage) };
-        const f = id.vid && id.pid ? { vendorId: hex(id.vid), productId: hex(id.pid), ...usage } : usage;
+        const f = { ...(id.vid ? { vendorId: hex(id.vid) } : {}), ...(id.pid ? { productId: hex(id.pid) } : {}), ...usage };
         const key = JSON.stringify(f);
         if (seen.has(key)) continue;
         seen.add(key);

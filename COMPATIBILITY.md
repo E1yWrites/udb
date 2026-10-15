@@ -25,7 +25,7 @@ Column meanings:
 | Brand | Protocol family | Reference (license) | WebHID | Read-back | Owned | Plan |
 |---|---|---|---|---|---|---|
 | Pulsar | `compx` | Pulsar Bibimbap web driver (proprietary; facts only) | ✅ `FF02:0002` | ✅ flash read | **X2 CrazyLight** | **Phase 3** |
-| Logitech G | HID++ 2.0 | Solaar (GPL-2.0-or-later), libratbag (MIT) | ✅ vendor page on receiver | ✅ | – | Phase 4, #2 |
+| Logitech G | HID++ 2.0 | OpenMouse (AGPL-3.0-or-later), libratbag (MIT), Solaar (GPL-2.0-or-later) | ✅ `FF00:0001/0002`, `FF43:0202` | ✅ | – | Phase 4, #2: experimental |
 | Razer | Razer protocol | OpenRazer (GPL-2.0-or-later) | ✅ feature reports on the mouse collection | ✅ | – | Phase 4, #3 |
 | ZOWIE | none known (switches on the mouse itself) | – | – | – | – | detect only |
 | SteelSeries | rivalcfg family | rivalcfg (WTFPL) | ❓ | ⚠️ mostly write-only | – | Phase 4, later |
@@ -40,6 +40,12 @@ Column meanings:
 experimental (generated from OpenMouse's copy of the ATK HUB catalog; see
 `docs/protocols/compx.md`). The owner no longer has the VXE R1 SE+.
 
+**Phase 4 update (2026-10-15):** Logitech HID++ 2.0 is in: 61 mice and
+keyboards generated from libratbag's device data and OpenMouse's list, plus one
+entry that matches any Logitech HID++ interface (receivers, unlisted models).
+DPI, report rate and battery are `experimental`. See
+`docs/protocols/logitech-hidpp.md`.
+
 ## Keyboards
 
 | Brand | Protocol family | Reference (license) | WebHID | Read-back | Owned | Plan |
@@ -48,7 +54,7 @@ experimental (generated from OpenMouse's copy of the ATK HUB catalog; see
 | Keychron and other QMK boards | QMK/VIA | VIA (GPL-3.0), QMK (GPL-2.0-or-later) | ✅ `FF60:0061` | ✅ | – | Phase 4, **#1**: experimental |
 | Wooting | Wooting | Wootility (web app; facts only), wooting SDKs (MPL-2.0) | ❓ | ❓ | – | Phase 4, #4 |
 | Razer | Razer protocol | OpenRazer (GPL-2.0-or-later) | ✅ | ✅ | – | with Razer mice |
-| Logitech G | HID++ 2.0 | Solaar, libratbag | ✅ | ✅ | – | with Logitech mice |
+| Logitech G | HID++ 2.0 | Solaar, libratbag | ✅ | ✅ | – | with Logitech mice: report rate experimental |
 | ASUS ROG (incl. laptops) | Aura / LampArray | OpenRGB, asusctl; Windows Dynamic Lighting | ✅ `FF31`, LampArray `0x59` | ⚠️ LampArray colours are write-only | **G14 built-in** | Phase 4, #6 |
 | SteelSeries, Corsair, HyperX, MSI | vendor protocols | OpenRGB (lighting) | ❓ | ❓ | – | Phase 4, later |
 | Ducky | mostly no software | – | – | – | – | detect only |

@@ -1,0 +1,37 @@
+{
+  "about": "Values OpenMouse recorded from real Logitech hardware and user diagnostics, as stated in its sources (mouse-protocol commit e53af6d5, AGPL-3.0-or-later). They are third-party observations, not UDB evidence. Replies here are rebuilt around those values with UDB's software ID.",
+  "observations": [
+    {
+      "source": "src/drivers/logitech/hidpp.test.ts, hidppResponder: 'exactly as captured from a G HUB-merged G502 X PLUS receiver'",
+      "what": "An empty receiver slot answers HID++ 1.0 error 0x08 (unknown device); the receiver's own index 0xFF answers HID++ 1.0 error 0x01 (invalid command).",
+      "emptySlotError": { "version": 1, "code": 8 },
+      "receiverIndexError": { "version": 1, "code": 1 }
+    },
+    {
+      "source": "src/drivers/logitech/hidpp.test.ts: 'the legacy report-rate bitmap decodes the G402's advertised rates'",
+      "what": "G402 0x8060 getReportRateList bitmap",
+      "bitmap": 139,
+      "rates": [125, 250, 500, 1000]
+    },
+    {
+      "source": "src/drivers/logitech/hidpp.test.ts: 'Confirmed from a user diagnostic: transportIds {Wireless: \"40BD\", USB: \"C0A8\"}' (PRO X 2 Superstrike)",
+      "what": "0x0003 getDeviceInfo transport PIDs",
+      "transportFlags": 12,
+      "wirelessPid": "0x40BD",
+      "usbPid": "0xC0A8"
+    },
+    {
+      "source": "src/drivers/logitech/hidpp.test.ts: 'a Lightspeed Superlight 2 reads the wireless 0x8061 list, not the cable's 1 kHz list' (OpenMouse issue #224)",
+      "what": "0x8061 getReportRateList masks per connection",
+      "cableMask": 15,
+      "wirelessMask": 127,
+      "cableRates": [125, 250, 500, 1000],
+      "wirelessRates": [125, 250, 500, 1000, 2000, 4000, 8000]
+    },
+    {
+      "source": "docs/logitech-testing.md and src/drivers/logitech/hidpp.ts setPollingRate: Superlight-era mice reject the live 0x8060/0x8061 write",
+      "what": "Rejected live report-rate write",
+      "error": { "version": 2, "code": 2 }
+    }
+  ]
+}

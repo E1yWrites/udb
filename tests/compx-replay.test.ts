@@ -37,4 +37,12 @@ describe('compx replay: X2 CrazyLight, 2026-10-15', () => {
     expect(cx.decodePair(cx.decodeFlash(ex[4]!.tx, ex[4]!.rx))).toBe(0);
     expect(cx.decodeBattery(ex[5]!.rx)).toEqual({ level: 100, charging: false });
   });
+
+  it('session 2: settings survived the replug, debounce wrote and read back', () => {
+    expect(cx.codeToRate(cx.decodePair(cx.decodeFlash(ex[10]!.tx, ex[10]!.rx))!)).toBe(500);
+    expect(cx.decodePair(cx.decodeFlash(ex[11]!.tx, ex[11]!.rx))).toBe(3);
+    expect(cx.writeFlash(cx.ADDR.debounce, cx.encodePair(2)).data).toEqual(ex[12]!.tx);
+    expect(cx.decodePair(cx.decodeFlash(ex[13]!.tx, ex[13]!.rx))).toBe(2);
+    expect(cx.decodeInfo(ex[14]!.rx)).toMatchObject({ cid: 87, mid: 82 });
+  });
 });

@@ -24,7 +24,7 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | dpi.stages | device | experimental | yes | no hardware, 2026-10-15, low confidence |
 | dpi.current-stage | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 | lift-off-distance | device | experimental | yes | no hardware, 2026-10-15, low confidence |
-| debounce-ms | device | experimental | yes | no hardware, 2026-10-15, medium confidence |
+| debounce-ms | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
 ## Keyboards

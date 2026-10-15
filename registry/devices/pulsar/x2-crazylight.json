@@ -118,8 +118,14 @@
           "source": "UDB evidence report 2026-10-15 (bytes in tests/fixtures/compx-crazylight-2026-10-15.json): wrote code 0x40 and read back 0x40 (8000 Hz), wrote 0x01 and read back 0x01 (1000 Hz)",
           "hardware": "Pulsar X2 CrazyLight Bruce Lee 85th Anniversary Edition (CID 87, MID 82) via Pulsar 8K Dongle; Microsoft Edge 155 on Windows 11",
           "date": "2026-10-15",
+          "confidence": "high"
+        },
+        {
+          "source": "UDB evidence report 2026-10-15, session 2 (bytes in tests/fixtures/compx-crazylight-2026-10-15.json): set 500 Hz, dongle unplugged and replugged (mouse switched off and on per owner); first read after reconnect 0x00 = [02 53] (500 Hz); UDB persistence check: expected 500, observed 500. Then 1000 Hz written and read back [01 54].",
+          "hardware": "Pulsar X2 CrazyLight Bruce Lee 85th Anniversary Edition (CID 87, MID 82) via Pulsar 8K Dongle; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
           "confidence": "high",
-          "notes": "Persistence across unplug/replug not yet checked."
+          "notes": "Persists across unplug/replug."
         }
       ]
     },
@@ -191,13 +197,20 @@
         "default": 2
       },
       "readBack": true,
-      "status": "experimental",
+      "status": "write-verified",
       "evidence": [
         {
           "source": "Static analysis of /cMouse app.6842ab2c.js: flash 0xA9 as [v, 0x55-v]; cfg.json for MID 82 offers 0..15 ms (default 2, warns above 8)",
           "hardware": null,
           "date": "2026-10-15",
           "confidence": "medium"
+        },
+        {
+          "source": "UDB evidence report 2026-10-15, session 2 (bytes in tests/fixtures/compx-crazylight-2026-10-15.json): wrote 0xA9 = [02 53], device echoed the frame, read back [02 53] (2 ms). Read [03 52] (3 ms) at session start from an earlier UDB write.",
+          "hardware": "Pulsar X2 CrazyLight Bruce Lee 85th Anniversary Edition (CID 87, MID 82) via Pulsar 8K Dongle; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "high",
+          "notes": "Persistence across unplug/replug not yet shown: UDB's check did not cover the 3 ms write because it was confirmed after the last disconnect."
         }
       ]
     },

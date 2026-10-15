@@ -8,13 +8,15 @@ import type { Setting } from '../lib/write.ts';
 type Device = Parameters<typeof request>[0];
 
 export class CompxSession {
-  readonly log: LogEntry[] = [];
+  readonly log: LogEntry[];
   private readonly device: Device;
   private readonly guard: Guard;
 
-  constructor(device: Device, deny: UsagePair[]) {
+  /** `log` may be shared across sessions so evidence spans reconnects. */
+  constructor(device: Device, deny: UsagePair[], log: LogEntry[] = []) {
     this.device = device;
     this.guard = { allow: cx.allow, deny };
+    this.log = log;
   }
 
   private ask(report: ReturnType<typeof cx.readFlash>): Promise<Uint8Array> {

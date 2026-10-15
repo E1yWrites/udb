@@ -57,20 +57,28 @@ Exit criteria:
 ## Phase 3: One write-verified device per category you own
 
 Exit criteria:
-- `compx` adapter: read-only commands first (`EncryptionData` for CID/MID,
-  `DeviceOnLine`, `BatteryLevel`, `ReadFlashData`), then
-  `WriteFlashData` on allowlisted addresses only. At least **polling rate**
-  and **DPI stage** are `write-verified` on the X2 CrazyLight, with read-back
-  and an unplug/replug persistence check recorded as evidence.
-- Vibe75: install Ghidra (Linux side) and Wireshark + USBPcap (Windows,
-  admin). Recover the protocol from `DeviceDriver.exe` and captures, write
-  `docs/protocols/vibe75.md`, and get one setting (e.g. a lighting mode or a
-  key remap) `write-verified` with a persistence check.
-- `steelseries-arctis` adapter ported from HeadsetControl and tested on
-  replayed traffic. Status `experimental`. **The headset criterion stays open**
-  (ADR 7).
-- Every write follows the SPEC write procedure, and the UI shows the device's
-  returned value.
+- [x] **Mouse, Pulsar X2 CrazyLight (`compx`).** Read-only commands first
+  (`EncryptionData` → CID 87 / MID 82, `DeviceOnLine`, `BatteryLevel`,
+  `ReadFlashData`), then `WriteFlashData` restricted to allowlisted addresses
+  and values. Results on 2026-10-15:
+  - **Polling rate** is `write-verified` (1000 → 8000 → 1000 → 500 → 1000 Hz,
+    each read back) and **kept 500 Hz across a dongle unplug/replug** with the
+    mouse power-cycled.
+  - **Debounce** is `write-verified` (3 → 2 ms, read back). Persistence not
+    yet shown. It replaces "DPI stage" because the owner's mouse has a single
+    DPI stage configured; active-stage switching is implemented for
+    multi-stage setups and read-verified.
+  - Captured bytes are kept as a replay fixture
+    (`tests/fixtures/compx-crazylight-2026-10-15.json`).
+- [ ] **Keyboard, Vibe75:** install Ghidra (Linux side) and Wireshark +
+  USBPcap (Windows, admin). Recover the protocol from `DeviceDriver.exe` and
+  captures, document it in `docs/protocols/vibe75.md`, and get one setting
+  `write-verified` with a persistence check.
+- [ ] **Headset:** a `steelseries-arctis` adapter ported from HeadsetControl,
+  tested on replayed traffic. Status `experimental`. **The headset criterion
+  stays open** (ADR 7).
+- [x] Every write follows the SPEC write procedure (`src/lib/write.ts`), and
+  the UI shows the value the device returned.
 
 Open item: the headset criterion of the brief's definition of success. It
 needs a headset; the recommended buy is the Arctis Nova 7 Gen 2 (`0x227E`).

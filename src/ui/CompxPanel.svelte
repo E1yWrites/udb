@@ -2,6 +2,10 @@
   // Last value the device confirmed after a write, per device. Kept across
   // reconnects (module scope) so a re-read can show whether it persisted.
   const confirmedWrites = new Map<string, Record<string, { value: number; reconnects: number }>>();
+  // Byte log and write history per device for this page session, so the
+  // evidence report covers writes made before an unplug.
+  const history = new Map<string, { log: LogEntry[]; writes: WriteRecord[] }>();
+  type WriteRecord = { setting: string; requested: number; previous: number; result: unknown; at: string; reconnects: number };
 </script>
 
 <script lang="ts">
@@ -10,7 +14,7 @@
   import { POLLING_RATES, type Info } from '../adapters/compx.ts';
   import type { UdbDevice } from '../lib/devices.svelte.ts';
   import { hex } from '../lib/registry.ts';
-  import { open } from '../lib/transport.ts';
+  import { open, type LogEntry } from '../lib/transport.ts';
   import { applySetting, type Setting, type WriteResult } from '../lib/write.ts';
 
   let { device }: { device: UdbDevice } = $props();
@@ -34,7 +38,11 @@
   let checks = $state<Check[]>([]);
   let copied = $state(false);
   let session: CompxSession | null = null;
-  const writes: { setting: Row; requested: number; previous: number; result: WriteResult<number>; at: string }[] = [];
+  function historyFor(key: string) {
+    if (!history.has(key)) history.set(key, { log: [], writes: [] });
+    return history.get(key)!;
+  }
+  const past = $derived(historyFor(device.key));
 
   const now = () => new Date().toISOString();
   const clock = (iso: string) => new Date(iso).toLocaleTimeString();
@@ -76,7 +84,7 @@
       return;
     }
     const deny = entry.collections.deny.map((c) => ({ usagePage: hex(c.usagePage), usage: hex(c.usage) }));
-    session = new CompxSession(hid, deny);
+    session = new CompxSession(hid, deny, past.log);
     try {
       info = await session.identify();
       stageCount = await session.readPair(0x02);
@@ -110,7 +118,7 @@
     const result = await applySetting(setting(row), value, previous);
     const at = now();
     results[row] = { ...result, at };
-    writes.push({ setting: row, requested: value, previous, result, at });
+    past.writes.push({ setting: row, requested: value, previous, result, at, reconnects: device.reconnects });
     if (result.kind === 'confirmed') {
       readings[row] = { value: result.value, at };
       confirmedWrites.set(device.key, {
@@ -142,9 +150,10 @@
       stageCount,
       battery,
       readings: $state.snapshot(readings),
-      writes,
+      reconnects: device.reconnects,
       persistenceChecks: $state.snapshot(checks),
-      log: session?.log ?? [],
+      writes: past.writes,
+      log: past.log,
     };
     await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
     copied = true;

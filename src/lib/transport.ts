@@ -96,6 +96,8 @@ export interface LogEntry {
   dir: 'tx' | 'rx';
   reportId: number;
   hex: string;
+  /** How a received report arrived, when it matters (feature reply vs. pushed input report). */
+  via?: 'feature' | 'input';
 }
 
 export const toHex = (b: Uint8Array) => Array.from(b, (v) => v.toString(16).padStart(2, '0')).join(' ');
@@ -172,4 +174,38 @@ export async function featureQuery(
   const data = new Uint8Array(view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength));
   log?.({ at: new Date().toISOString(), dir: 'rx', reportId: report.reportId, hex: toHex(data) });
   return data;
+}
+
+/**
+ * Read-only investigation helper: send one guarded feature request, then
+ * fetch the feature reply at each delay and record any input report the
+ * device pushes meanwhile. Returns everything received, in order.
+ */
+export async function featureProbe(
+  device: DeviceLike & Pick<HIDDevice, 'addEventListener' | 'removeEventListener'>,
+  report: OutgoingReport,
+  guard: Guard,
+  delaysMs: number[],
+  log: (entry: LogEntry) => void,
+): Promise<void> {
+  const onInput = (e: Event) => {
+    const ev = e as HIDInputReportEvent;
+    const data = new Uint8Array(ev.data.buffer.slice(ev.data.byteOffset, ev.data.byteOffset + ev.data.byteLength));
+    log({ at: new Date().toISOString(), dir: 'rx', reportId: ev.reportId, hex: toHex(data), via: 'input' });
+  };
+  device.addEventListener('inputreport', onInput);
+  try {
+    log({ at: new Date().toISOString(), dir: 'tx', reportId: report.reportId, hex: toHex(report.data) });
+    await send(device, report, guard);
+    let waited = 0;
+    for (const at of delaysMs) {
+      await new Promise((r) => setTimeout(r, at - waited));
+      waited = at;
+      const view = await receiveFeature(device, report.reportId, guard);
+      const data = new Uint8Array(view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength));
+      log({ at: new Date().toISOString(), dir: 'rx', reportId: report.reportId, hex: toHex(data), via: 'feature' });
+    }
+  } finally {
+    device.removeEventListener('inputreport', onInput);
+  }
 }

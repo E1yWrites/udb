@@ -1,7 +1,7 @@
 import * as v from './vibe75.ts';
-import { featureQuery, type Guard, type LogEntry, type UsagePair } from '../lib/transport.ts';
+import { featureProbe, featureQuery, type Guard, type LogEntry, type UsagePair } from '../lib/transport.ts';
 
-type Device = Parameters<typeof featureQuery>[0];
+type Device = Parameters<typeof featureProbe>[0];
 
 export interface ProfileReading {
   profile: number;
@@ -26,6 +26,11 @@ export class Vibe75Session {
       log: (e) => this.log.push(e),
     });
     return { profile, block: v.decodeLighting(res), raw: this.log[this.log.length - 1]!.hex };
+  }
+
+  /** Read-only: one `04 12 <profile>`, then repeated GET_FEATURE plus any pushed input reports. */
+  async extendedProbe(profile: number): Promise<void> {
+    await featureProbe(this.device, v.readLighting(profile), this.guard, [60, 200, 500, 1000], (e) => this.log.push(e));
   }
 
   /** Read-only probe of every lighting profile. */

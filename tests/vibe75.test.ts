@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import * as v from '../src/adapters/vibe75.ts';
 import { Vibe75Session } from '../src/adapters/vibe75-session.ts';
 import { TransportRejected } from '../src/lib/transport.ts';
@@ -54,7 +56,11 @@ describe('vibe75 allowlist (read-only release)', () => {
 describe('vibe75 session', () => {
   function fakeKeyboard(replies: Record<number, Uint8Array>) {
     let lastProfile = 0;
+    const listeners = new Set<(e: Event) => void>();
     return {
+      listeners,
+      addEventListener: (_t: string, l: (e: Event) => void) => void listeners.add(l),
+      removeEventListener: (_t: string, l: (e: Event) => void) => void listeners.delete(l),
       opened: true,
       collections: [{ usagePage: 0xff13, usage: 0x0001, featureReports: [{ reportId: 0 }] }],
       sendReport: vi.fn(),
@@ -72,9 +78,39 @@ describe('vibe75 session', () => {
     expect(kb.sendFeatureReport).toHaveBeenCalledTimes(5);
   });
 
+  it('extended probe sends one read, then only GET_FEATUREs, and records pushed input reports', async () => {
+    const kb = fakeKeyboard({});
+    kb.sendFeatureReport.mockImplementation(async () => {
+      setTimeout(() => {
+        const ev = Object.assign(new Event('inputreport'), { reportId: 0, data: new DataView(xvxProfile1.slice().buffer) });
+        for (const l of kb.listeners) l(ev);
+      }, 10);
+    });
+    const s = new Vibe75Session(kb, []);
+    await s.extendedProbe(0);
+    expect(kb.sendFeatureReport).toHaveBeenCalledTimes(1);
+    expect(kb.receiveFeatureReport).toHaveBeenCalledTimes(4);
+    expect(s.log.filter((e) => e.via === 'input')).toHaveLength(1);
+  });
+
   it('cannot reach a denied collection', async () => {
     const kb = fakeKeyboard({});
     await expect(new Vibe75Session(kb, [{ usagePage: 0xff13, usage: 0x0001 }]).probe()).rejects.toBeInstanceOf(TransportRejected);
     expect(kb.sendFeatureReport).not.toHaveBeenCalled();
+  });
+});
+
+describe('vibe75 replay: owner hardware, 2026-10-15', () => {
+  const fx = JSON.parse(readFileSync(join(import.meta.dirname, 'fixtures/vibe75-2026-10-15.json'), 'utf8')) as {
+    exchanges: { op: string; tx: string; rx: string }[];
+  };
+  const bytes = (hex: string) => Uint8Array.from(hex.split(' '), (h) => parseInt(h, 16));
+
+  it('reproduces the captured requests, and the replies carry no lighting block', () => {
+    fx.exchanges.forEach((e, p) => {
+      expect(v.readLighting(p).data).toEqual(bytes(e.tx));
+      expect(v.allow(v.readLighting(p))).toBe(true);
+      expect(v.decodeLighting(bytes(e.rx))).toBeNull();
+    });
   });
 });

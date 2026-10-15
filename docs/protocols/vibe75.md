@@ -123,6 +123,23 @@ on hardware:
 - `01` → "INIT/Reset". **UDB never sends it.**
 - Reply byte 3 is a status byte (`FF` idle, `01` busy).
 
+## Observed on the owner's Vibe75 (2026-10-15)
+
+Read-only probe over `FF13:0001` (USB cable, Edge 155, Windows 11). Bytes are in
+`tests/fixtures/vibe75-2026-10-15.json`.
+
+- Feature report 0 works both ways: the keyboard accepts a 64-byte SET_FEATURE
+  and answers GET_FEATURE with 64 bytes (no report ID byte in WebHID's view).
+- `04 12 <p>` replies are **echoes with a status byte and no lighting block**:
+  profile 0 → `04 12 00 01`, profiles 1–4 → `04 12 0p FF`, the rest all zero.
+- So the Vibe75 does **not** return the XVX-style block in the first reply.
+  Status `01` on profile 0 against `FF` on 1–4 says the profile index means
+  something. Open hypotheses: the data comes on a later GET_FEATURE, or as an
+  input report (the interface also has 64-byte input and output reports), or
+  `04 12` is not the read on this firmware.
+- Next: an extended read-only probe (one `04 12 00`, then GET_FEATURE at
+  60/200/500/1000 ms, recording any pushed input report).
+
 ## UDB plan
 
 1. **Read-only probe** on the owner's Vibe75: `04 12 p` for p = 0–4, then

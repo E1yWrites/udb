@@ -43,6 +43,21 @@
     }
   }
 
+  let probing = $state(false);
+  let probed = $state(false);
+
+  async function extendedProbe() {
+    if (!session) return;
+    probing = true;
+    try {
+      await session.extendedProbe(0);
+      probed = true;
+    } catch (e) {
+      error = e instanceof Error ? e.message : String(e);
+    }
+    probing = false;
+  }
+
   async function copyEvidence() {
     const report = {
       udbEvidence: 1,
@@ -105,8 +120,14 @@
       Decoded with the layout documented for the XVX G75, a keyboard from the same OEM family. The raw replies are in the
       evidence report.
     </p>
+    <p class="footnote">
+      Extended read: sends the profile 0 read once, then fetches the reply four times over a second and records anything
+      the keyboard pushes on its own. It is still read-only.
+      {#if probed}<strong>Done. Copy the evidence report.</strong>{/if}
+    </p>
     <footer class="actions">
       <button class="btn" onclick={read}>Read again</button>
+      <button class="btn" onclick={extendedProbe} disabled={probing}>{probing ? 'Probing…' : 'Extended read'}</button>
       <button class="btn" onclick={copyEvidence}><Icon name="copy" />Copy evidence report</button>
       <span class="muted" aria-live="polite">{copied ? 'Copied to clipboard' : ''}</span>
     </footer>

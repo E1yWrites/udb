@@ -59,6 +59,20 @@ describe('transport.send', () => {
     expect(d.sendReport).not.toHaveBeenCalled();
   });
 
+  it('sends an undeclared feature report only where the registry names it (Razer)', async () => {
+    const mouse = { ...fakeDevice(), collections: [{ usagePage: 0x0001, usage: 0x0002, inputReports: [{ reportId: 0 }] }] };
+    const feature: OutgoingReport = { type: 'feature', reportId: 0, data: Uint8Array.of(0x08) };
+    expect(await rejection(send(mouse, feature, guard))).toBe('undeclared-report');
+    const razer: Guard = { ...guard, undeclared: [{ usagePage: 0x0001, usage: 0x0002, reportId: 0 }] };
+    await send(mouse, feature, razer);
+    expect(mouse.sendFeatureReport).toHaveBeenCalledOnce();
+    await receiveFeature(mouse, 0, { ...razer, allow: () => true });
+    expect(await rejection(send(mouse, { ...feature, reportId: 1 }, razer))).toBe('undeclared-report');
+    expect(await rejection(send(mouse, { ...feature, type: 'output' }, razer))).toBe('undeclared-report');
+    expect(await rejection(send(mouse, { ...feature, data: Uint8Array.of(0x0d) }, razer))).toBe('not-allowlisted');
+    expect(await rejection(send(mouse, feature, { ...razer, deny: [{ usagePage: 0x0001, usage: 0x0002 }] }))).toBe('denied-collection');
+  });
+
   it('finds feature reports declared in child collections', async () => {
     const d = fakeDevice();
     await send(d, { type: 'feature', reportId: 0x5d, data: Uint8Array.of(0x08) }, guard);

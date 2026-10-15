@@ -104,6 +104,21 @@
               ]
             }
           },
+          "params": {
+            "description": "Protocol parameters for this connection that the device cannot report itself (e.g. Razer's transaction ID and polling command).",
+            "type": "object",
+            "additionalProperties": {
+              "type": [
+                "integer",
+                "string",
+                "boolean",
+                "array"
+              ],
+              "items": {
+                "type": "integer"
+              }
+            }
+          },
           "notes": {
             "type": "string"
           }
@@ -292,7 +307,26 @@
         },
         "purpose": {
           "type": "string"
+        },
+        "undeclaredFeatureReports": {
+          "description": "The listed reportIds are exchanged as feature reports although the descriptor does not declare them (Razer's control channel on its mouse collection). The transport refuses undeclared reports unless this is set.",
+          "type": "boolean"
         }
+      },
+      "if": {
+        "properties": {
+          "undeclaredFeatureReports": {
+            "const": true
+          }
+        },
+        "required": [
+          "undeclaredFeatureReports"
+        ]
+      },
+      "then": {
+        "required": [
+          "reportIds"
+        ]
       }
     },
     "platformStatus": {

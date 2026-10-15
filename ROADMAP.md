@@ -21,9 +21,9 @@ Exit criteria:
   `steelseries-arctis`, `asus-aura` (stub)
 - [x] `registry/schema/device.schema.json` plus 4 entries, validated by
   `scripts/check-registry.sh`, including negative fixtures
-- [ ] Design direction (`docs/design.md`) approved by the owner
-- [ ] Architecture, matrix, threat model, risks and this roadmap approved by
-  the owner
+- [x] Design direction (`docs/design.md`) approved by the owner (2026-10-15)
+- [x] Architecture, matrix, threat model, risks and this roadmap approved by
+  the owner (2026-10-15)
 
 ## Phase 2: App shell, permission flow, real discovery, registry in the app
 

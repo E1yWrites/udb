@@ -34,6 +34,10 @@ export const FEATURE = {
   reportRate: 0x8060,
   extendedReportRate: 0x8061,
   onboardProfiles: 0x8100,
+  /** Headsets: battery voltage (HeadsetControl's G633/G933 battery command, g933-utils). */
+  adcMeasurement: 0x1f20,
+  /** Headsets: sidetone level 0-100, with a getter (Solaar). */
+  sidetone: 0x8300,
 } as const;
 
 /** The functions UDB may call on each feature (docs/protocols/logitech-hidpp.md). */
@@ -49,6 +53,8 @@ const FUNCTIONS: Record<number, number[]> = {
   [FEATURE.reportRate]: [0, 1, 2],
   [FEATURE.extendedReportRate]: [0, 1, 2, 3],
   [FEATURE.onboardProfiles]: [2],
+  [FEATURE.adcMeasurement]: [0],
+  [FEATURE.sidetone]: [0, 1],
 };
 
 /** Receivers: probed on pairing slots first (OpenMouse vendors.ts, from Solaar's receiver list and user diagnostics). */
@@ -209,6 +215,17 @@ export function decodeBatteryVoltage(res: Uint8Array): Battery {
   return { percent: millivolts ? estimatePercent(millivolts) : null, state, millivolts };
 }
 
+/** 0x1F20 getAdcMeasurement: millivolts and flags (bit 0 = valid reading, bit 1 = charging). */
+export function decodeAdcMeasurement(res: Uint8Array): Battery {
+  const millivolts = u16(res, 3);
+  const flags = res[5] ?? 0;
+  if (!(flags & 0x01) || !millivolts) return { percent: null, state: 'unknown' };
+  return { percent: estimatePercent(millivolts), state: flags & 0x02 ? 'charging' : 'discharging', millivolts };
+}
+
+/** 0x8300 getSidetone: 0-100. */
+export const decodeSidetone = (res: Uint8Array): number | null => (res[3]! <= 100 ? res[3]! : null);
+
 /**
  * A DPI list: big-endian uint16 values, where `0xE000 | step` marks a range
  * from the previous value to the next one. Ends at 0. Null when malformed.
@@ -312,6 +329,8 @@ export function allowFor(features: ReadonlyMap<number, number>): (r: OutgoingRep
         return fn === 2 ? p[0]! >= 1 && p[0]! <= 8 && zeroFrom(1) : zeroFrom(0);
       case FEATURE.extendedReportRate:
         return (fn === 3 ? p[0]! <= 6 : p[0]! <= 1) && zeroFrom(1);
+      case FEATURE.sidetone:
+        return fn === 1 ? p[0]! <= 100 && zeroFrom(1) : zeroFrom(0);
       default:
         return zeroFrom(0);
     }

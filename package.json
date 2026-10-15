@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
     "test": "vitest run",
-    "support": "node scripts/gen-support.ts"
+    "support": "node scripts/gen-support.ts",
+    "import:atk": "node scripts/import-atk-catalog.ts"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "7.3.1",

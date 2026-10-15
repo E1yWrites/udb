@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { registry } from '../src/lib/registry.ts';
-import { chooserFilters, matchDevice } from '../src/lib/match.ts';
+import { chooserFilters, matchDevice, resolveByProtocolIdentity } from '../src/lib/match.ts';
 
 describe('matchDevice', () => {
   it('matches the Pulsar dongle but leaves the model unconfirmed until CID/MID is read', () => {
@@ -47,5 +47,24 @@ describe('chooserFilters', () => {
 
   it('has no duplicate filters', () => {
     expect(new Set(filters.map((f) => JSON.stringify(f))).size).toBe(filters.length);
+  });
+});
+
+describe('shared receiver IDs', () => {
+  it('resolves an ATK receiver ID shared by several models through the reported CID/MID', () => {
+    const shared = registry.flatMap((e) => e.identities.map((id) => `${id.vid}:${id.pid}`));
+    const dupe = shared.find((k, i) => shared.indexOf(k) !== i)!;
+    const [vid, pid] = dupe.split(':').map((h) => parseInt(h, 16));
+    const dev = { vendorId: vid!, productId: pid!, productName: 'receiver' };
+    expect(matchDevice(dev, registry)?.modelConfirmed).toBe(false);
+    const owners = registry.filter((e) => e.identities.some((id) => `${id.vid}:${id.pid}` === dupe));
+    const target = owners[1]!.identities.find((id) => `${id.vid}:${id.pid}` === dupe)!.protocolIdentity!;
+    const resolved = resolveByProtocolIdentity(dev, registry, { cid: target.cid!, mid: target.mid! });
+    expect(resolved?.entry.id).toBe(owners[1]!.id);
+  });
+
+  it('confirms the owner CrazyLight from MID 82', () => {
+    const r = resolveByProtocolIdentity({ vendorId: 0x3710, productId: 0x5406, productName: 'Pulsar 8K Dongle' }, registry, { cid: 87, mid: 82 });
+    expect(r?.entry.id).toBe('pulsar/x2-crazylight');
   });
 });

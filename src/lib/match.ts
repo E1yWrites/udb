@@ -23,10 +23,28 @@ function identityMatches(id: Identity, dev: HidInfo): boolean {
   return !id.requireProductName || id.productName === dev.productName;
 }
 
-export function matchDevice(dev: HidInfo, entries: DeviceEntry[]): Match | null {
-  const hits = entries.flatMap((entry) =>
+/** Every registry identity this HID device could be (several when a receiver ID is shared). */
+export function candidates(dev: HidInfo, entries: DeviceEntry[]): { entry: DeviceEntry; identity: Identity }[] {
+  return entries.flatMap((entry) =>
     entry.identities.filter((id) => identityMatches(id, dev)).map((identity) => ({ entry, identity })),
   );
+}
+
+/** Narrows candidates by the CID/MID the device reported. Null when nothing matches. */
+export function resolveByProtocolIdentity(
+  dev: HidInfo,
+  entries: DeviceEntry[],
+  reported: { cid: number; mid: number },
+): { entry: DeviceEntry; identity: Identity } | null {
+  return (
+    candidates(dev, entries).find(
+      ({ identity }) => identity.protocolIdentity?.cid === reported.cid && identity.protocolIdentity?.mid === reported.mid,
+    ) ?? null
+  );
+}
+
+export function matchDevice(dev: HidInfo, entries: DeviceEntry[]): Match | null {
+  const hits = candidates(dev, entries);
   const first = hits[0];
   if (!first) return null;
   const entryCount = new Set(hits.map((h) => h.entry.id)).size;

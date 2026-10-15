@@ -35,9 +35,10 @@ Column meanings:
 | Glorious | Sinowealth-based | OpenRGB (lighting) | ❓ | ❓ | – | Phase 4, later |
 | Turtle Beach / Roccat | Roccat | libratbag (MIT) | ❓ | ✅ (libratbag reads) | – | Phase 4, later |
 
-Bonus: Pulsar's driver also routes VID `0x3554` to the `compx` family, so
-other brands built on the same platform may come for free. Also owned: a VXE
-R1 SE+ (BLE). Its protocol family is unknown.
+**Phase 4 update (2026-10-15):** ATK and VXE turned out to be the same
+`compx` platform as Pulsar. 169 ATK/VXE models are in the registry as
+experimental (generated from OpenMouse's copy of the ATK HUB catalog; see
+`docs/protocols/compx.md`). The owner no longer has the VXE R1 SE+.
 
 ## Keyboards
 

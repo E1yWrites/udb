@@ -54,16 +54,7 @@
         "interface": 3,
         "usagePage": "0xFF13",
         "usage": "0x0001",
-        "purpose": "Likely command channel: 65-byte input/output/feature reports (hypothesis)",
-        "reportIds": [
-          0
-        ]
-      },
-      {
-        "interface": 2,
-        "usagePage": "0xFF68",
-        "usage": "0x0061",
-        "purpose": "Likely bulk channel for screen images: 4097-byte output (hypothesis)",
+        "purpose": "Settings channel: 64-byte feature reports, report ID 0 (vendor driver uses HidD_SetFeature + IOCTL_HID_GET_FEATURE).",
         "reportIds": [
           0
         ]
@@ -87,10 +78,56 @@
     "Mechlands Vibe 75 Driver (DeviceDriver.exe)"
   ],
   "limitations": [
-    "Protocol not yet recovered. No feature can be shown until it is.",
+    "Command bytes recovered from the vendor driver statically; the driver itself never reads settings back.",
+    "Lighting read (04 12) layout comes from the XVX G75 notes (same OEM family) and is unconfirmed on the Vibe75.",
     "The vendor driver ships a FirmwareUpdateTool. UDB never uses it."
   ],
   "features": [
+    {
+      "id": "lighting.mode",
+      "kind": "enum",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Ghidra decompile of DeviceDriver.exe (FUN_0042b0c0: 04 18, 04 13, block, 04 02, 04 F0) + XVX G75 notes (04 12 read)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "lighting.brightness",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Ghidra decompile of DeviceDriver.exe (FUN_0042b0c0: 04 18, 04 13, block, 04 02, 04 F0) + XVX G75 notes (04 12 read)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "lighting.speed",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Ghidra decompile of DeviceDriver.exe (FUN_0042b0c0: 04 18, 04 13, block, 04 02, 04 F0) + XVX G75 notes (04 12 read)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
     {
       "id": "lighting.per-key",
       "kind": "color",
@@ -98,11 +135,10 @@
       "status": "unsupported",
       "evidence": [
         {
-          "source": "Vendor driver UI class names (CustomLightMode::SetKeyMap)",
+          "source": "Vendor driver: 04 20 + key table (FUN_00427fb0); not implemented",
           "hardware": null,
           "date": "2026-10-15",
-          "confidence": "low",
-          "notes": "Protocol unknown"
+          "confidence": "low"
         }
       ]
     },

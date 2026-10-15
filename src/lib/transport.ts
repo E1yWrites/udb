@@ -154,3 +154,22 @@ export async function request(
   }
   throw new TransportTimeout(report, attempts);
 }
+
+/**
+ * Feature-report exchange used by devices that answer through GET_FEATURE
+ * (e.g. the Vibe75): send the request, wait, read the reply. Both legs are guarded.
+ */
+export async function featureQuery(
+  device: DeviceLike,
+  report: OutgoingReport,
+  guard: Guard,
+  { delayMs = 20, log }: { delayMs?: number; log?: (entry: LogEntry) => void } = {},
+): Promise<Uint8Array> {
+  log?.({ at: new Date().toISOString(), dir: 'tx', reportId: report.reportId, hex: toHex(report.data) });
+  await send(device, report, guard);
+  await new Promise((r) => setTimeout(r, delayMs));
+  const view = await receiveFeature(device, report.reportId, guard);
+  const data = new Uint8Array(view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength));
+  log?.({ at: new Date().toISOString(), dir: 'rx', reportId: report.reportId, hex: toHex(data) });
+  return data;
+}

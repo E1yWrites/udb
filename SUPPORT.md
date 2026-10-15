@@ -53,6 +53,9 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 
 | Feature | Location | Status | Read-back | Latest evidence |
 |---|---|---|---|---|
+| lighting.mode | device | experimental | yes | no hardware, 2026-10-15, low confidence |
+| lighting.brightness | device | experimental | yes | no hardware, 2026-10-15, low confidence |
+| lighting.speed | device | experimental | yes | no hardware, 2026-10-15, low confidence |
 | lighting.per-key | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 | keymap | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 | screen-image | device | unsupported | – | no hardware, 2026-10-15, low confidence |

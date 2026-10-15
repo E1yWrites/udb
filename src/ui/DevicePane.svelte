@@ -4,6 +4,7 @@
   import { CONNECTION_ICON, LOCATION, STATUS, featureLabel, hex4 } from '../lib/labels.ts';
   import { deviceReport } from '../lib/report.ts';
   import CompxPanel from './CompxPanel.svelte';
+  import Vibe75Panel from './Vibe75Panel.svelte';
 
   let { device }: { device: UdbDevice } = $props();
 
@@ -103,6 +104,8 @@
         <p>
           {#if entry.protocol.family === 'compx'}
             UDB sends nothing until you choose “Read from mouse”.
+          {:else if entry.protocol.family === 'vibe75'}
+            UDB sends nothing until you choose “Read from keyboard”.
           {:else}
             UDB can identify this device but has no adapter for it yet, so it sends nothing to it.
           {/if}
@@ -113,6 +116,8 @@
 
   {#if entry?.protocol.family === 'compx' && device.presence === 'connected'}
     <CompxPanel {device} />
+  {:else if entry?.protocol.family === 'vibe75' && device.presence === 'connected'}
+    <Vibe75Panel {device} />
   {/if}
 
   {#if entry}

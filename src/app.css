@@ -1,0 +1,189 @@
+/* UDB tokens. Dark graphite is primary (dim desk lit by monitors); the light
+   theme follows the OS. One signal colour means "needs attention". */
+:root {
+  color-scheme: dark;
+  --bg: oklch(0.205 0.006 70);
+  --rail: oklch(0.18 0.006 70);
+  --raised: oklch(0.245 0.007 70);
+  --line: oklch(0.33 0.008 70);
+  --line-strong: oklch(0.45 0.01 70);
+  --text: oklch(0.94 0.008 80);
+  --muted: oklch(0.74 0.01 75);
+  --faint: oklch(0.62 0.01 75);
+  --signal: oklch(0.82 0.14 75);
+  --signal-ink: oklch(0.2 0.03 75);
+  --confirmed: oklch(0.82 0.07 160);
+  --danger: oklch(0.75 0.13 30);
+  --primary-bg: var(--text);
+  --primary-fg: var(--bg);
+  --selection: oklch(0.82 0.14 75 / 0.35);
+
+  --font-ui: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --font-data: ui-monospace, 'Cascadia Mono', Consolas, 'SF Mono', monospace;
+
+  --step--1: 0.8125rem;
+  --step-0: 0.9375rem;
+  --step-1: 1.125rem;
+  --step-3: 2rem;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --radius: 6px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: oklch(0.972 0.006 85);
+    --rail: oklch(0.945 0.008 85);
+    --raised: oklch(0.995 0.003 85);
+    --line: oklch(0.87 0.01 80);
+    --line-strong: oklch(0.72 0.012 75);
+    --text: oklch(0.22 0.01 70);
+    --muted: oklch(0.44 0.012 70);
+    --faint: oklch(0.52 0.012 70);
+    --signal: oklch(0.56 0.15 60);
+    --signal-ink: oklch(0.99 0.01 85);
+    --confirmed: oklch(0.45 0.08 160);
+    --danger: oklch(0.52 0.17 30);
+    --selection: oklch(0.56 0.15 60 / 0.22);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 400 var(--step-0) / 1.5 var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  caret-color: var(--signal);
+  scrollbar-color: var(--line-strong) transparent;
+}
+
+#app {
+  min-height: 100%;
+}
+
+::selection {
+  background: var(--selection);
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: var(--line-strong);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.25rem;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out);
+}
+
+.btn:hover {
+  background: var(--raised);
+  border-color: var(--text);
+}
+
+.btn.primary {
+  background: var(--primary-bg);
+  color: var(--primary-fg);
+  border-color: var(--primary-bg);
+}
+
+.btn.primary:hover {
+  background: color-mix(in oklch, var(--primary-bg) 88%, var(--bg));
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+.data {
+  font-family: var(--font-data);
+  font-size: 0.92em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}

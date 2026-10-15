@@ -28,25 +28,31 @@ Exit criteria:
 ## Phase 2: App shell, permission flow, real discovery, registry in the app
 
 Exit criteria:
-- Vite + Svelte 5 + TypeScript strict. `npm run check`, `npm test` and
-  `npm run build` pass in CI. Deploys to GitHub Pages from `main`.
-- `scripts/check-registry.sh` moves into Vitest (ajv as a pinned
-  devDependency).
-- Transport layer: the **single** caller of `sendReport` and
-  `sendFeatureReport`. It enforces adapter allowlists and the registry
-  collection denylist. Unit tests prove a non-allowlisted report and a denied
-  collection are both rejected before anything reaches WebHID.
-- Discovery: `getDevices()` on load, connect/disconnect events, a
-  `requestDevice` chooser filtered by the registry, registry matching
-  (including Vibe75's Apple-VID case, matched by product name).
-- UI states: no WebHID, permission denied, no devices, unsupported device,
-  device busy, disconnected. All are visible on real hardware; nothing writes
-  yet.
-- Support matrix generated from the registry (`SUPPORT.md` or a page). It's
-  never edited by hand.
-- **Hardware evidence:** the CrazyLight and the Vibe75 appear in the app with
-  the correct identity on the dev machine, recorded as `detected` with
-  evidence.
+- [x] Vite + Svelte 5 + TypeScript strict. `npm run check`, `npm test` and
+  `npm run build` pass. CI runs them on every PR; a push to `main` deploys to
+  GitHub Pages (`.github/workflows/ci.yml`; Pages must be set to the "GitHub
+  Actions" source in repo settings).
+- [x] Registry schema checks run in Vitest (ajv pinned), including the invalid
+  fixtures. `scripts/check-registry.sh` is gone.
+- [x] Transport (`src/lib/transport.ts`) is the **single** caller of
+  `sendReport`, `sendFeatureReport` and `receiveFeatureReport`; a guard test
+  enforces this. Unit tests prove non-allowlisted reports, undeclared report
+  IDs and reports on denied collections are rejected before WebHID.
+- [x] Discovery: `getDevices()` on load, connect/disconnect events, a
+  registry-filtered chooser plus "identify another device", and registry
+  matching (the Vibe75's Apple VID by product name).
+- [x] UI states built: no WebHID, chooser cancelled, no devices, unsupported,
+  model not confirmed, busy, disconnected. On real hardware so far: detected,
+  model not confirmed (Pulsar dongle) and unsupported (wired CrazyLight before
+  its identity was added). Disconnected, cancelled and busy have been checked
+  only with the dev preview fixtures (`/?preview`).
+- [x] Support matrix generated from the registry (`SUPPORT.md`, `npm run
+  support`); a test fails if it is stale.
+- [x] **Hardware evidence (2026-10-15, Edge 155, Windows 11):** Pulsar 8K
+  Dongle (`3710:5406`, model not confirmed until the Phase 3 CID/MID query),
+  Pulsar X2 CrazyLight on cable (`3710:3414`, model confirmed by its USB
+  product string) and Mechlands Vibe75 (`05AC:024F`) are recorded as detected
+  in the registry.
 
 ## Phase 3: One write-verified device per category you own
 

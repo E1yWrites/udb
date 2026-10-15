@@ -23,6 +23,20 @@
           "pid": { "$ref": "#/$defs/hex16" },
           "connection": { "enum": ["wired", "dongle", "bluetooth"] },
           "productName": { "type": "string" },
+          "requireProductName": {
+            "description": "Match only when the HID product name equals productName. Needed when the VID/PID is borrowed (e.g. Apple's 05AC:024F).",
+            "type": "boolean"
+          },
+          "evidence": {
+            "description": "Detection records: this identity was seen by UDB on real hardware.",
+            "type": "array",
+            "items": {
+              "allOf": [
+                { "$ref": "#/$defs/evidence" },
+                { "type": "object", "properties": { "hardware": { "type": "string", "minLength": 1 } } }
+              ]
+            }
+          },
           "protocolIdentity": {
             "description": "In-protocol identity of the device behind a receiver, e.g. compx CID/MID. Null values mean not yet read from hardware.",
             "type": "object",

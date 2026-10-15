@@ -359,7 +359,7 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 | keymap | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 | screen-image | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 
-### Not yet seen on hardware by UDB (9)
+### Not yet seen on hardware by UDB (21)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
@@ -372,6 +372,18 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 | Logitech G915 | 046D:C33E | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
 | Logitech G915 TKL | 046D:C343 046D:B35F | `logitech-hidpp` | polling-rate, battery | onboard-profiles, keymap, lighting |
 | QMK Keyboard with VIA firmware | any device with FF60:0061 | `qmk-via` | lighting.brightness, lighting.mode, lighting.speed, lighting.color | keymap, macros |
+| Wooting 60HE | 31E3:1300 31E3:1301 31E3:1302 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting 60HE (ARM) | 31E3:1310 31E3:1311 31E3:1312 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting 60HE+ | 31E3:1320 31E3:1321 31E3:1322 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting 60HE V2 | 31E3:1340 31E3:1341 31E3:1342 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting 80HE | 31E3:1400 31E3:1401 31E3:1402 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting One | 03EB:FF01 31E3:1100 31E3:1101 31E3:1102 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting Two | 03EB:FF02 31E3:1200 31E3:1201 31E3:1202 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting Two HE | 31E3:1220 31E3:1221 31E3:1222 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting Two HE (ARM) | 31E3:1230 31E3:1231 31E3:1232 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting Two Lekker Edition | 31E3:1210 31E3:1211 31E3:1212 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting UwU | 31E3:1500 31E3:1501 31E3:1502 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
+| Wooting UwU RGB | 31E3:1510 31E3:1511 31E3:1512 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
 
 ## Headsets
 

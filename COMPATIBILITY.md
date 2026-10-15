@@ -51,13 +51,18 @@ IDs) from OpenMouse's audit of OpenRazer. DPI, polling, battery, auto sleep and
 the low-power threshold are `experimental`. The codec replays two real
 DeathAdder V3 Pro captures byte for byte. See `docs/protocols/razer.md`.
 
+**Phase 4 update (2026-10-15):** Wooting is **detection only**. Twelve boards
+from the official RGB SDK are in the registry, and UDB sends them nothing. No
+configuration protocol with read-back is public; `docs/protocols/wooting.md`
+says what would unblock it.
+
 ## Keyboards
 
 | Brand | Protocol family | Reference (license) | WebHID | Read-back | Owned | Plan |
 |---|---|---|---|---|---|---|
 | Mechlands Vibe75 (not on the list; owned) | unidentified vendor | vendor MFC app (needs Ghidra and capture) | ✅ `MI_03` `FF13` (hypothesis) | ❓ | **Vibe75** | **Phase 3** |
 | Keychron and other QMK boards | QMK/VIA | VIA (GPL-3.0), QMK (GPL-2.0-or-later) | ✅ `FF60:0061` | ✅ | – | Phase 4, **#1**: experimental |
-| Wooting | Wooting | Wootility (web app; facts only), wooting SDKs (MPL-2.0) | ❓ | ❓ | – | Phase 4, #4 |
+| Wooting | Wooting | Wootility (web app, proprietary), Wooting RGB SDK (MPL-2.0) | ⚠️ `FF55:0001`; framing unsettled | ❌ no documented write with read-back | – | Phase 4, #4: **detection only** |
 | Razer | Razer protocol | OpenRazer (GPL-2.0-or-later) | ✅ | ✅ | – | with Razer mice |
 | Logitech G | HID++ 2.0 | Solaar, libratbag | ✅ | ✅ | – | with Logitech mice: report rate experimental |
 | ASUS ROG (incl. laptops) | Aura / LampArray | OpenRGB, asusctl; Windows Dynamic Lighting | ✅ `FF31`, LampArray `0x59` | ⚠️ LampArray colours are write-only | **G14 built-in** | Phase 4, #6 |

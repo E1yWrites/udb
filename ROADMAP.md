@@ -177,6 +177,17 @@ checks happen in the Phase 6 compatibility pass.
   threshold through the write procedure.
 - DPI stage tables, lift-off, button mapping and lighting move to Phase 5.
 
+### Wooting: branch `phase-4-wooting` (stacked on Razer), detection only
+- [x] `docs/protocols/wooting.md`: sources (RGB SDK, MPL-2.0; OpenMouse,
+  facts), why there is no adapter (no public write path with read-back;
+  colour writes cannot be read back; the read framing is unsettled), and
+  what would unblock it (a device report and a capture of Wootility's WebHID
+  traffic)
+- [x] 12 registry entries from the SDK's board list, with the analog key
+  stream (`FF53`) on the deny list; every feature `unsupported`
+- No encode/decode tests: UDB sends Wooting nothing, so there is nothing to
+  encode.
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

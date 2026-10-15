@@ -1,0 +1,139 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "wooting/two-he",
+  "vendor": "Wooting",
+  "model": "Two HE",
+  "category": "keyboard",
+  "identities": [
+    {
+      "vid": "0x31E3",
+      "pid": "0x1220",
+      "connection": "wired"
+    },
+    {
+      "vid": "0x31E3",
+      "pid": "0x1221",
+      "connection": "wired",
+      "notes": "Alternative PID the firmware uses for a gamepad mode (SDK V2_ALT_PID_1)."
+    },
+    {
+      "vid": "0x31E3",
+      "pid": "0x1222",
+      "connection": "wired",
+      "notes": "Alternative PID the firmware uses for a gamepad mode (SDK V2_ALT_PID_2)."
+    }
+  ],
+  "protocol": {
+    "family": "wooting",
+    "doc": "docs/protocols/wooting.md",
+    "references": [
+      {
+        "title": "Wooting RGB SDK",
+        "url": "https://github.com/WootingKb/wooting-rgb-sdk",
+        "license": "MPL-2.0",
+        "use": "facts-only"
+      },
+      {
+        "title": "OpenMouse mouse-protocol (Wooting read-only codec, exploratory)",
+        "url": "https://github.com/OpenMouse-Project/mouse-protocol",
+        "license": "AGPL-3.0-or-later",
+        "use": "facts-only"
+      },
+      {
+        "title": "Wootility (web)",
+        "url": "https://wootility.io/",
+        "license": "proprietary",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [],
+    "deny": [
+      {
+        "usagePage": "0xFF53",
+        "usage": "0x0001",
+        "purpose": "Analog key stream: live key travel, i.e. keystroke data. Never opened."
+      }
+    ]
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Detection only"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "Wootility"
+  ],
+  "limitations": [
+    "Detection only: UDB sends nothing to Wooting keyboards. No public configuration protocol exists; use Wootility.",
+    "The analog key stream (FF53) carries keystrokes and is on the deny list.",
+    "Identified by VID/PID through “Identify another device”; UDB requests no Wooting interface."
+  ],
+  "features": [
+    {
+      "id": "actuation-point",
+      "kind": "range",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse src/wooting/index.ts @e53af6d5: get_settings 0x33 and get_keyboard_profile 0x27 are read-only and partly decoded; no write is documented",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "rapid-trigger",
+      "kind": "bool",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse src/wooting/index.ts @e53af6d5: rapid-trigger fields read but not decoded with confidence",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "lighting",
+      "kind": "color",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "Wooting RGB SDK src/wooting-usb.c @451f40dc (MPL-2.0): board PIDs and names",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low",
+          "notes": "The SDK's colour writes are live and cannot be read back, so they could never be write-verified"
+        }
+      ]
+    },
+    {
+      "id": "keymap",
+      "kind": "keymap",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "Wootility only (proprietary)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    }
+  ]
+}

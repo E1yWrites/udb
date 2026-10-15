@@ -39,6 +39,16 @@ On the Nova 7, only **sidetone on the Gen 2 (`0x227E`)** can reach
 "sent, device does not report back". If a headset is bought for the Phase 3
 headset criterion, it should be the **Nova 7 Gen 2**.
 
+## Adapter
+
+`src/adapters/steelseries-arctis.ts` is ported from HeadsetControl. Its
+allowlist covers status (`B0`), the settings read (`20`), sidetone (`39`,
+0–3), save (`09`), and auto power-off (`A3`, ≤ 90 min). EQ, mic, Bluetooth
+and volume-limiter commands are refused until a headset is available to verify
+them. `tests/steelseries-arctis.test.ts` checks the encoding against bytes
+derived from HeadsetControl's source; nothing was captured from hardware.
+There is no UI for this adapter yet, because no one can test it.
+
 ## Open questions
 
 - The exact status request bytes. Check the shared SteelSeries base class in

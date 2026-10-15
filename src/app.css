@@ -179,6 +179,210 @@ button {
   white-space: nowrap;
 }
 
+/* Live device panels (src/ui/*Panel.svelte) and their setting lines (SettingLine.svelte). */
+.live {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.live .section {
+  font-size: var(--step--1);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.live .lede {
+  color: var(--muted);
+  max-width: 68ch;
+}
+
+.live .lede ~ .btn {
+  justify-self: start;
+}
+
+.live .problem {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  color: var(--danger);
+}
+
+.live .facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4) var(--space-8);
+  margin: 0;
+}
+
+.live .facts dt {
+  font-size: var(--step--1);
+  color: var(--faint);
+}
+
+.live .facts dd {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  align-items: baseline;
+}
+
+.live .checks h3 {
+  font-size: var(--step-0);
+  font-weight: 600;
+}
+
+.live .checks ul {
+  list-style: none;
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.live .checks li,
+.live .checks p {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.live .checks p {
+  margin-top: var(--space-2);
+}
+
+.live .gate {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3) 0;
+  border-block: 1px solid var(--line);
+  color: var(--muted);
+  max-width: 75ch;
+  cursor: pointer;
+}
+
+.live .gate input {
+  margin-top: 0.3em;
+  accent-color: var(--signal);
+}
+
+.live .lines {
+  display: grid;
+}
+
+.live .line {
+  display: grid;
+  grid-template-columns: minmax(9rem, 12rem) auto 1fr;
+  grid-template-areas: 'name ask told' '. outcome outcome';
+  gap: var(--space-2) var(--space-6);
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.live .line .name {
+  grid-area: name;
+  font-weight: 600;
+}
+
+.live .ask {
+  grid-area: ask;
+  display: flex;
+  gap: var(--space-2);
+}
+
+.live select,
+.live input[type='number'] {
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--raised);
+  color: var(--text);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.live input[type='number'] {
+  width: 8rem;
+}
+
+.live select:disabled,
+.live input:disabled {
+  opacity: 0.5;
+}
+
+.live .told {
+  grid-area: told;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.live .value {
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+
+.live .when {
+  font-size: var(--step--1);
+  color: var(--faint);
+}
+
+.live .outcome {
+  grid-area: outcome;
+}
+
+.live .outcome:empty {
+  display: none;
+}
+
+.live .status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-weight: 600;
+}
+
+.live .confirmed {
+  color: var(--confirmed);
+}
+
+.live .signal {
+  color: var(--signal);
+}
+
+.live .danger {
+  color: var(--danger);
+}
+
+.live .muted {
+  color: var(--muted);
+}
+
+.live .note {
+  font-size: var(--step--1);
+  color: var(--faint);
+}
+
+.live .actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+
+@media (max-width: 40rem) {
+  .live .line {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'name' 'told' 'ask' 'outcome';
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

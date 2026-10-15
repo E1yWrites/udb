@@ -7,6 +7,7 @@
 
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import SettingLine from './SettingLine.svelte';
   import { Vibe75Session, type ProfileReading } from '../adapters/vibe75-session.ts';
   import { BRIGHTNESS_MAX } from '../adapters/vibe75.ts';
   import type { UdbDevice } from '../lib/devices.svelte.ts';
@@ -37,7 +38,6 @@
 
   const stored = $derived(readings.find((r) => r.block)?.block ?? null);
   const pairs = (list: Collection[]) => list.map((c) => ({ usagePage: hex(c.usagePage), usage: hex(c.usage) }));
-  const clock = (iso: string) => new Date(iso).toLocaleTimeString();
 
   async function read() {
     phase = 'reading';
@@ -174,38 +174,22 @@
         </span>
       </label>
 
-      <div class="line">
-        <label class="name" for="kb-brightness">Brightness (profile {stored.profile})</label>
-        <div class="ask">
-          <select id="kb-brightness" bind:value={requested} disabled={!allowUnverified || busy}>
-            {#each Array.from({ length: BRIGHTNESS_MAX }, (_, i) => i + 1) as b (b)}<option value={b}>{b}</option>{/each}
-          </select>
-          <button class="btn" onclick={apply} disabled={!allowUnverified || busy || requested === stored.brightness}>
-            {busy ? 'Writing…' : 'Apply'}
-          </button>
-        </div>
-        <div class="told">
-          <span class="tag">Device</span>
-          <span class="value num">{stored.brightness} / {BRIGHTNESS_MAX}</span>
-          <span class="when">read {clock(readAt)}</span>
-        </div>
-        <p class="outcome" aria-live="polite">
-          {#if busy}
-            <span class="status muted">Writing, then reading back…</span>
-          {:else if result?.kind === 'confirmed'}
-            <span class="status confirmed"><Icon name="check" size={14} />Confirmed by device at {clock(result.at)}</span>
-          {:else if result?.kind === 'mismatch'}
-            <span class="status signal"><Icon name="alert" size={14} />
-              Device returned {result.actual ?? 'nothing readable'} instead of {result.requested}.
-              {result.restoreConfirmed ? `Restored to ${result.restored}.` : `Restore not confirmed: device reads ${result.restored ?? 'nothing readable'}.`}
-            </span>
-          {:else if result?.kind === 'failed'}
-            <span class="status danger"><Icon name="alert" size={14} />{result.error}</span>
-          {:else if result?.kind === 'invalid'}
-            <span class="status signal"><Icon name="alert" size={14} />{result.reason}</span>
-          {/if}
-        </p>
-      </div>
+      <SettingLine
+        id="kb-brightness"
+        label="Brightness (profile {stored.profile})"
+        value={stored.brightness}
+        {readAt}
+        {busy}
+        result={result ?? undefined}
+        show={(v) => (v == null ? 'Unreadable' : `${v} / ${BRIGHTNESS_MAX}`)}
+      >
+        <select id="kb-brightness" bind:value={requested} disabled={!allowUnverified || busy}>
+          {#each Array.from({ length: BRIGHTNESS_MAX }, (_, i) => i + 1) as b (b)}<option value={b}>{b}</option>{/each}
+        </select>
+        <button class="btn" onclick={apply} disabled={!allowUnverified || busy || requested === stored.brightness}>
+          {busy ? 'Writing…' : 'Apply'}
+        </button>
+      </SettingLine>
     {/if}
 
     <footer class="actions">
@@ -217,34 +201,6 @@
 </section>
 
 <style>
-  .live {
-    display: grid;
-    gap: var(--space-4);
-  }
-
-  .section {
-    font-size: var(--step--1);
-    font-weight: 650;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .lede {
-    color: var(--muted);
-    max-width: 68ch;
-  }
-
-  .lede ~ .btn {
-    justify-self: start;
-  }
-
-  .problem {
-    display: flex;
-    gap: var(--space-2);
-    color: var(--danger);
-  }
-
   .scroll {
     overflow-x: auto;
   }
@@ -277,136 +233,9 @@
     margin-right: var(--space-2);
   }
 
-  .checks h3 {
-    font-size: var(--step-0);
-    font-weight: 600;
-  }
-
-  .checks p {
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
-    margin-top: var(--space-2);
-  }
-
-  .gate {
-    display: flex;
-    gap: var(--space-3);
-    align-items: flex-start;
-    padding: var(--space-3) 0;
-    border-block: 1px solid var(--line);
-    color: var(--muted);
-    max-width: 75ch;
-    cursor: pointer;
-  }
-
-  .gate input {
-    margin-top: 0.3em;
-    accent-color: var(--signal);
-  }
-
-  .line {
-    display: grid;
-    grid-template-columns: minmax(9rem, 14rem) auto 1fr;
-    grid-template-areas: 'name ask told' '. outcome outcome';
-    gap: var(--space-2) var(--space-6);
-    align-items: center;
-    padding: var(--space-3) 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .name {
-    grid-area: name;
-    font-weight: 600;
-  }
-
-  .ask {
-    grid-area: ask;
-    display: flex;
-    gap: var(--space-2);
-  }
-
-  select {
-    min-height: 2.25rem;
-    padding: 0 var(--space-3);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius);
-    background: var(--raised);
-    color: var(--text);
-    font: inherit;
-    font-variant-numeric: tabular-nums;
-  }
-
-  select:disabled {
-    opacity: 0.5;
-  }
-
-  .told {
-    grid-area: told;
-    display: flex;
-    align-items: baseline;
-    gap: var(--space-3);
-    flex-wrap: wrap;
-  }
-
-  .value {
-    font-size: var(--step-1);
-    font-weight: 600;
-  }
-
-  .when {
-    font-size: var(--step--1);
-    color: var(--faint);
-  }
-
-  .outcome {
-    grid-area: outcome;
-  }
-
-  .outcome:empty {
-    display: none;
-  }
-
-  .status {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4em;
-    font-weight: 600;
-  }
-
-  .confirmed {
-    color: var(--confirmed);
-  }
-
-  .signal {
-    color: var(--signal);
-  }
-
-  .danger {
-    color: var(--danger);
-  }
-
-  .muted {
-    color: var(--muted);
-  }
-
   .footnote {
     font-size: var(--step--1);
     color: var(--faint);
     max-width: 72ch;
-  }
-
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-2) var(--space-3);
-  }
-
-  @media (max-width: 40rem) {
-    .line {
-      grid-template-columns: 1fr;
-      grid-template-areas: 'name' 'told' 'ask' 'outcome';
-    }
   }
 </style>

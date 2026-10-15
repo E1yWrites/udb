@@ -9,11 +9,12 @@
   import LogitechPanel from './LogitechPanel.svelte';
   import RazerPanel from './RazerPanel.svelte';
   import LampArrayPanel from './LampArrayPanel.svelte';
+  import CorsairPanel from './CorsairPanel.svelte';
 
   let { device }: { device: UdbDevice } = $props();
 
   /** Families with a live panel below; anything else is identified but never sent to. */
-  const PANEL_FAMILIES = ['compx', 'vibe75', 'qmk-via', 'logitech-hidpp', 'razer', 'lamparray'];
+  const PANEL_FAMILIES = ['compx', 'vibe75', 'qmk-via', 'logitech-hidpp', 'razer', 'lamparray', 'corsair-nxp'];
 
   const entry = $derived(device.match?.entry);
   const title = $derived(devices.label(device));
@@ -146,6 +147,8 @@
     <RazerPanel {device} />
   {:else if entry?.protocol.family === 'lamparray' && device.presence === 'connected'}
     <LampArrayPanel {device} />
+  {:else if entry?.protocol.family === 'corsair-nxp' && device.presence === 'connected'}
+    <CorsairPanel {device} />
   {/if}
 
   {#if entry}

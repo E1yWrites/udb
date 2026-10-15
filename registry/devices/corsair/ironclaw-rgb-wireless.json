@@ -1,0 +1,104 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "corsair/ironclaw-rgb-wireless",
+  "vendor": "Corsair",
+  "model": "IRONCLAW RGB WIRELESS",
+  "category": "mouse",
+  "identities": [
+    {
+      "vid": "0x1B1C",
+      "pid": "0x1B4C",
+      "connection": "wired"
+    },
+    {
+      "vid": "0x1B1C",
+      "pid": "0x1B66",
+      "connection": "dongle",
+      "notes": "Its own receiver (ckb-next)"
+    },
+    {
+      "vid": "0x1B1C",
+      "pid": "0x1BDC",
+      "connection": "dongle",
+      "notes": "SLIPSTREAM WIRELESS USB Receiver; it serves other Corsair devices too"
+    }
+  ],
+  "protocol": {
+    "family": "corsair-bragi",
+    "doc": "docs/protocols/corsair.md",
+    "references": [
+      {
+        "title": "OpenMouse mouse-protocol (Corsair drivers and captures)",
+        "url": "https://github.com/OpenMouse-Project/mouse-protocol",
+        "license": "AGPL-3.0-or-later",
+        "use": "code"
+      }
+    ]
+  },
+  "collections": {
+    "use": [],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Detection only"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "Corsair iCUE"
+  ],
+  "limitations": [
+    "Detection only: UDB sends nothing to Bragi devices yet. The request layout is confirmed, but no reply was captured and the collection's usage is unknown."
+  ],
+  "features": [
+    {
+      "id": "dpi",
+      "kind": "range",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/corsair/bragi.ts and captures/corsair-ironclaw-rgb-wireless (iCUE DPI writes, no GET replies): SET 0x21/0x22 acked 01 01 00",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "polling-rate",
+      "kind": "enum",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/corsair/bragi.ts and captures/corsair-ironclaw-rgb-wireless (iCUE DPI writes, no GET replies): property 0x01 (from ckb-next/OpenRGB)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "battery",
+      "kind": "readonly",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: src/corsair/bragi.ts and captures/corsair-ironclaw-rgb-wireless (iCUE DPI writes, no GET replies): properties 0x0F/0x10 (from ckb-next/OpenRGB)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    }
+  ]
+}

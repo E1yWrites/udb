@@ -216,6 +216,19 @@ checks happen in the Phase 6 compatibility pass.
 - **Phase 6 on the G14:** read the attributes (they can become
   `read-verified`) and record its descriptor.
 
+### Long tail: Corsair, branch `phase-4-corsair` (stacked on LampArray)
+- [x] `docs/protocols/corsair.md`: the classic (NXP) protocol as OpenMouse
+  verified it on a NIGHTSWORD RGB (feature-report transport, no reply to SET,
+  DPI big-endian on GET and little-endian on SET, live-only settings), and
+  Bragi's status
+- [x] Adapter ported from OpenMouse. Tests use its NIGHTSWORD replies and
+  write probe (`tests/fixtures/openmouse-corsair-nightsword-2026-09.json`).
+- [x] Entries: NIGHTSWORD RGB (experimental); IRONCLAW RGB WIRELESS and its
+  receivers (Bragi, detection only)
+- [x] Panel: firmware, polling (read), enabled stages; active stage, stage
+  DPI (colour kept), lift-off and angle snapping, with a note that they are
+  live settings
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

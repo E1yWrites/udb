@@ -27,7 +27,7 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | debounce-ms | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
-### Not yet seen on hardware by UDB (306)
+### Not yet seen on hardware by UDB (308)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
@@ -171,6 +171,8 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | ATK ZERO EX | 373B:11CC | `compx` | polling-rate, dpi.stages, dpi.current-stage, debounce-ms | – |
 | ATK ZERO EX + | 373B:1289 | `compx` | polling-rate, dpi.current-stage, debounce-ms | dpi.stages |
 | ATK ZERO + | 373B:129E | `compx` | polling-rate, dpi.current-stage, debounce-ms | dpi.stages |
+| Corsair IRONCLAW RGB WIRELESS | 1B1C:1B4C 1B1C:1B66 1B1C:1BDC | `corsair-bragi` | – | dpi, polling-rate, battery |
+| Corsair NIGHTSWORD RGB | 1B1C:1B5C | `corsair-nxp` | dpi.stages, dpi.current-stage, lift-off-distance, angle-snapping | polling-rate, onboard-profiles, lighting |
 | Logitech G PRO 2 LIGHTSPEED | 046D:C09A | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
 | Logitech G Pro Wireless | 046D:4079 046D:C088 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
 | Logitech G Pro X Wireless Superlight | 046D:4093 046D:C094 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |

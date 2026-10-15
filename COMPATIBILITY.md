@@ -29,7 +29,7 @@ Column meanings:
 | Razer | Razer protocol | OpenMouse (AGPL-3.0-or-later), OpenRazer (GPL-2.0-or-later, facts) | ✅ undeclared feature report 0 on the mouse collection | ✅ | – | Phase 4, #3: experimental |
 | ZOWIE | none known (switches on the mouse itself) | – | – | – | – | detect only |
 | SteelSeries | rivalcfg family | rivalcfg (WTFPL) | ❓ | ⚠️ mostly write-only | – | Phase 4, later |
-| Corsair | Corsair HID | ckb-next (GPL-2.0, **reference only**), OpenRGB | ❓ | ❓ | – | Phase 4, later |
+| Corsair | classic (NXP) and Bragi | OpenMouse (AGPL-3.0-or-later; NIGHTSWORD hardware notes), ckb-next (GPL-2.0-only, not used) | ✅ `FFC2:0004` feature reports; Bragi `FF42` usage unknown | ✅ classic, live settings only | – | Phase 4 long tail: classic experimental, Bragi detection only |
 | HyperX | NGENUITY HID | OpenRGB (GPL-2.0-or-later), lighting only | ❓ | ❓ | – | Phase 4, later |
 | ASUS ROG | ROG mouse | OpenRGB (lighting) | ❓ | ❓ | – | Phase 4, later |
 | Glorious | Sinowealth-based | OpenRGB (lighting) | ❓ | ❓ | – | Phase 4, later |
@@ -66,6 +66,12 @@ until a device report shows their collections (`docs/protocols/hyperx.md`).
 adapter for any device exposing `0059:0001` (Windows Dynamic Lighting), plus
 the G14's own entry. Lamp attributes read back; colours are sent and labelled
 as unconfirmed. See `docs/protocols/lamparray.md`.
+
+**Phase 4 update (2026-10-15):** Corsair. The classic protocol (NIGHTSWORD
+RGB) has DPI stages, active stage, lift-off and angle snapping, all live
+settings that are lost at power-off. They are tested against OpenMouse's
+hardware replies. Bragi devices (IRONCLAW RGB WIRELESS, SLIPSTREAM receiver)
+are detection only. See `docs/protocols/corsair.md`.
 
 ## Keyboards
 

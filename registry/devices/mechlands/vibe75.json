@@ -54,16 +54,7 @@
         "interface": 3,
         "usagePage": "0xFF13",
         "usage": "0x0001",
-        "purpose": "Likely command channel: 65-byte input/output/feature reports (hypothesis)",
-        "reportIds": [
-          0
-        ]
-      },
-      {
-        "interface": 2,
-        "usagePage": "0xFF68",
-        "usage": "0x0061",
-        "purpose": "Likely bulk channel for screen images: 4097-byte output (hypothesis)",
+        "purpose": "Settings channel: 64-byte feature reports, report ID 0 (vendor driver uses HidD_SetFeature + IOCTL_HID_GET_FEATURE).",
         "reportIds": [
           0
         ]
@@ -87,10 +78,99 @@
     "Mechlands Vibe 75 Driver (DeviceDriver.exe)"
   ],
   "limitations": [
-    "Protocol not yet recovered. No feature can be shown until it is.",
-    "The vendor driver ships a FirmwareUpdateTool. UDB never uses it."
+    "Command bytes recovered from the vendor driver statically; the driver itself never reads settings back.",
+    "Lighting read (04 12, then poll GET_FEATURE) works on the Vibe75; field meanings follow the XVX G75 layout.",
+    "The vendor driver ships a FirmwareUpdateTool. UDB never uses it.",
+    "No USB serial number: the browser grants access only until the keyboard is unplugged; it must be picked again after replugging (Chromium HidChooserContext ephemeral permissions)."
   ],
   "features": [
+    {
+      "id": "lighting.mode",
+      "kind": "enum",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Ghidra decompile of DeviceDriver.exe (FUN_0042b0c0: 04 18, 04 13, block, 04 02, 04 F0) + XVX G75 notes (04 12 read)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        },
+        {
+          "source": "UDB evidence 2026-10-15: 04 12 00 then GET_FEATURE; block 05 ff c6 aa .. 00 05 01 00 .. aa 55 arrived on the second fetch (tests/fixtures/vibe75-2026-10-15.json)",
+          "hardware": "Mechlands Vibe75, USB cable; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "Block read from hardware; field meanings follow the XVX G75 layout and are not yet confirmed by a write."
+        }
+      ]
+    },
+    {
+      "id": "lighting.brightness",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "write-verified",
+      "evidence": [
+        {
+          "source": "Ghidra decompile of DeviceDriver.exe (FUN_0042b0c0: 04 18, 04 13, block, 04 02, 04 F0) + XVX G75 notes (04 12 read)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        },
+        {
+          "source": "UDB evidence 2026-10-15: 04 12 00 then GET_FEATURE; block 05 ff c6 aa .. 00 05 01 00 .. aa 55 arrived on the second fetch (tests/fixtures/vibe75-2026-10-15.json)",
+          "hardware": "Mechlands Vibe75, USB cable; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "Block read from hardware; field meanings follow the XVX G75 layout and are not yet confirmed by a write."
+        },
+        {
+          "source": "UDB evidence 2026-10-15 session 3: vendor sequence 04 18, 04 13, block (byte 9 = 03), 04 02, 04 F0; 04 02 ack sum 0x0377 = block sum; read back byte 9 = 03; then 05 written and read back (tests/fixtures/vibe75-2026-10-15.json)",
+          "hardware": "Mechlands Vibe75, USB cable; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "high"
+        },
+        {
+          "source": "UDB evidence 2026-10-15 session 4: brightness 3 written by UDB (owner's session-4 step, previous page load), USB cable unplugged and replugged, keyboard re-picked (reconnects: 1); first read after replug: block byte 9 = 03; then 05 written, ack sum 0x0379, read back 05",
+          "hardware": "Mechlands Vibe75, USB cable; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "Persists across unplug/replug. The write record is from the previous page load, so UDB's in-page persistence check did not run. The keyboard has a battery; a full power-off was not tested."
+        }
+      ],
+      "constraints": {
+        "min": 1,
+        "max": 5
+      }
+    },
+    {
+      "id": "lighting.speed",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "Ghidra decompile of DeviceDriver.exe (FUN_0042b0c0: 04 18, 04 13, block, 04 02, 04 F0) + XVX G75 notes (04 12 read)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        },
+        {
+          "source": "UDB evidence 2026-10-15: 04 12 00 then GET_FEATURE; block 05 ff c6 aa .. 00 05 01 00 .. aa 55 arrived on the second fetch (tests/fixtures/vibe75-2026-10-15.json)",
+          "hardware": "Mechlands Vibe75, USB cable; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "Block read from hardware; field meanings follow the XVX G75 layout and are not yet confirmed by a write."
+        }
+      ],
+      "constraints": {
+        "min": 0,
+        "max": 5
+      }
+    },
     {
       "id": "lighting.per-key",
       "kind": "color",
@@ -98,11 +178,10 @@
       "status": "unsupported",
       "evidence": [
         {
-          "source": "Vendor driver UI class names (CustomLightMode::SetKeyMap)",
+          "source": "Vendor driver: 04 20 + key table (FUN_00427fb0); not implemented",
           "hardware": null,
           "date": "2026-10-15",
-          "confidence": "low",
-          "notes": "Protocol unknown"
+          "confidence": "low"
         }
       ]
     },

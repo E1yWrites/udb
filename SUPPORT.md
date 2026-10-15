@@ -20,12 +20,12 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 
 | Feature | Location | Status | Read-back | Latest evidence |
 |---|---|---|---|---|
-| polling-rate | device | experimental | yes | no hardware, 2026-10-15, medium confidence |
+| polling-rate | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | dpi.stages | device | experimental | yes | no hardware, 2026-10-15, low confidence |
-| dpi.current-stage | device | experimental | yes | no hardware, 2026-10-15, medium confidence |
+| dpi.current-stage | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 | lift-off-distance | device | experimental | yes | no hardware, 2026-10-15, low confidence |
-| debounce-ms | device | experimental | yes | no hardware, 2026-10-15, medium confidence |
-| battery | device | experimental | yes | no hardware, 2026-10-15, medium confidence |
+| debounce-ms | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
+| battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
 ## Keyboards
 
@@ -53,6 +53,9 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 
 | Feature | Location | Status | Read-back | Latest evidence |
 |---|---|---|---|---|
+| lighting.mode | device | experimental | yes | no hardware, 2026-10-15, low confidence |
+| lighting.brightness | device | write-verified | yes | no hardware, 2026-10-15, low confidence |
+| lighting.speed | device | experimental | yes | no hardware, 2026-10-15, low confidence |
 | lighting.per-key | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 | keymap | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 | screen-image | device | unsupported | – | no hardware, 2026-10-15, low confidence |

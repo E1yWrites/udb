@@ -3,6 +3,8 @@
   import { devices, type UdbDevice } from '../lib/devices.svelte.ts';
   import { CONNECTION_ICON, LOCATION, STATUS, featureLabel, hex4 } from '../lib/labels.ts';
   import { deviceReport } from '../lib/report.ts';
+  import CompxPanel from './CompxPanel.svelte';
+  import Vibe75Panel from './Vibe75Panel.svelte';
 
   let { device }: { device: UdbDevice } = $props();
 
@@ -52,7 +54,11 @@
       <Icon name="unplug" size={20} />
       <div>
         <h2>Disconnected</h2>
-        <p>Plug it back in or wake it. UDB picks it up again on its own.</p>
+        <p>
+          Plug it back in or wake it. Devices with a USB serial number come back on their own. Devices without one
+          (like the Vibe75) lose the browser’s permission when unplugged, so you have to pick them again.
+        </p>
+        <button class="btn" onclick={() => devices.request('supported')}>Pick it again</button>
       </div>
     </div>
   {:else if device.presence === 'busy'}
@@ -89,9 +95,8 @@
       <div>
         <h2>Receiver recognised, model not confirmed</h2>
         <p>
-          This receiver pairs with several {entry.vendor} mice. UDB confirms the exact model by asking the
-          device, which comes in the next release. Listed below is what UDB knows about the
-          {entry.model}.
+          This receiver pairs with several {entry.vendor} mice. Use “Read from mouse” below to ask the device
+          which model it is. Listed further down is what UDB knows about the {entry.model}.
         </p>
       </div>
     </div>
@@ -100,9 +105,23 @@
       <Icon name="check" size={20} />
       <div>
         <h2>Detected</h2>
-        <p>This release identifies devices only. UDB sends nothing to them yet.</p>
+        <p>
+          {#if entry.protocol.family === 'compx'}
+            UDB sends nothing until you choose “Read from mouse”.
+          {:else if entry.protocol.family === 'vibe75'}
+            UDB sends nothing until you choose “Read from keyboard”.
+          {:else}
+            UDB can identify this device but has no adapter for it yet, so it sends nothing to it.
+          {/if}
+        </p>
       </div>
     </div>
+  {/if}
+
+  {#if entry?.protocol.family === 'compx' && device.presence === 'connected'}
+    <CompxPanel {device} />
+  {:else if entry?.protocol.family === 'vibe75' && device.presence === 'connected'}
+    <Vibe75Panel {device} />
   {/if}
 
   {#if entry}

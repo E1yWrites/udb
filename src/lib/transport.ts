@@ -90,3 +90,122 @@ export async function open(device: Pick<HIDDevice, 'opened' | 'open'>): Promise<
     return { ok: false, error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) };
   }
 }
+
+export interface LogEntry {
+  at: string;
+  dir: 'tx' | 'rx';
+  reportId: number;
+  hex: string;
+  /** How a received report arrived, when it matters (feature reply vs. pushed input report). */
+  via?: 'feature' | 'input';
+}
+
+export const toHex = (b: Uint8Array) => Array.from(b, (v) => v.toString(16).padStart(2, '0')).join(' ');
+
+export class TransportTimeout extends Error {
+  constructor(report: OutgoingReport, attempts: number) {
+    super(`No reply to report 0x${report.reportId.toString(16).padStart(2, '0')} after ${attempts} attempts`);
+    this.name = 'TransportTimeout';
+  }
+}
+
+type Listening = DeviceLike & Pick<HIDDevice, 'addEventListener' | 'removeEventListener'>;
+
+export interface RequestOptions {
+  timeoutMs?: number;
+  attempts?: number;
+  log?: (entry: LogEntry) => void;
+}
+
+/**
+ * Send a guarded report and wait for the input report `isReply` accepts.
+ * Retries like the vendor driver (it tries 5 times, 200 ms each).
+ */
+export async function request(
+  device: Listening,
+  report: OutgoingReport,
+  guard: Guard,
+  isReply: (data: Uint8Array) => boolean,
+  { timeoutMs = 200, attempts = 3, log }: RequestOptions = {},
+): Promise<Uint8Array> {
+  check(device, report, guard);
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    let onReport: ((e: Event) => void) | undefined;
+    const reply = new Promise<Uint8Array | null>((resolve) => {
+      const timer = setTimeout(() => resolve(null), timeoutMs);
+      onReport = (e: Event) => {
+        const ev = e as HIDInputReportEvent;
+        const data = new Uint8Array(ev.data.buffer.slice(ev.data.byteOffset, ev.data.byteOffset + ev.data.byteLength));
+        if (ev.reportId !== report.reportId || !isReply(data)) return;
+        clearTimeout(timer);
+        resolve(data);
+      };
+      device.addEventListener('inputreport', onReport);
+    });
+    try {
+      log?.({ at: new Date().toISOString(), dir: 'tx', reportId: report.reportId, hex: toHex(report.data) });
+      await send(device, report, guard);
+      const data = await reply;
+      if (data) {
+        log?.({ at: new Date().toISOString(), dir: 'rx', reportId: report.reportId, hex: toHex(data) });
+        return data;
+      }
+    } finally {
+      device.removeEventListener('inputreport', onReport!);
+    }
+  }
+  throw new TransportTimeout(report, attempts);
+}
+
+/**
+ * Feature-report exchange used by devices that answer through GET_FEATURE
+ * (e.g. the Vibe75): send the request, wait, read the reply. Both legs are guarded.
+ */
+export async function featureQuery(
+  device: DeviceLike,
+  report: OutgoingReport,
+  guard: Guard,
+  { delayMs = 20, log }: { delayMs?: number; log?: (entry: LogEntry) => void } = {},
+): Promise<Uint8Array> {
+  log?.({ at: new Date().toISOString(), dir: 'tx', reportId: report.reportId, hex: toHex(report.data) });
+  await send(device, report, guard);
+  await new Promise((r) => setTimeout(r, delayMs));
+  const view = await receiveFeature(device, report.reportId, guard);
+  const data = new Uint8Array(view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength));
+  log?.({ at: new Date().toISOString(), dir: 'rx', reportId: report.reportId, hex: toHex(data) });
+  return data;
+}
+
+/**
+ * Read-only investigation helper: send one guarded feature request, then
+ * fetch the feature reply at each delay and record any input report the
+ * device pushes meanwhile. Returns everything received, in order.
+ */
+export async function featureProbe(
+  device: DeviceLike & Pick<HIDDevice, 'addEventListener' | 'removeEventListener'>,
+  report: OutgoingReport,
+  guard: Guard,
+  delaysMs: number[],
+  log: (entry: LogEntry) => void,
+): Promise<void> {
+  const onInput = (e: Event) => {
+    const ev = e as HIDInputReportEvent;
+    const data = new Uint8Array(ev.data.buffer.slice(ev.data.byteOffset, ev.data.byteOffset + ev.data.byteLength));
+    log({ at: new Date().toISOString(), dir: 'rx', reportId: ev.reportId, hex: toHex(data), via: 'input' });
+  };
+  device.addEventListener('inputreport', onInput);
+  try {
+    log({ at: new Date().toISOString(), dir: 'tx', reportId: report.reportId, hex: toHex(report.data) });
+    await send(device, report, guard);
+    let waited = 0;
+    for (const at of delaysMs) {
+      await new Promise((r) => setTimeout(r, at - waited));
+      waited = at;
+      const view = await receiveFeature(device, report.reportId, guard);
+      const data = new Uint8Array(view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength));
+      log({ at: new Date().toISOString(), dir: 'rx', reportId: report.reportId, hex: toHex(data), via: 'feature' });
+    }
+  } finally {
+    device.removeEventListener('inputreport', onInput);
+  }
+}

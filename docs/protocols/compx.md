@@ -148,6 +148,28 @@ code, not in `cfg.json`. That table is a Phase 3 extraction task.
 - Before writes, the driver polls `DeviceOnLine` until byte 5 = 1 (mouse awake
   and linked). It treats byte 9 = 1 as "busy, retry".
 
+## Observed on hardware (2026-10-15)
+
+Pulsar X2 CrazyLight Bruce Lee 85th Anniversary Edition via the 8K dongle
+`3710:5406`, Edge 155 on Windows 11. The full byte log is
+`tests/fixtures/compx-crazylight-2026-10-15.json`.
+
+- **Identity:** CID 87, MID 82, type 5 (wireless, 8 kHz). Reply bytes 5–8 are
+  not an echo of the random challenge; their meaning is unknown.
+- **Reply checksums:** replies use the same checksum as requests (report ID
+  included). UDB rejects replies that fail it.
+- **`DeviceOnLine` reply:** byte 4 = 1, byte 5 = 1 (online), bytes 6–8 =
+  `b2 6d 1b` (link address), byte 9 = 0 (not busy).
+- **`BatteryLevel` reply:** byte 4 = 2, byte 5 = level (`0x64` = 100%),
+  byte 6 = charging. Bytes 7–8 = `0x1022` (4130), probably millivolts
+  (inferred, not used).
+- **`WriteFlashData` ack:** the device echoes the whole request frame.
+- **Polling rate:** 1000 Hz → 8000 Hz → 1000 Hz, each confirmed by reading
+  `0x00` back. That makes it **write-verified**.
+- **Stage count** (`0x02`) reads 1 on this mouse (one DPI stage configured).
+  The active stage (`0x04`) reads 0.
+- **Persistence across unplug/replug:** not yet checked.
+
 ## Write procedure for UDB (proposed)
 
 1. Check the value against the capability range in the registry.

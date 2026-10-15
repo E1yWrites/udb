@@ -121,7 +121,7 @@
     <p>Nothing is uploaded. UDB runs entirely in this browser.</p>
     <p>
       <a href="https://github.com/E1yWrites/udb/blob/main/SUPPORT.md" target="_blank" rel="noreferrer">Support matrix</a>
-      · <a href="https://github.com/E1yWrites/udb" target="_blank" rel="noreferrer">Source (GPL-3.0)</a>
+      · <a href="https://github.com/E1yWrites/udb/tree/{__COMMIT__}" target="_blank" rel="noreferrer">Source of this build (AGPL-3.0)</a>
     </p>
   </footer>
 

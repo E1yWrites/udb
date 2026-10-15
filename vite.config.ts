@@ -1,4 +1,5 @@
 /// <reference types="vitest/config" />
+import { execSync } from 'node:child_process';
 import { defineConfig, type Plugin } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
@@ -23,8 +24,19 @@ const csp: Plugin = {
   ],
 };
 
+// ADR 8: the app is conveyed under AGPL-3.0 terms, so it links to the exact source it was built from.
+function commit(): string {
+  if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA;
+  try {
+    return execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+  } catch {
+    return 'main';
+  }
+}
+
 export default defineConfig({
   base: './',
+  define: { __COMMIT__: JSON.stringify(commit()) },
   plugins: [svelte(), csp],
   build: { assetsInlineLimit: 0 },
   test: { include: ['tests/**/*.test.ts'], environment: 'node' },

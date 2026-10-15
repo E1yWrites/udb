@@ -115,6 +115,14 @@ export interface RequestOptions {
   timeoutMs?: number;
   attempts?: number;
   log?: (entry: LogEntry) => void;
+  /**
+   * Interfaces the reply may arrive on (default: the sending device). On
+   * Windows each top-level collection is its own HIDDevice, so a HID++ reply
+   * can come back on a sibling collection.
+   */
+  replyOn?: Pick<HIDDevice, 'addEventListener' | 'removeEventListener'>[];
+  /** Report IDs a reply may carry (default: the request's). */
+  replyIds?: number[];
 }
 
 /**
@@ -126,32 +134,32 @@ export async function request(
   report: OutgoingReport,
   guard: Guard,
   isReply: (data: Uint8Array) => boolean,
-  { timeoutMs = 200, attempts = 3, log }: RequestOptions = {},
+  { timeoutMs = 200, attempts = 3, log, replyOn = [device], replyIds = [report.reportId] }: RequestOptions = {},
 ): Promise<Uint8Array> {
   check(device, report, guard);
   for (let attempt = 0; attempt < attempts; attempt++) {
     let onReport: ((e: Event) => void) | undefined;
-    const reply = new Promise<Uint8Array | null>((resolve) => {
+    const reply = new Promise<{ reportId: number; data: Uint8Array } | null>((resolve) => {
       const timer = setTimeout(() => resolve(null), timeoutMs);
       onReport = (e: Event) => {
         const ev = e as HIDInputReportEvent;
         const data = new Uint8Array(ev.data.buffer.slice(ev.data.byteOffset, ev.data.byteOffset + ev.data.byteLength));
-        if (ev.reportId !== report.reportId || !isReply(data)) return;
+        if (!replyIds.includes(ev.reportId) || !isReply(data)) return;
         clearTimeout(timer);
-        resolve(data);
+        resolve({ reportId: ev.reportId, data });
       };
-      device.addEventListener('inputreport', onReport);
+      for (const d of replyOn) d.addEventListener('inputreport', onReport);
     });
     try {
       log?.({ at: new Date().toISOString(), dir: 'tx', reportId: report.reportId, hex: toHex(report.data) });
       await send(device, report, guard);
-      const data = await reply;
-      if (data) {
-        log?.({ at: new Date().toISOString(), dir: 'rx', reportId: report.reportId, hex: toHex(data) });
-        return data;
+      const got = await reply;
+      if (got) {
+        log?.({ at: new Date().toISOString(), dir: 'rx', reportId: got.reportId, hex: toHex(got.data) });
+        return got.data;
       }
     } finally {
-      device.removeEventListener('inputreport', onReport!);
+      for (const d of replyOn) d.removeEventListener('inputreport', onReport!);
     }
   }
   throw new TransportTimeout(report, attempts);

@@ -5,37 +5,122 @@
   "model": "Vibe75",
   "category": "keyboard",
   "identities": [
-    { "vid": "0x05AC", "pid": "0x024F", "connection": "wired", "productName": "Mechlands Vibe75", "notes": "Uses Apple's vendor ID. Matching needs the product name or protocol identity, not VID/PID alone." },
-    { "vid": "0x05AC", "pid": "0x024F", "connection": "dongle", "productName": "2.4G Dongle" },
-    { "vid": "0x05AC", "pid": "0x024F", "connection": "bluetooth", "productName": "Vibe75-1" }
+    {
+      "vid": "0x05AC",
+      "pid": "0x024F",
+      "connection": "wired",
+      "productName": "Mechlands Vibe75",
+      "notes": "Uses Apple's vendor ID. Matching needs the product name or protocol identity, not VID/PID alone.",
+      "requireProductName": true
+    },
+    {
+      "vid": "0x05AC",
+      "pid": "0x024F",
+      "connection": "dongle",
+      "productName": "2.4G Dongle",
+      "requireProductName": true
+    },
+    {
+      "vid": "0x05AC",
+      "pid": "0x024F",
+      "connection": "bluetooth",
+      "productName": "Vibe75-1",
+      "requireProductName": true
+    }
   ],
   "protocol": {
     "family": "vibe75",
     "doc": "docs/protocols/vibe75.md",
     "references": [
-      { "title": "Mechlands Vibe 75 Driver 1.0.0.0 (MFC)", "url": "https://www.mechlands.com/blogs/software/mechlands-vibe75-v2-driver", "license": "proprietary", "use": "facts-only" }
+      {
+        "title": "Mechlands Vibe 75 Driver 1.0.0.0 (MFC)",
+        "url": "https://www.mechlands.com/blogs/software/mechlands-vibe75-v2-driver",
+        "license": "proprietary",
+        "use": "facts-only"
+      }
     ]
   },
   "collections": {
     "use": [
-      { "interface": 3, "usagePage": "0xFF13", "usage": "0x0001", "purpose": "Likely command channel: 65-byte input/output/feature reports (hypothesis)" },
-      { "interface": 2, "usagePage": "0xFF68", "usage": "0x0061", "purpose": "Likely bulk channel for screen images: 4097-byte output (hypothesis)" }
+      {
+        "interface": 3,
+        "usagePage": "0xFF13",
+        "usage": "0x0001",
+        "purpose": "Likely command channel: 65-byte input/output/feature reports (hypothesis)"
+      },
+      {
+        "interface": 2,
+        "usagePage": "0xFF68",
+        "usage": "0x0061",
+        "purpose": "Likely bulk channel for screen images: 4097-byte output (hypothesis)"
+      }
     ],
     "deny": []
   },
   "platform": {
-    "windows": { "status": "documented", "notes": "Target platform; not yet tested" },
-    "linux": { "status": "unknown" },
-    "macos": { "status": "unknown" }
+    "windows": {
+      "status": "documented",
+      "notes": "Target platform; not yet tested"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unknown"
+    }
   },
-  "conflictingSoftware": ["Mechlands Vibe 75 Driver (DeviceDriver.exe)"],
+  "conflictingSoftware": [
+    "Mechlands Vibe 75 Driver (DeviceDriver.exe)"
+  ],
   "limitations": [
     "Protocol not yet recovered. No feature can be shown until it is.",
     "The vendor driver ships a FirmwareUpdateTool. UDB never uses it."
   ],
   "features": [
-    { "id": "lighting.per-key", "kind": "color", "location": "device", "status": "unsupported", "evidence": [ { "source": "Vendor driver UI class names (CustomLightMode::SetKeyMap)", "hardware": null, "date": "2026-10-15", "confidence": "low", "notes": "Protocol unknown" } ] },
-    { "id": "keymap", "kind": "keymap", "location": "device", "status": "unsupported", "evidence": [ { "source": "Vendor driver UI class names (KeyLayerButton)", "hardware": null, "date": "2026-10-15", "confidence": "low", "notes": "Protocol unknown" } ] },
-    { "id": "screen-image", "kind": "readonly", "location": "device", "status": "unsupported", "evidence": [ { "source": "Vendor driver UI class names (LCDViewList::GetImageRGB565Data)", "hardware": null, "date": "2026-10-15", "confidence": "low", "notes": "Protocol unknown" } ] }
+    {
+      "id": "lighting.per-key",
+      "kind": "color",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "Vendor driver UI class names (CustomLightMode::SetKeyMap)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low",
+          "notes": "Protocol unknown"
+        }
+      ]
+    },
+    {
+      "id": "keymap",
+      "kind": "keymap",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "Vendor driver UI class names (KeyLayerButton)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low",
+          "notes": "Protocol unknown"
+        }
+      ]
+    },
+    {
+      "id": "screen-image",
+      "kind": "readonly",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "Vendor driver UI class names (LCDViewList::GetImageRGB565Data)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low",
+          "notes": "Protocol unknown"
+        }
+      ]
+    }
   ]
 }

@@ -6,8 +6,12 @@
   import CompxPanel from './CompxPanel.svelte';
   import Vibe75Panel from './Vibe75Panel.svelte';
   import ViaPanel from './ViaPanel.svelte';
+  import LogitechPanel from './LogitechPanel.svelte';
 
   let { device }: { device: UdbDevice } = $props();
+
+  /** Families with a live panel below; anything else is identified but never sent to. */
+  const PANEL_FAMILIES = ['compx', 'vibe75', 'qmk-via', 'logitech-hidpp'];
 
   const entry = $derived(device.match?.entry);
   const title = $derived(devices.label(device));
@@ -40,7 +44,7 @@
   <header class="head">
     <h1 id="device-title">{title}</h1>
     <p class="identity">
-      {#if connection}
+      {#if connection && connection !== 'unknown'}
         <span class="tag"><Icon name={CONNECTION_ICON[connection]} size={14} />{connection}</span>
       {/if}
       <span class="data">{hex4(device.vendorId)}:{hex4(device.productId)}</span>
@@ -118,10 +122,8 @@
       <div>
         <h2>Detected</h2>
         <p>
-          {#if entry.protocol.family === 'compx'}
-            UDB sends nothing until you choose “Read from mouse”.
-          {:else if entry.protocol.family === 'vibe75'}
-            UDB sends nothing until you choose “Read from keyboard”.
+          {#if PANEL_FAMILIES.includes(entry.protocol.family)}
+            UDB sends nothing until you choose “Read from {entry.category}”.
           {:else}
             UDB can identify this device but has no adapter for it yet, so it sends nothing to it.
           {/if}
@@ -136,6 +138,8 @@
     <Vibe75Panel {device} />
   {:else if entry?.protocol.family === 'qmk-via' && device.presence === 'connected'}
     <ViaPanel {device} />
+  {:else if entry?.protocol.family === 'logitech-hidpp' && device.presence === 'connected'}
+    <LogitechPanel {device} />
   {/if}
 
   {#if entry}

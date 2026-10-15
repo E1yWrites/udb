@@ -3,6 +3,9 @@ import type { IconName } from '../ui/Icon.svelte';
 
 const FEATURE_LABELS: Record<string, string> = {
   'polling-rate': 'Polling rate',
+  dpi: 'DPI',
+  'onboard-profiles': 'Onboard profiles',
+  buttons: 'Button mapping',
   'dpi.stages': 'DPI stages',
   'dpi.current-stage': 'Active DPI stage',
   'lift-off-distance': 'Lift-off distance',

@@ -12,7 +12,7 @@ function fake(vendorId: number, productId: number, productName: string, collecti
 }
 
 // The Pulsar answers through the protocol simulator (tests/compx-sim.ts), so the live panel works in preview.
-const pulsar = Object.assign(new CompxSim({ mid: 42, type: 5 }), {
+const pulsar = Object.assign(new CompxSim({ mid: 82, type: 5 }), {
   vendorId: 0x3710,
   productId: 0x5406,
   productName: 'Pulsar 8K Dongle',

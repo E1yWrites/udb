@@ -12,8 +12,10 @@
   import Icon from './Icon.svelte';
   import { CompxSession } from '../adapters/compx-session.ts';
   import { POLLING_RATES, type Info } from '../adapters/compx.ts';
+  import { DPI_SENSORS, type DpiSensor } from '../adapters/compx-dpi.ts';
   import type { UdbDevice } from '../lib/devices.svelte.ts';
-  import { hex } from '../lib/registry.ts';
+  import { resolveByProtocolIdentity } from '../lib/match.ts';
+  import { hex, registry, type DeviceEntry } from '../lib/registry.ts';
   import { open, type LogEntry } from '../lib/transport.ts';
   import { applySetting, type Setting, type WriteResult } from '../lib/write.ts';
 
@@ -21,8 +23,11 @@
   const entry = $derived(device.match!.entry);
 
   type Reading = { value: number | null; at: string };
-  type Row = 'pollingRate' | 'activeStage' | 'debounce';
-  const LABEL: Record<Row, string> = { pollingRate: 'Polling rate', activeStage: 'Active DPI stage', debounce: 'Debounce' };
+  type Row = 'pollingRate' | 'activeStage' | 'debounce' | `dpi${number}`;
+  const isDpi = (row: Row): row is `dpi${number}` => row.startsWith('dpi');
+  const stageOf = (row: `dpi${number}`) => Number(row.slice(3));
+  const LABEL: Record<string, string> = { pollingRate: 'Polling rate', activeStage: 'Active DPI stage', debounce: 'Debounce' };
+  const label = (row: Row) => (isDpi(row) ? `DPI, stage ${stageOf(row) + 1}` : LABEL[row]!);
   type Check = { setting: Row; expected: number; observed: number | null; at: string };
 
   let phase = $state<'idle' | 'reading' | 'ready' | 'error'>('idle');
@@ -38,6 +43,12 @@
   let checks = $state<Check[]>([]);
   let copied = $state(false);
   let session: CompxSession | null = null;
+  /** The registry model the device's own CID/MID resolved to (may differ from a shared receiver's first match). */
+  let model = $state<DeviceEntry | null>(null);
+  let sensor = $state<DpiSensor | null>(null);
+  /** Raw X/Y per stage, so asymmetric stages can be shown even though controls set X = Y. */
+  let dpiRaw = $state<Record<number, { x: number; y: number } | null>>({});
+  const dpiRows = $derived(sensor && stageCount ? Array.from({ length: stageCount }, (_, i) => `dpi${i}` as Row) : []);
   function historyFor(key: string) {
     if (!history.has(key)) history.set(key, { log: [], writes: [] });
     return history.get(key)!;
@@ -48,17 +59,37 @@
   const clock = (iso: string) => new Date(iso).toLocaleTimeString();
   const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
-  const expectedMid = $derived(device.match?.identity.protocolIdentity?.mid ?? null);
+  const feature = (e: DeviceEntry, id: string) => e.features.find((f) => f.id === id);
   const rates = $derived(POLLING_RATES.filter((r) => !info || r <= info.maxRate));
-  const maxDebounce = $derived(Number(entry.features.find((f) => f.id === 'debounce-ms')?.constraints?.max ?? 15));
+  const maxDebounce = $derived(Number(feature(model ?? entry, 'debounce-ms')?.constraints?.max ?? 15));
+
+  function sensorFor(e: DeviceEntry): DpiSensor | null {
+    const f = feature(e, 'dpi.stages');
+    const name = f && f.status !== 'unsupported' ? f.constraints?.sensor : null;
+    return typeof name === 'string' ? (DPI_SENSORS[name] ?? null) : null;
+  }
 
   function options(row: Row): { value: number; label: string }[] {
+    if (isDpi(row)) return [];
     if (row === 'pollingRate') return rates.map((hz) => ({ value: hz, label: `${hz.toLocaleString()} Hz` }));
     if (row === 'activeStage') return Array.from({ length: stageCount ?? 0 }, (_, i) => ({ value: i, label: `Stage ${i + 1}` }));
     return Array.from({ length: maxDebounce + 1 }, (_, ms) => ({ value: ms, label: `${ms} ms` }));
   }
 
   function setting(row: Row): Setting<number> {
+    if (isDpi(row)) {
+      // Controls set X = Y; a read only counts as that value when both axes match it.
+      const stage = session!.dpiStage(stageOf(row), sensor!);
+      return {
+        validate: (v) => stage.validate({ x: v, y: v }),
+        write: (v) => stage.write({ x: v, y: v }),
+        read: async () => {
+          const xy = await stage.read();
+          dpiRaw[stageOf(row)] = xy;
+          return xy && xy.x === xy.y ? xy.x : null;
+        },
+      };
+    }
     if (row === 'pollingRate') return session!.pollingRate(info!);
     if (row === 'activeStage') return session!.activeStage(stageCount!);
     return session!.debounce(maxDebounce);
@@ -80,21 +111,35 @@
     const opened = await open(hid);
     if (!opened.ok) {
       phase = 'error';
-      error = `Could not open the device (${opened.error}). Close Pulsar's software and try again.`;
+      const apps = entry.conflictingSoftware?.join(' or ') ?? 'the manufacturer’s software';
+      error = `Could not open the device (${opened.error}). Close ${apps} and try again.`;
       return;
     }
     const deny = entry.collections.deny.map((c) => ({ usagePage: hex(c.usagePage), usage: hex(c.usage) }));
     session = new CompxSession(hid, deny, past.log);
     try {
-      info = await session.identify();
+      // Identify the way this model's vendor software does, then resolve the exact model.
+      if (entry.protocol.params?.identify === 'cidmid') {
+        const id = await session.identifyCidMid();
+        const ratesFor = feature(entry, 'polling-rate')?.constraints?.values;
+        const maxRate = Array.isArray(ratesFor) ? Math.max(...(ratesFor as number[])) : 1000;
+        info = { ...id, type: -1, wired: false, maxRate };
+      } else {
+        info = await session.identify();
+      }
+      model = resolveByProtocolIdentity(device, registry, info)?.entry ?? null;
+      sensor = sensorFor(model ?? entry);
+      // A second session whose allowlist knows this model's DPI encoding; same byte log.
+      session = new CompxSession(hid, deny, past.log, sensor);
       stageCount = await session.readPair(0x02);
-      for (const row of ['pollingRate', 'activeStage', 'debounce'] as Row[]) {
+      const rows: Row[] = ['pollingRate', 'activeStage', 'debounce', ...(sensor && stageCount ? Array.from({ length: stageCount }, (_, i) => `dpi${i}` as Row) : [])];
+      for (const row of rows) {
         if (row === 'activeStage' && stageCount === null) continue;
         const value = await setting(row).read();
         readings[row] = { value, at: now() };
         if (value !== null) requested[row] = value;
       }
-      battery = info.wired ? null : await session.battery().catch(() => null);
+      battery = info.type !== -1 && info.wired ? null : await session.battery().catch(() => null);
       // Only writes confirmed before the latest real disconnect/reconnect count as a persistence check.
       const remembered = Object.entries(confirmedWrites.get(device.key) ?? {}).filter(([, w]) => device.reconnects > w.reconnects);
       checks = remembered.map(([s, w]) => ({
@@ -134,6 +179,11 @@
   }
 
   function show(row: Row, v: number | null | undefined): string {
+    if (isDpi(row)) {
+      const raw = dpiRaw[stageOf(row)];
+      if (v == null) return raw ? `${raw.x.toLocaleString()} × ${raw.y.toLocaleString()}` : 'Unreadable';
+      return `${v.toLocaleString()} DPI`;
+    }
     if (v == null) return 'Unreadable';
     if (row === 'pollingRate') return `${v.toLocaleString()} Hz`;
     if (row === 'activeStage') return `Stage ${v + 1} of ${stageCount}`;
@@ -147,7 +197,10 @@
       userAgent: navigator.userAgent,
       device: { vendorId: device.vendorId, productId: device.productId, productName: device.productName, registryId: entry.id },
       identity: info,
+      resolvedModel: model?.id ?? null,
+      dpiSensor: sensor,
       stageCount,
+      dpiRaw: $state.snapshot(dpiRaw),
       battery,
       readings: $state.snapshot(readings),
       reconnects: device.reconnects,
@@ -167,7 +220,8 @@
   {#if phase === 'idle' || phase === 'error'}
     <p class="lede">
       UDB asks the mouse who it is and reads its current settings. Reading changes nothing. The only commands UDB can send
-      are identify, link check, battery, settings read, and writes to polling rate, active DPI stage and debounce.
+      are identify, link check, battery, settings read, and writes to polling rate, active DPI stage, DPI stage values and
+      debounce.
     </p>
     {#if phase === 'error'}
       <p class="problem" role="alert"><Icon name="alert" />{error}</p>
@@ -181,16 +235,18 @@
         <dt>Identity</dt>
         <dd>
           <span class="data">CID {info.cid} · MID {info.mid}</span>
-          {#if expectedMid === info.mid}
-            <span class="status confirmed"><Icon name="check" size={14} />Matches {entry.model}</span>
+          {#if model}
+            <span class="status confirmed"><Icon name="check" size={14} />{model.vendor} {model.model}</span>
           {:else}
-            <span class="status signal"><Icon name="unverified" size={14} />MID not yet recorded for this model</span>
+            <span class="status signal"><Icon name="unverified" size={14} />This CID/MID is not in the registry yet</span>
           {/if}
         </dd>
       </div>
       <div>
         <dt>Link</dt>
-        <dd>{info.wired ? 'Cable' : 'Wireless'}, up to {info.maxRate.toLocaleString()} Hz</dd>
+        <dd>
+          {#if info.type === -1}Not reported by this model{:else}{info.wired ? 'Cable' : 'Wireless'}, up to {info.maxRate.toLocaleString()} Hz{/if}
+        </dd>
       </div>
       {#if battery}
         <div>
@@ -207,7 +263,7 @@
           {#each checks as c (c.setting)}
             <li class={c.observed === c.expected ? 'confirmed' : 'signal'}>
               <Icon name={c.observed === c.expected ? 'check' : 'alert'} size={14} />
-              {LABEL[c.setting]}:
+              {label(c.setting)}:
               {c.observed === c.expected ? 'kept' : 'changed to'} {show(c.setting, c.observed)}
               {#if c.observed !== c.expected}(last confirmed {show(c.setting, c.expected)}){/if}
             </li>
@@ -225,15 +281,28 @@
     </label>
 
     <div class="lines">
-      {#each ['pollingRate', 'activeStage', 'debounce'] as const as row (row)}
+      {#each ['pollingRate', 'activeStage', 'debounce', ...dpiRows] as Row[] as row (row)}
         {#if row !== 'activeStage' || (stageCount ?? 0) > 1}
           {@const r = results[row]}
           <div class="line">
-            <label class="name" for="ctl-{row}">{LABEL[row]}</label>
+            <label class="name" for="ctl-{row}">{label(row)}</label>
             <div class="ask">
-              <select id="ctl-{row}" bind:value={requested[row]} disabled={!allowUnverified || busy !== null}>
-                {#each options(row) as o (o.value)}<option value={o.value}>{o.label}</option>{/each}
-              </select>
+              {#if isDpi(row) && sensor}
+                <input
+                  id="ctl-{row}"
+                  type="number"
+                  inputmode="numeric"
+                  min={sensor.minDpi}
+                  max={sensor.maxDpi}
+                  step="10"
+                  bind:value={requested[row]}
+                  disabled={!allowUnverified || busy !== null}
+                />
+              {:else}
+                <select id="ctl-{row}" bind:value={requested[row]} disabled={!allowUnverified || busy !== null}>
+                  {#each options(row) as o (o.value)}<option value={o.value}>{o.label}</option>{/each}
+                </select>
+              {/if}
               <button
                 class="btn"
                 onclick={() => apply(row)}
@@ -391,7 +460,8 @@
     gap: var(--space-2);
   }
 
-  select {
+  select,
+  input[type='number'] {
     min-height: 2.25rem;
     padding: 0 var(--space-3);
     border: 1px solid var(--line-strong);
@@ -402,7 +472,12 @@
     font-variant-numeric: tabular-nums;
   }
 
-  select:disabled {
+  input[type='number'] {
+    width: 8rem;
+  }
+
+  select:disabled,
+  input:disabled {
     opacity: 0.5;
   }
 

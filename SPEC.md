@@ -70,7 +70,7 @@ flowchart LR
 | Layer | Owns | Never does |
 |---|---|---|
 | Discovery | Device enumeration, connect/disconnect, matching a HID device to a registry entry, permission prompts | Sending reports |
-| Transport | Opening devices, sending and receiving reports, timeouts. **Enforces each adapter's command allowlist and the registry's collection denylist on every outgoing report.** | Protocol knowledge |
+| Transport | Opening devices, sending and receiving reports, timeouts. **Enforces each adapter's command allowlist and the registry's collection denylist on every outgoing report**, and refuses report IDs the descriptor does not declare unless the registry names them (`undeclaredFeatureReports`, for Razer). | Protocol knowledge |
 | Protocol adapter | Encode/decode for one protocol family, framing, checksums, the list of allowed commands | UI concerns; choosing values |
 | Capability model | The features a device has, their ranges, where each setting lives, and the **write procedure** | Bytes |
 | Persistence | UI preferences and browser-stored profiles | Storing device reports |

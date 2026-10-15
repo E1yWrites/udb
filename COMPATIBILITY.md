@@ -26,7 +26,7 @@ Column meanings:
 |---|---|---|---|---|---|---|
 | Pulsar | `compx` | Pulsar Bibimbap web driver (proprietary; facts only) | ✅ `FF02:0002` | ✅ flash read | **X2 CrazyLight** | **Phase 3** |
 | Logitech G | HID++ 2.0 | OpenMouse (AGPL-3.0-or-later), libratbag (MIT), Solaar (GPL-2.0-or-later) | ✅ `FF00:0001/0002`, `FF43:0202` | ✅ | – | Phase 4, #2: experimental |
-| Razer | Razer protocol | OpenRazer (GPL-2.0-or-later) | ✅ feature reports on the mouse collection | ✅ | – | Phase 4, #3 |
+| Razer | Razer protocol | OpenMouse (AGPL-3.0-or-later), OpenRazer (GPL-2.0-or-later, facts) | ✅ undeclared feature report 0 on the mouse collection | ✅ | – | Phase 4, #3: experimental |
 | ZOWIE | none known (switches on the mouse itself) | – | – | – | – | detect only |
 | SteelSeries | rivalcfg family | rivalcfg (WTFPL) | ❓ | ⚠️ mostly write-only | – | Phase 4, later |
 | Corsair | Corsair HID | ckb-next (GPL-2.0, **reference only**), OpenRGB | ❓ | ❓ | – | Phase 4, later |
@@ -45,6 +45,11 @@ keyboards generated from libratbag's device data and OpenMouse's list, plus one
 entry that matches any Logitech HID++ interface (receivers, unlisted models).
 DPI, report rate and battery are `experimental`. See
 `docs/protocols/logitech-hidpp.md`.
+
+**Phase 4 update (2026-10-15):** Razer is in: 82 mouse models (111 product
+IDs) from OpenMouse's audit of OpenRazer. DPI, polling, battery, auto sleep and
+the low-power threshold are `experimental`. The codec replays two real
+DeathAdder V3 Pro captures byte for byte. See `docs/protocols/razer.md`.
 
 ## Keyboards
 

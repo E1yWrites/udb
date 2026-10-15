@@ -24,6 +24,7 @@ export class CompxSim {
   constructor(opts: SimOptions = {}) {
     this.opts = opts;
     this.flash.set([1, 0x54, 6, 0x4f, 1, 0x54]); // 1000 Hz, 6 stages, stage index 1
+    this.flash.set([2, 0x53], 0xa9); // debounce 2 ms
   }
 
   addEventListener(_type: string, l: (e: Event) => void) {
@@ -62,6 +63,7 @@ export class CompxSim {
       default:
         res[1] = 1;
     }
+    res[15] = checksum(res);
     setTimeout(() => {
       const event = Object.assign(new Event('inputreport'), { reportId, data: new DataView(res.buffer) });
       for (const l of this.listeners) l(event);

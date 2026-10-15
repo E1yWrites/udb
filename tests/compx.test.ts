@@ -38,6 +38,7 @@ describe('compx allowlist', () => {
     expect(cx.allow(cx.readFlash(0xf6, 10))).toBe(true);
     expect(cx.allow(cx.writeFlash(0x00, cx.encodePair(2)))).toBe(true);
     expect(cx.allow(cx.writeFlash(0x04, cx.encodePair(1)))).toBe(true);
+    expect(cx.allow(cx.writeFlash(0xa9, cx.encodePair(15)))).toBe(true);
   });
 
   it.each([
@@ -54,6 +55,9 @@ describe('compx allowlist', () => {
     ['WriteFlashData with extra bytes', [7, 0, 0, 0x00, 2, 1, 0x54, 9]],
     ['ReadFlashData past 0xFF', [8, 0, 0, 0xfa, 10]],
     ['ReadFlashData over 10 bytes', [8, 0, 0, 0, 11]],
+    ['a polling-rate code that is not a rate', [7, 0, 0, 0x00, 2, 3, 0x52]],
+    ['debounce above 15 ms', [7, 0, 0, 0xa9, 2, 16, 0x45]],
+    ['a write whose complement does not match', [7, 0, 0, 0x00, 2, 1, 0x53]],
   ])('refuses %s', (_name, bytes) => {
     expect(cx.allow(out(bytes))).toBe(false);
   });
@@ -115,6 +119,19 @@ describe('compx session (simulator, not hardware evidence)', () => {
   it('times out on a silent link', async () => {
     const s = new CompxSession(new CompxSim({ silent: true }), []);
     await expect(s.identify()).rejects.toBeInstanceOf(TransportTimeout);
+  });
+
+  it('rejects replies whose checksum is wrong', () => {
+    // Real identify reply from the CrazyLight (2026-10-15), then the same with one bit flipped.
+    const real = Uint8Array.of(0x01, 0, 0, 0, 8, 0x02, 0x3d, 0x26, 0x9a, 0x57, 0x52, 0x05, 0, 0, 0, 0x97);
+    expect(cx.decodeInfo(real)).toMatchObject({ cid: 87, mid: 82, type: 5 });
+    expect(() => cx.decodeInfo(Uint8Array.from(real, (v, i) => (i === 10 ? v ^ 1 : v)))).toThrow(/checksum/);
+  });
+
+  it('writes debounce within the model range', async () => {
+    const s = new CompxSession(new CompxSim(), []);
+    expect(await applySetting(s.debounce(15), 3, 2)).toEqual({ kind: 'confirmed', value: 3 });
+    expect(await applySetting(s.debounce(15), 16, 3)).toMatchObject({ kind: 'invalid' });
   });
 
   it('cannot be talked into a denied collection', async () => {

@@ -15,13 +15,16 @@ export const CMD = {
   ReadFlashData: 8,
 } as const;
 
-export const ADDR = { pollingRate: 0x00, stageCount: 0x02, currentStage: 0x04 } as const;
+export const ADDR = { pollingRate: 0x00, stageCount: 0x02, currentStage: 0x04, debounce: 0xa9 } as const;
 
-/** Flash ranges UDB may write: [start, length]. Everything else is refused. */
-const WRITABLE: readonly (readonly [number, number])[] = [
-  [ADDR.pollingRate, 2],
-  [ADDR.currentStage, 2],
-];
+export const POLLING_CODES = [8, 4, 2, 1, 16, 32, 64] as const;
+
+/** Flash settings UDB may write, each a [v, 0x55 − v] pair, with the values allowed for v. */
+const WRITABLE: Record<number, (v: number) => boolean> = {
+  [ADDR.pollingRate]: (v) => (POLLING_CODES as readonly number[]).includes(v),
+  [ADDR.currentStage]: (v) => v <= 7,
+  [ADDR.debounce]: (v) => v <= 15,
+};
 const READABLE_END = 0x100;
 const MAX_CHUNK = 10;
 
@@ -75,8 +78,10 @@ export function allow(r: OutgoingReport): boolean {
       return zeroFrom(2);
     case CMD.ReadFlashData:
       return len >= 1 && len <= MAX_CHUNK && addr + len <= READABLE_END && zeroFrom(5);
-    case CMD.WriteFlashData:
-      return WRITABLE.some(([start, n]) => addr === start && len === n) && zeroFrom(5 + len);
+    case CMD.WriteFlashData: {
+      const valueOk = WRITABLE[addr];
+      return len === 2 && !!valueOk && valueOk(b[5]!) && ((b[5]! + b[6]!) & 0xff) === 0x55 && zeroFrom(7);
+    }
     default:
       return false;
   }
@@ -99,6 +104,8 @@ export class CompxError extends Error {
 }
 
 function ok(res: Uint8Array, what: string): void {
+  // Replies carry the same checksum as requests (observed on hardware, 2026-10-15).
+  if (res[LEN - 1] !== checksum(res)) throw new CompxError(`${what}: reply failed its checksum`);
   if (res[1] === 1) throw new CompxError(`${what}: device reports the command as not supported`);
   if (res[1] !== 0) throw new CompxError(`${what}: unexpected status ${res[1]}`);
 }

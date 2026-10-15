@@ -78,6 +78,14 @@ export class CompxSession {
     };
   }
 
+  debounce(maxMs: number): Setting<number> {
+    return {
+      validate: (ms) => (Number.isInteger(ms) && ms >= 0 && ms <= maxMs ? null : `Debounce must be 0 to ${maxMs} ms`),
+      write: (ms) => this.writePair(cx.ADDR.debounce, ms),
+      read: () => this.readPair(cx.ADDR.debounce),
+    };
+  }
+
   /** Active DPI stage, 0-based, below the stage count stored at 0x02. */
   activeStage(stageCount: number): Setting<number> {
     return {

@@ -12,9 +12,9 @@
       "productName": "Pulsar 8K Dongle",
       "protocolIdentity": {
         "cid": 87,
-        "mid": null
+        "mid": 82
       },
-      "notes": "CID 87 is the only CID in Pulsar's cMouse config. The MID for this model has not been read from hardware yet.",
+      "notes": "CID 87 / MID 82 read from the mouse with EncryptionData on 2026-10-15. Other Pulsar mice behind this receiver report other MIDs.",
       "evidence": [
         {
           "source": "UDB device report via WebHID: productName \"Pulsar 8K Dongle\"; collections FF05, FF03, 000C, FF02:0002 (report 8, 16 B in/out), FF04 (feature 6), FF06:0002 (report 9, 48 B in/out)",
@@ -106,13 +106,20 @@
         "maxFromInfoType": true
       },
       "readBack": true,
-      "status": "experimental",
+      "status": "write-verified",
       "evidence": [
         {
           "source": "Static analysis of bbb.pulsar.gg/cMouse app.6842ab2c.js (sha256 6d509369a761f3b5...): flash 0x00, [v, 0x55-v]",
           "hardware": null,
           "date": "2026-10-15",
           "confidence": "medium"
+        },
+        {
+          "source": "UDB evidence report 2026-10-15 (bytes in tests/fixtures/compx-crazylight-2026-10-15.json): wrote code 0x40 and read back 0x40 (8000 Hz), wrote 0x01 and read back 0x01 (1000 Hz)",
+          "hardware": "Pulsar X2 CrazyLight Bruce Lee 85th Anniversary Edition (CID 87, MID 82) via Pulsar 8K Dongle; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "high",
+          "notes": "Persistence across unplug/replug not yet checked."
         }
       ]
     },
@@ -141,13 +148,20 @@
       "kind": "range",
       "location": "device",
       "readBack": true,
-      "status": "experimental",
+      "status": "read-verified",
       "evidence": [
         {
           "source": "Static analysis of /cMouse app.6842ab2c.js: flash 0x04, [v, 0x55-v]",
           "hardware": null,
           "date": "2026-10-15",
           "confidence": "medium"
+        },
+        {
+          "source": "UDB evidence report 2026-10-15 (bytes in tests/fixtures/compx-crazylight-2026-10-15.json): read 0x04 = [00 55] (stage 1); stage count at 0x02 = [01 54] (one stage configured)",
+          "hardware": "Pulsar X2 CrazyLight Bruce Lee 85th Anniversary Edition (CID 87, MID 82) via Pulsar 8K Dongle; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "high",
+          "notes": "Not write-verified: with one stage configured there is no other stage to select."
         }
       ]
     },
@@ -172,6 +186,7 @@
       "kind": "range",
       "location": "device",
       "constraints": {
+        "min": 0,
         "max": 15,
         "default": 2
       },
@@ -179,7 +194,7 @@
       "status": "experimental",
       "evidence": [
         {
-          "source": "Static analysis of /cMouse app.6842ab2c.js and cfg.json (maxDebounce 15): flash 0xA9",
+          "source": "Static analysis of /cMouse app.6842ab2c.js: flash 0xA9 as [v, 0x55-v]; cfg.json for MID 82 offers 0..15 ms (default 2, warns above 8)",
           "hardware": null,
           "date": "2026-10-15",
           "confidence": "medium"
@@ -191,13 +206,20 @@
       "kind": "readonly",
       "location": "device",
       "readBack": true,
-      "status": "experimental",
+      "status": "read-verified",
       "evidence": [
         {
           "source": "Static analysis of /cMouse app.6842ab2c.js: command 4 BatteryLevel, byte 5 level, byte 6 charging",
           "hardware": null,
           "date": "2026-10-15",
           "confidence": "medium"
+        },
+        {
+          "source": "UDB evidence report 2026-10-15 (bytes in tests/fixtures/compx-crazylight-2026-10-15.json): BatteryLevel reply byte 5 = 0x64 (100%), byte 6 = 0 (not charging); bytes 7-8 = 0x1022, possibly millivolts (not used)",
+          "hardware": "Pulsar X2 CrazyLight Bruce Lee 85th Anniversary Edition (CID 87, MID 82) via Pulsar 8K Dongle; Microsoft Edge 155 on Windows 11",
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "Level not cross-checked against Pulsar's own software."
         }
       ]
     }

@@ -20,12 +20,12 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 
 | Feature | Location | Status | Read-back | Latest evidence |
 |---|---|---|---|---|
-| polling-rate | device | experimental | yes | no hardware, 2026-10-15, medium confidence |
+| polling-rate | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | dpi.stages | device | experimental | yes | no hardware, 2026-10-15, low confidence |
-| dpi.current-stage | device | experimental | yes | no hardware, 2026-10-15, medium confidence |
+| dpi.current-stage | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 | lift-off-distance | device | experimental | yes | no hardware, 2026-10-15, low confidence |
 | debounce-ms | device | experimental | yes | no hardware, 2026-10-15, medium confidence |
-| battery | device | experimental | yes | no hardware, 2026-10-15, medium confidence |
+| battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
 ## Keyboards
 

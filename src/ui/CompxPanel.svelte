@@ -17,7 +17,8 @@
   const entry = $derived(device.match!.entry);
 
   type Reading = { value: number | null; at: string };
-  type Row = 'pollingRate' | 'activeStage';
+  type Row = 'pollingRate' | 'activeStage' | 'debounce';
+  const LABEL: Record<Row, string> = { pollingRate: 'Polling rate', activeStage: 'Active DPI stage', debounce: 'Debounce' };
   type Check = { setting: Row; expected: number; observed: number | null; at: string };
 
   let phase = $state<'idle' | 'reading' | 'ready' | 'error'>('idle');
@@ -41,9 +42,18 @@
 
   const expectedMid = $derived(device.match?.identity.protocolIdentity?.mid ?? null);
   const rates = $derived(POLLING_RATES.filter((r) => !info || r <= info.maxRate));
+  const maxDebounce = $derived(Number(entry.features.find((f) => f.id === 'debounce-ms')?.constraints?.max ?? 15));
+
+  function options(row: Row): { value: number; label: string }[] {
+    if (row === 'pollingRate') return rates.map((hz) => ({ value: hz, label: `${hz.toLocaleString()} Hz` }));
+    if (row === 'activeStage') return Array.from({ length: stageCount ?? 0 }, (_, i) => ({ value: i, label: `Stage ${i + 1}` }));
+    return Array.from({ length: maxDebounce + 1 }, (_, ms) => ({ value: ms, label: `${ms} ms` }));
+  }
 
   function setting(row: Row): Setting<number> {
-    return row === 'pollingRate' ? session!.pollingRate(info!) : session!.activeStage(stageCount!);
+    if (row === 'pollingRate') return session!.pollingRate(info!);
+    if (row === 'activeStage') return session!.activeStage(stageCount!);
+    return session!.debounce(maxDebounce);
   }
 
   // Dev preview only (`/?preview&autoread`); tree-shaken from production builds.
@@ -70,7 +80,7 @@
     try {
       info = await session.identify();
       stageCount = await session.readPair(0x02);
-      for (const row of ['pollingRate', 'activeStage'] as Row[]) {
+      for (const row of ['pollingRate', 'activeStage', 'debounce'] as Row[]) {
         if (row === 'activeStage' && stageCount === null) continue;
         const value = await setting(row).read();
         readings[row] = { value, at: now() };
@@ -115,8 +125,12 @@
     busy = null;
   }
 
-  const show = (row: Row, v: number | null | undefined) =>
-    v == null ? 'Unreadable' : row === 'pollingRate' ? `${v.toLocaleString()} Hz` : `Stage ${v + 1} of ${stageCount}`;
+  function show(row: Row, v: number | null | undefined): string {
+    if (v == null) return 'Unreadable';
+    if (row === 'pollingRate') return `${v.toLocaleString()} Hz`;
+    if (row === 'activeStage') return `Stage ${v + 1} of ${stageCount}`;
+    return `${v} ms`;
+  }
 
   async function copyEvidence() {
     const report = {
@@ -144,7 +158,7 @@
   {#if phase === 'idle' || phase === 'error'}
     <p class="lede">
       UDB asks the mouse who it is and reads its current settings. Reading changes nothing. The only commands UDB can send
-      are identify, link check, battery, settings read, and writes to polling rate and active DPI stage.
+      are identify, link check, battery, settings read, and writes to polling rate, active DPI stage and debounce.
     </p>
     {#if phase === 'error'}
       <p class="problem" role="alert"><Icon name="alert" />{error}</p>
@@ -184,7 +198,7 @@
           {#each checks as c (c.setting)}
             <li class={c.observed === c.expected ? 'confirmed' : 'signal'}>
               <Icon name={c.observed === c.expected ? 'check' : 'alert'} size={14} />
-              {c.setting === 'pollingRate' ? 'Polling rate' : 'Active DPI stage'}:
+              {LABEL[c.setting]}:
               {c.observed === c.expected ? 'kept' : 'changed to'} {show(c.setting, c.observed)}
               {#if c.observed !== c.expected}(last confirmed {show(c.setting, c.expected)}){/if}
             </li>
@@ -202,18 +216,14 @@
     </label>
 
     <div class="lines">
-      {#each ['pollingRate', 'activeStage'] as const as row (row)}
-        {#if row === 'pollingRate' || stageCount !== null}
+      {#each ['pollingRate', 'activeStage', 'debounce'] as const as row (row)}
+        {#if row !== 'activeStage' || (stageCount ?? 0) > 1}
           {@const r = results[row]}
           <div class="line">
-            <label class="name" for="ctl-{row}">{row === 'pollingRate' ? 'Polling rate' : 'Active DPI stage'}</label>
+            <label class="name" for="ctl-{row}">{LABEL[row]}</label>
             <div class="ask">
               <select id="ctl-{row}" bind:value={requested[row]} disabled={!allowUnverified || busy !== null}>
-                {#if row === 'pollingRate'}
-                  {#each rates as hz (hz)}<option value={hz}>{hz.toLocaleString()} Hz</option>{/each}
-                {:else}
-                  {#each Array.from({ length: stageCount ?? 0 }, (_, i) => i) as i (i)}<option value={i}>Stage {i + 1}</option>{/each}
-                {/if}
+                {#each options(row) as o (o.value)}<option value={o.value}>{o.label}</option>{/each}
               </select>
               <button
                 class="btn"
@@ -248,6 +258,10 @@
         {/if}
       {/each}
     </div>
+
+    {#if stageCount === 1}
+      <p class="note">This mouse has one DPI stage configured, so there is no stage to switch to.</p>
+    {/if}
 
     <footer class="actions">
       <button class="btn" onclick={connect}>Read again</button>
@@ -431,6 +445,11 @@
 
   .muted {
     color: var(--muted);
+  }
+
+  .note {
+    font-size: var(--step--1);
+    color: var(--faint);
   }
 
   .actions {

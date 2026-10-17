@@ -238,6 +238,15 @@ checks happen in the Phase 6 compatibility pass.
 - [ ] Waiting on a device report from an Aura keyboard or mouse, and a decision
   on a send-only lighting path (see the doc)
 
+### Long tail: SteelSeries mice, branch `phase-4-steelseries` (stacked on Aura), detection only
+- [x] `docs/protocols/steelseries-mouse.md`: 24 codec families, no settings
+  getter, what OpenMouse observed on an Aerox 3 Wireless, why there is no
+  adapter and what would unblock one
+- [x] 56 mouse entries (69 product IDs) generated from OpenMouse's table
+  (`npm run import:steelseries`); no adapter, UDB sends them nothing
+- [ ] Waiting on device reports per family, and a decision on how to show a
+  write the mouse acknowledges but cannot report
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

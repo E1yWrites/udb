@@ -27,7 +27,7 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | debounce-ms | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
-### Not yet seen on hardware by UDB (338)
+### Not yet seen on hardware by UDB (394)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
@@ -340,6 +340,62 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | Razer Viper V3 HyperSpeed | 1532:00B8 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
 | Razer Viper V3 Pro | 1532:00C0 1532:00C1 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
 | Razer Viper V3 Pro SE | 1532:00DE 1532:00DF | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| SteelSeries Aerox 3 | 1038:1836 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Aerox 3 Wireless | 1038:183A 1038:1838 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Aerox 3 Wireless CS2 Dragon Lore Edition | 1038:187A 1038:1878 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Aerox 3 Wireless Gen 2 | 1038:1892 1038:1890 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Aerox 5 | 1038:1850 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Aerox 5 Wireless | 1038:1854 1038:1852 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Aerox 5 Wireless Destiny 2 Edition | 1038:185E 1038:185C | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Aerox 5 Wireless Diablo IV Edition | 1038:1862 1038:1860 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Aerox 9 Wireless | 1038:185A 1038:1858 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Aerox 9 Wireless WOW Edition | 1038:1876 1038:1874 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Prime | 1038:182E | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Prime 6 Siege Black Ice Edition | 1038:182A | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Prime CS:GO Neo Noir Edition | 1038:1856 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Prime Mini | 1038:184D | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Prime Mini Wireless | 1038:184A 1038:1848 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Prime+ | 1038:182C | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Prime Wireless | 1038:1842 1038:1840 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 100 | 1038:1702 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 100 Dell China Edition | 1038:170A | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 100 Dota 2 Edition (Lenovo) | 1038:170C | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 100 Dota 2 Edition (Retail) | 1038:170B | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 100 PC Bang Edition | 1038:1708 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 105 | 1038:1814 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 106 | 1038:1816 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 110 | 1038:1729 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 3 | 1038:1824 1038:184C | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 3 Gen 2 | 1038:1870 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 3 Wireless | 1038:1830 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 3 Wireless Gen 2 | 1038:1872 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 300 | 1038:1710 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 300 Acer Predator Edition | 1038:1714 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 300 CS:GO Fade Edition | 1038:1394 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 300 CS:GO Fade Edition (stm32) | 1038:1716 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 300 CS:GO Hyper Beast Edition | 1038:171A | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 300 Evil Geniuses Edition | 1038:171C | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 300 Fallout 4 Edition | 1038:1712 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 300 HP OMEN Edition | 1038:1718 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 300S | 1038:1810 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 310 | 1038:1720 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 310 CS:GO Howl Edition | 1038:171E | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 310 PUBG Edition | 1038:1736 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 5 | 1038:183C | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 600 | 1038:1724 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 600 Dota 2 Edition | 1038:172E | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival 650 Wireless | 1038:172B 1038:1726 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Rival Dota 2 Edition | 1038:1392 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei 310 | 1038:1722 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei Pro / Rival Pro | 1038:1880 1038:1882 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei [RAW] | 1038:1369 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei [RAW] Call of Duty: Black Ops II Edition | 1038:136F | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei [RAW] Diablo III Edition | 1038:1362 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei [RAW] Guild Wars 2 Edition | 1038:136D | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei [RAW] Heroes of the Storm Edition | 1038:1390 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei [RAW] World of Tanks Edition | 1038:1380 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei TEN | 1038:1832 | `steelseries-mouse` | – | dpi, polling-rate |
+| SteelSeries Sensei TEN CS:GO Neon Rider Edition | 1038:1834 | `steelseries-mouse` | – | dpi, polling-rate |
 | VXE R1 | 3554:F58F | `compx` | dpi.stages, dpi.current-stage, debounce-ms | polling-rate |
 | VXE R1 NK | 373B:1065 373B:1066 373B:10C7 373B:10C8 373B:124C | `compx` | dpi.stages, dpi.current-stage, debounce-ms | polling-rate |
 | VXE R1 | 373B:1271 | `compx` | dpi.stages, dpi.current-stage, debounce-ms | polling-rate |

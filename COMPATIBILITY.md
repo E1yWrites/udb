@@ -28,7 +28,7 @@ Column meanings:
 | Logitech G | HID++ 2.0 | OpenMouse (AGPL-3.0-or-later), libratbag (MIT), Solaar (GPL-2.0-or-later) | ✅ `FF00:0001/0002`, `FF43:0202` | ✅ | – | Phase 4, #2: experimental |
 | Razer | Razer protocol | OpenMouse (AGPL-3.0-or-later), OpenRazer (GPL-2.0-or-later, facts) | ✅ undeclared feature report 0 on the mouse collection | ✅ | – | Phase 4, #3: experimental |
 | ZOWIE | none known (switches on the mouse itself) | – | – | – | – | detect only |
-| SteelSeries | rivalcfg family | rivalcfg (WTFPL) | ❓ | ⚠️ mostly write-only | – | Phase 4, later |
+| SteelSeries mice | 24 codec families (Rival, Sensei, Prime, Aerox) | OpenMouse (AGPL-3.0-or-later; Aerox 3 Wireless hardware notes), rivalcfg (WTFPL); facts only | ⚠️ `FFC0:0001` observed on one model | ❌ no settings getter on any family | – | Phase 4 long tail: **detection only** (56 models) |
 | Corsair | classic (NXP) and Bragi | OpenMouse (AGPL-3.0-or-later; NIGHTSWORD hardware notes), ckb-next (GPL-2.0-only, not used) | ✅ `FFC2:0004` feature reports; Bragi `FF42` usage unknown | ✅ classic, live settings only | – | Phase 4 long tail: classic experimental, Bragi detection only |
 | HyperX | NGENUITY HID | OpenRGB (GPL-2.0-or-later), lighting only | ❓ | ❓ | – | Phase 4, later |
 | ASUS ROG / TUF | Aura (about ten sub-protocols) | OpenRGB (GPL-2.0-or-later), asusctl (MPL-2.0); facts only | ❓ collections unknown | ❌ lighting is write-only | – | Phase 4 long tail: **detection only** (55 keyboards and mice) |
@@ -77,6 +77,11 @@ are detection only. See `docs/protocols/corsair.md`.
 lighting, none with read-back. 55 ROG and TUF keyboards and mice (73 product
 IDs, from OpenRGB's tables) are listed as detection only. The G14 stays on
 LampArray. See `docs/protocols/asus-aura.md`.
+
+**Phase 4 update (2026-10-18):** SteelSeries mice. OpenMouse's table lists 69
+product IDs across 24 incompatible codec families, and none has a settings
+getter, so the 56 models are detection only. See
+`docs/protocols/steelseries-mouse.md`.
 
 ## Keyboards
 

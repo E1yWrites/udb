@@ -33,7 +33,7 @@ Column meanings:
 | HyperX | NGENUITY HID | OpenRGB (GPL-2.0-or-later), lighting only | ❓ | ❓ | – | Phase 4, later |
 | ASUS ROG / TUF | Aura (about ten sub-protocols) | OpenRGB (GPL-2.0-or-later), asusctl (MPL-2.0); facts only | ❓ collections unknown | ❌ lighting is write-only | – | Phase 4 long tail: **detection only** (55 keyboards and mice) |
 | Glorious | Pixart, classic (Sinowealth) and 4K/8K generations | OpenMouse (AGPL-3.0-or-later; one USBPcap capture of the O 2 PRO 4K/8K); facts only | ⚠️ `FFFF:0000` on the 4K/8K only | ❌ no setting can be read; firmware and battery only | – | Phase 4 long tail: **detection only** (23 models) |
-| Turtle Beach / Roccat | Roccat | libratbag (MIT) | ❓ | ✅ (libratbag reads) | – | Phase 4, later |
+| Turtle Beach / Roccat | Kone XTD, Pure, EMP (reports 4 to 8, checksummed) | libratbag (MIT) | ❓ collection unknown | ✅ settings read back (libratbag); no other ROCCAT device has an open reference | – | Phase 4 long tail: **detection only** (3 models); the first adapter candidate once a device report exists |
 
 **Phase 4 update (2026-10-15):** ATK and VXE turned out to be the same
 `compx` platform as Pulsar. 169 ATK/VXE models are in the registry as
@@ -87,6 +87,11 @@ getter, so the 56 models are detection only. See
 a settings read, and mice that cannot say which of their three profiles is
 active. 23 models (42 product IDs) are detection only. See
 `docs/protocols/glorious.md`.
+
+**Phase 4 update (2026-10-18):** ROCCAT. libratbag documents three old Kone mice
+(Kone XTD, Pure, EMP), with checksummed settings reports that read back. They
+are detection only until a device report shows which collection carries the
+reports. See `docs/protocols/roccat.md`.
 
 ## Keyboards
 

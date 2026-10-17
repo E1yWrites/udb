@@ -256,6 +256,13 @@ checks happen in the Phase 6 compatibility pass.
 - [ ] Waiting on a device report from a Glorious mouse, and a way to show which
   profile a write lands in
 
+### Long tail: ROCCAT, branch `phase-4-roccat` (stacked on Glorious), detection only
+- [x] `docs/protocols/roccat.md`: the Kone XTD, Pure and EMP report scheme from
+  libratbag (MIT), read-back and checksum, why there is no adapter yet
+- [x] 3 mouse entries (5 product IDs); no adapter, UDB sends them nothing
+- [ ] An adapter for DPI stages and polling rate on the Kone XTD, once a device
+  report shows the collection (the only long-tail family with a read-back path)
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

@@ -1,0 +1,95 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "roccat/kone-emp",
+  "vendor": "ROCCAT",
+  "model": "Kone EMP",
+  "category": "mouse",
+  "identities": [
+    {
+      "vid": "0x1E7D",
+      "pid": "0x2E24",
+      "connection": "wired"
+    }
+  ],
+  "protocol": {
+    "family": "roccat",
+    "doc": "docs/protocols/roccat.md",
+    "references": [
+      {
+        "title": "libratbag (Roccat drivers and device files)",
+        "url": "https://github.com/libratbag/libratbag",
+        "license": "MIT",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Detection only"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "limitations": [
+    "Detection only: UDB sends nothing to ROCCAT mice.",
+    "libratbag reads profile settings back, so an adapter is possible later; none exists because no device report or capture shows which collection carries the feature reports.",
+    "Identified by VID/PID through “Identify another device”; UDB requests no ROCCAT interface.",
+    "Generated from libratbag @8235b5bb: src/driver-roccat-kone-emp.c, data/devices/roccat-kone-emp.device (MIT): product IDs, report IDs and layouts."
+  ],
+  "features": [
+    {
+      "id": "dpi",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "constraints": {
+        "min": 100,
+        "max": 12000,
+        "step": 50
+      },
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "libratbag @8235b5bb: driver-roccat-kone-emp.c: its own settings struct with LED fields",
+          "hardware": null,
+          "date": "2026-10-18",
+          "confidence": "low",
+          "notes": "Settings are read with GET_FEATURE after a profile select; no adapter yet"
+        }
+      ]
+    },
+    {
+      "id": "polling-rate",
+      "kind": "enum",
+      "location": "device",
+      "readBack": true,
+      "constraints": {
+        "values": [
+          125,
+          250,
+          500,
+          1000
+        ]
+      },
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "libratbag @8235b5bb: driver-roccat-kone-emp.c: its own settings struct with LED fields",
+          "hardware": null,
+          "date": "2026-10-18",
+          "confidence": "low",
+          "notes": "Polling rate is a 0–3 index into 125, 250, 500, 1000 Hz"
+        }
+      ]
+    }
+  ]
+}

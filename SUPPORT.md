@@ -27,7 +27,7 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | debounce-ms | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
-### Not yet seen on hardware by UDB (417)
+### Not yet seen on hardware by UDB (420)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
@@ -363,6 +363,9 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | Razer Viper V3 HyperSpeed | 1532:00B8 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
 | Razer Viper V3 Pro | 1532:00C0 1532:00C1 | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
 | Razer Viper V3 Pro SE | 1532:00DE 1532:00DF | `razer` | dpi, polling-rate, battery, sleep-timeout, low-power-threshold | dpi.stages, lift-off-distance, buttons, lighting |
+| ROCCAT Kone EMP | 1E7D:2E24 | `roccat` | – | dpi, polling-rate |
+| ROCCAT Kone Pure | 1E7D:2DC2 1E7D:2DBE 1E7D:2DCB | `roccat` | – | dpi, polling-rate |
+| ROCCAT Kone XTD | 1E7D:2E22 | `roccat` | – | dpi, polling-rate |
 | SteelSeries Aerox 3 | 1038:1836 | `steelseries-mouse` | – | dpi, polling-rate |
 | SteelSeries Aerox 3 Wireless | 1038:183A 1038:1838 | `steelseries-mouse` | – | dpi, polling-rate |
 | SteelSeries Aerox 3 Wireless CS2 Dragon Lore Edition | 1038:187A 1038:1878 | `steelseries-mouse` | – | dpi, polling-rate |

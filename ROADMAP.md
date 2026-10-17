@@ -275,6 +275,9 @@ checks happen in the Phase 6 compatibility pass.
 - `CONTRIBUTING.md` and `TESTING.md` (device-dump workflow, fixture format,
   evidence rules).
 - Separate decisions needed: pairing, factory reset, a companion service.
+  **Decided 2026-10-18: all three stay out of v1.** Pairing and factory reset can
+  unpair or brick a device (THREAT_MODEL T5), and a companion service breaks the
+  browser-only, no-backend design. Each needs its own owner approval to reopen.
 
 Phase 5 lands as stacked branches, one per item:
 

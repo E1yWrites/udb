@@ -70,7 +70,7 @@
     "Windows Dynamic Lighting"
   ],
   "limitations": [
-    "Lighting through the standard LampArray collection (0059:0001). The Aura collections (FF31) are not researched yet; see docs/protocols/asus-aura.md.",
+    "Lighting through the standard LampArray collection (0059:0001). The Aura collections (FF31) are not implemented: Aura is write-only lighting and its laptop dialect is unverified; see docs/protocols/asus-aura.md.",
     "Colours and autonomous mode cannot be read back; UDB reports them as sent.",
     "The firmware-update collection (FF82:00CF) is denied."
   ],
@@ -149,7 +149,7 @@
           "hardware": null,
           "date": "2026-10-15",
           "confidence": "medium",
-          "notes": "Aura on FF31 is a later Phase 4 item"
+          "notes": "Aura is write-only lighting; asusctl (MPL-2.0) documents the laptop packets (report 5D) but which FF31 collection takes them is unknown"
         }
       ]
     }

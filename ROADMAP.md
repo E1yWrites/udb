@@ -229,6 +229,15 @@ checks happen in the Phase 6 compatibility pass.
   DPI (colour kept), lift-off and angle snapping, with a note that they are
   live settings
 
+### Long tail: ASUS Aura, branch `phase-4-aura` (stacked on Corsair), detection only
+- [x] `docs/protocols/asus-aura.md`: Aura is about ten sub-protocols, all
+  lighting with no read-back; sources OpenRGB (GPL-2.0-or-later) and asusctl
+  (MPL-2.0), facts only; why there is no adapter and what would unblock one
+- [x] 55 keyboard and mouse entries (73 product IDs) generated from OpenRGB's
+  tables (`npm run import:aura`); no adapter, UDB sends them nothing
+- [ ] Waiting on a device report from an Aura keyboard or mouse, and a decision
+  on a send-only lighting path (see the doc)
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

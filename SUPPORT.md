@@ -27,10 +27,40 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | debounce-ms | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
-### Not yet seen on hardware by UDB (308)
+### Not yet seen on hardware by UDB (338)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
+| ASUS ROG Chakram | 0B05:18E3 0B05:18E5 | `asus-aura` | – | lighting |
+| ASUS ROG Chakram Core | 0B05:1958 | `asus-aura` | – | lighting |
+| ASUS ROG Chakram X | 0B05:1A18 0B05:1A1A | `asus-aura` | – | lighting |
+| ASUS ROG Gladius II | 0B05:1845 | `asus-aura` | – | lighting |
+| ASUS ROG Gladius II Core | 0B05:18DD | `asus-aura` | – | lighting |
+| ASUS ROG Gladius II Origin | 0B05:1877 | `asus-aura` | – | lighting |
+| ASUS ROG Gladius II Origin CoD | 0B05:18B1 | `asus-aura` | – | lighting |
+| ASUS ROG Gladius II Origin PNK LTD | 0B05:18CD | `asus-aura` | – | lighting |
+| ASUS ROG Gladius II Wireless | 0B05:189E 0B05:18A0 | `asus-aura` | – | lighting |
+| ASUS ROG Gladius III | 0B05:197B | `asus-aura` | – | lighting |
+| ASUS ROG Gladius III Core | 0B05:1C8D | `asus-aura` | – | lighting |
+| ASUS ROG Gladius III Wireless | 0B05:197D 0B05:197F 0B05:1981 | `asus-aura` | – | lighting |
+| ASUS ROG Gladius III Wireless AimPoint | 0B05:1A70 0B05:1A72 0B05:1A74 | `asus-aura` | – | lighting |
+| ASUS ROG Keris | 0B05:195C | `asus-aura` | – | lighting |
+| ASUS ROG Keris Wireless | 0B05:195E 0B05:1960 0B05:1962 | `asus-aura` | – | lighting |
+| ASUS ROG Keris Wireless AimPoint | 0B05:1A66 0B05:1A68 0B05:1A6A | `asus-aura` | – | lighting |
+| ASUS ROG Pugio | 0B05:1846 | `asus-aura` | – | lighting |
+| ASUS ROG Pugio II | 0B05:1906 0B05:1908 | `asus-aura` | – | lighting |
+| ASUS ROG Spatha | 0B05:181C 0B05:1824 | `asus-aura` | – | lighting |
+| ASUS ROG Spatha X | 0B05:1977 0B05:1979 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Evolve | 0B05:185B | `asus-aura` | – | lighting |
+| ASUS ROG Strix Impact | 0B05:1847 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Impact II | 0B05:18E1 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Impact II Electro Punk | 0B05:1956 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Impact II Moonlight White | 0B05:19D2 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Impact II Wireless | 0B05:1947 0B05:1949 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Impact III | 0B05:1A88 | `asus-aura` | – | lighting |
+| ASUS TUF Gaming M3 | 0B05:1910 | `asus-aura` | – | lighting |
+| ASUS TUF Gaming M3 Gen II | 0B05:1A9B | `asus-aura` | – | lighting |
+| ASUS TUF Gaming M5 | 0B05:1898 | `asus-aura` | – | lighting |
 | ATK A9 | 373B:1157 | `compx` | polling-rate, dpi.stages, dpi.current-stage, debounce-ms | – |
 | ATK A9 3.0 NK | 373B:1305 | `compx` | – | polling-rate, dpi.stages, dpi.current-stage, debounce-ms |
 | ATK A9 Air | 373B:120A | `compx` | polling-rate, dpi.stages, dpi.current-stage, debounce-ms | – |
@@ -361,11 +391,36 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 | keymap | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 | screen-image | device | unsupported | – | no hardware, 2026-10-15, low confidence |
 
-### Not yet seen on hardware by UDB (22)
+### Not yet seen on hardware by UDB (47)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
+| ASUS ROG Azoth | 0B05:1A83 0B05:1A85 | `asus-aura` | – | lighting |
+| ASUS ROG Claymore | 0B05:184D | `asus-aura` | – | lighting |
+| ASUS ROG Falchion | 0B05:193C 0B05:193E | `asus-aura` | – | lighting |
+| ASUS ROG Strix Flare | 0B05:1875 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Flare CoD Black Ops 4 Edition | 0B05:18AF | `asus-aura` | – | lighting |
+| ASUS ROG Strix Flare II | 0B05:19FE | `asus-aura` | – | lighting |
+| ASUS ROG Strix Flare II Animate | 0B05:19FC | `asus-aura` | – | lighting |
+| ASUS ROG Strix Flare PNK LTD | 0B05:18CF | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope | 0B05:18F8 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope II | 0B05:1AB3 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope II 96 RX Wireless | 0B05:1B78 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope II 96 Wireless | 0B05:1AAE | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope II RX | 0B05:1AB5 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope NX Wireless Deluxe | 0B05:19F6 0B05:19F8 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope RX | 0B05:1951 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope RX EVA-02 Edition | 0B05:1B12 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope RX TKL Wireless Deluxe | 0B05:1A05 | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope TKL | 0B05:190C | `asus-aura` | – | lighting |
+| ASUS ROG Strix Scope TKL PNK LTD | 0B05:1954 | `asus-aura` | – | lighting |
 | ASUS ROG Zephyrus G14 (GA403) built-in keyboard | 0B05:19B6 | `lamparray` | lighting.lamparray-info, lighting.color, lighting.autonomous | lighting.per-key, lighting.aura |
+| ASUS TUF Gaming K1 | 0B05:1945 | `asus-aura` | – | lighting |
+| ASUS TUF Gaming K3 | 0B05:194B | `asus-aura` | – | lighting |
+| ASUS TUF Gaming K3 Gen II | 0B05:1B30 | `asus-aura` | – | lighting |
+| ASUS TUF Gaming K3 Gen II Miku Edition | 0B05:1C5E | `asus-aura` | – | lighting |
+| ASUS TUF Gaming K5 | 0B05:1899 | `asus-aura` | – | lighting |
+| ASUS TUF Gaming K7 | 0B05:18AA | `asus-aura` | – | lighting |
 | HID LampArray Lighting device (Windows Dynamic Lighting) | any device with 0059:0001 | `lamparray` | lighting.lamparray-info, lighting.color, lighting.autonomous | lighting.per-key |
 | Logitech G PRO Keyboard | 046D:C339 | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
 | Logitech G413 | 046D:C33A | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |

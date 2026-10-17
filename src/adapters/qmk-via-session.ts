@@ -13,11 +13,14 @@ export class ViaSession {
   version: number | null = null;
   private readonly device: Device;
   private readonly guard: Guard;
+  private keymap: via.Keymap | null = null;
+  /** Every keycode the keyboard returned per `layer,row,col`; the only non-basic values UDB may write back. */
+  private readonly seen = new Map<string, Set<number>>();
 
   /** `log` may be shared across sessions so evidence spans reconnects. */
   constructor(device: Device, deny: UsagePair[], log: LogEntry[] = []) {
     this.device = device;
-    this.guard = { allow: (r) => via.allowFor(this.version)(r), deny };
+    this.guard = { allow: (r) => via.allowFor(this.version, this.keymap ?? undefined)(r), deny };
     this.log = log;
   }
 
@@ -35,6 +38,37 @@ export class ViaSession {
 
   async layerCount(): Promise<number | null> {
     return via.decodeLayerCount(await this.ask(via.layerCount()));
+  }
+
+  /** The matrix of the loaded definition and the keyboard's layer count; keymap commands are refused until this is set. */
+  setKeymap(layers: number, rows: number, cols: number) {
+    this.keymap = { layers, rows, cols, returned: (l, r, c, k) => this.seen.get(`${l},${r},${c}`)?.has(k) ?? false };
+  }
+
+  /** `04`: the keycode at one position. */
+  async readKeycode(layer: number, row: number, col: number): Promise<number | null> {
+    const req = via.getKeycode(layer, row, col);
+    const keycode = via.decodeKeycode(req.data, await this.ask(req));
+    if (keycode !== null) {
+      const at = `${layer},${row},${col}`;
+      this.seen.set(at, (this.seen.get(at) ?? new Set()).add(keycode));
+    }
+    return keycode;
+  }
+
+  /**
+   * One key, for the write procedure. A new value is a basic key; the previous
+   * value of a mismatch is written back as the keyboard returned it. `05` takes
+   * effect at once and the firmware stores it in EEPROM.
+   */
+  keycode(layer: number, row: number, col: number): Setting<number> {
+    return {
+      validate: (n) => (Number.isInteger(n) && n >= 0 && n <= via.BASIC_MAX ? null : `Must be a basic key (0 to ${via.BASIC_MAX})`),
+      write: async (n) => {
+        if (via.unhandled(await this.ask(via.setKeycode(layer, row, col, n)))) throw new Error('The keyboard refused the command (unhandled)');
+      },
+      read: () => this.readKeycode(layer, row, col),
+    };
   }
 
   /** Lighting channels the firmware was built with: those whose brightness get is not unhandled. */

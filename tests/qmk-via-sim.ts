@@ -25,6 +25,10 @@ export interface ViaSimOptions {
   notVia?: boolean;
   /** Echo writes but keep the old values (a firmware that ignores a setting). */
   ignoreWrites?: boolean;
+  /** The matrix; the dynamic keymap starts as KC_A + position on layer 0 and transparent above. */
+  matrix?: { rows: number; cols: number };
+  /** Keep a different keycode than the one written (a firmware that remaps it), by written value. */
+  remapKeycode?: Record<number, number>;
 }
 
 const scale8 = (i: number, scale: number) => (i * (1 + scale)) >> 8;
@@ -34,6 +38,8 @@ export class ViaSim {
   readonly collections = [{ usagePage: 0xff60, usage: 0x0061, inputReports: [{ reportId: 0 }], outputReports: [{ reportId: 0 }] }];
   readonly sent: number[][] = [];
   readonly lights = new Map<Channel, Lighting>();
+  /** `layer,row,col` to keycode. The dynamic keymap lives in EEPROM, so a set survives powerCycle(). */
+  readonly keymap = new Map<string, number>();
   /** What `09` saved, restored by powerCycle(). */
   private eeprom = new Map<Channel, Lighting>();
   private listeners = new Set<(e: Event) => void>();
@@ -41,6 +47,10 @@ export class ViaSim {
 
   constructor(opts: ViaSimOptions = {}) {
     this.opts = opts;
+    const { rows, cols } = opts.matrix ?? { rows: 2, cols: 3 };
+    for (let l = 0; l < (opts.layers ?? 4); l++) {
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) this.keymap.set(`${l},${r},${c}`, l === 0 ? 0x04 + r * cols + c : 0x01);
+    }
     for (const [ch, c] of Object.entries(opts.channels ?? { rgbMatrix: { max: 255 } }) as [Channel, { max: number; effects?: number }][]) {
       const l = { max: c.max, effects: c.effects ?? 40, val: c.max, mode: 1, enabled: true, speed: 127, hue: 0, sat: 255 };
       this.lights.set(ch, l);
@@ -84,6 +94,20 @@ export class ViaSim {
       case CMD.layerCount:
         d[1] = this.opts.layers ?? 4;
         return;
+      case CMD.getKeycode: {
+        // dynamic_keymap_get_keycode returns KC_NO outside the matrix and layers.
+        const k = this.keymap.get(`${d[1]},${d[2]},${d[3]}`) ?? 0;
+        d[4] = k >> 8;
+        d[5] = k & 0xff;
+        return;
+      }
+      case CMD.setKeycode: {
+        const key = `${d[1]},${d[2]},${d[3]}`;
+        const written = (d[4]! << 8) | d[5]!;
+        // dynamic_keymap_set_keycode ignores positions outside the matrix and layers.
+        if (this.keymap.has(key) && !this.opts.ignoreWrites) this.keymap.set(key, this.opts.remapKeycode?.[written] ?? written);
+        return;
+      }
       case CMD.getValue:
       case CMD.setValue:
       case CMD.save: {

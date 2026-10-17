@@ -27,7 +27,7 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | debounce-ms | device | write-verified | yes | no hardware, 2026-10-15, medium confidence |
 | battery | device | read-verified | yes | no hardware, 2026-10-15, medium confidence |
 
-### Not yet seen on hardware by UDB (394)
+### Not yet seen on hardware by UDB (417)
 
 | Device | USB IDs | Protocol | Experimental | Not supported |
 |---|---|---|---|---|
@@ -203,6 +203,29 @@ Protocol: `compx` ([notes](docs/protocols/compx.md))
 | ATK ZERO + | 373B:129E | `compx` | polling-rate, dpi.current-stage, debounce-ms | dpi.stages |
 | Corsair IRONCLAW RGB WIRELESS | 1B1C:1B4C 1B1C:1B66 1B1C:1BDC | `corsair-bragi` | – | dpi, polling-rate, battery |
 | Corsair NIGHTSWORD RGB | 1B1C:1B5C | `corsair-nxp` | dpi.stages, dpi.current-stage, lift-off-distance, angle-snapping | polling-rate, onboard-profiles, lighting |
+| Glorious Model D 2 PRO | 258A:201A 258A:2034 | `glorious` | – | dpi, polling-rate |
+| Glorious Model D 2 PRO 4K/8K | 258A:201C 258A:2036 | `glorious` | – | dpi, polling-rate |
+| Glorious Model D 2 Wired | 093A:825A | `glorious` | – | dpi, polling-rate |
+| Glorious Model D 2 Wireless | 093A:824A 093A:824B 093A:824D | `glorious` | – | dpi, polling-rate |
+| Glorious Model D- 2 Wired | 093A:832A | `glorious` | – | dpi, polling-rate |
+| Glorious Model D- Wireless | 258A:2014 258A:2025 | `glorious` | – | dpi, polling-rate |
+| Glorious Model D Wireless | 258A:2012 258A:2023 | `glorious` | – | dpi, polling-rate |
+| Glorious Model I | 22D4:1503 | `glorious` | – | dpi, polling-rate |
+| Glorious Model I 2 | 093A:821D 093A:821B | `glorious` | – | dpi, polling-rate |
+| Glorious Model I 2 Wired | 320F:831A | `glorious` | – | dpi, polling-rate |
+| Glorious Model I 2 Wireless | 320F:821A | `glorious` | – | dpi, polling-rate |
+| Glorious Model O 2 Mini Wired | 093A:827A | `glorious` | – | dpi, polling-rate |
+| Glorious Model O 2 Mini Wireless | 093A:826A 093A:826B 093A:826D | `glorious` | – | dpi, polling-rate |
+| Glorious Model O 2 PRO | 258A:2019 258A:2033 | `glorious` | – | dpi, polling-rate |
+| Glorious Model O 2 PRO 4K/8K | 258A:201B 258A:2035 | `glorious` | – | dpi, polling-rate |
+| Glorious Model O 2 Wireless | 093A:822A 093A:822B 093A:822D | `glorious` | – | dpi, polling-rate |
+| Glorious Model O- Wireless | 258A:2013 258A:2024 | `glorious` | – | dpi, polling-rate |
+| Glorious Model O Pro | 258A:2015 258A:2027 | `glorious` | – | dpi, polling-rate |
+| Glorious Model O V2 | 320F:823A | `glorious` | – | dpi, polling-rate |
+| Glorious Model O Wireless | 258A:2011 258A:2022 | `glorious` | – | dpi, polling-rate |
+| Glorious Model O3 Wireless | 3794:A312 3794:A300 | `glorious` | – | dpi, polling-rate |
+| Glorious Series 2 PRO | 258A:201D 258A:2039 | `glorious` | – | dpi, polling-rate |
+| Glorious Series One Pro | 258A:2018 258A:2031 | `glorious` | – | dpi, polling-rate |
 | Logitech G PRO 2 LIGHTSPEED | 046D:C09A | `logitech-hidpp` | dpi, polling-rate | onboard-profiles, buttons, lighting |
 | Logitech G Pro Wireless | 046D:4079 046D:C088 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |
 | Logitech G Pro X Wireless Superlight | 046D:4093 046D:C094 | `logitech-hidpp` | dpi, polling-rate, battery | onboard-profiles, buttons, lighting |

@@ -294,6 +294,15 @@ Phase 5 lands as stacked branches, one per item:
   (`src/lib/history.svelte.ts`), so the log updates live
 - [x] Tests: the descriptor formatter and the export's contents
 
+### PWA: branch `phase-5-pwa` (stacked on diagnostics)
+- [x] Web manifest, an icon (`public/icon.svg` and 192/512 PNGs), and an
+  installable site; Chromium reports no installability errors
+- [x] A service worker generated at build time (`scripts/service-worker.ts`,
+  ADR 9): precaches the build, network-first navigation, no early takeover
+- [x] Checked in Chromium against the production build: the worker activates,
+  the build is precached, and a reload with the network off still opens the app
+- [x] `tests/service-worker.test.ts` runs the generated worker against a fake scope
+
 ## Phase 6: Security review, compatibility testing, releases
 
 - Review against `THREAT_MODEL.md`.

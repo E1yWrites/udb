@@ -1,7 +1,10 @@
 /// <reference types="vitest/config" />
 import { execSync } from 'node:child_process';
+import { readdirSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+import { serviceWorkerSource } from './scripts/service-worker.ts';
 
 // ADR 5: strict CSP. Build only, because the dev server injects inline styles.
 // GitHub Pages can't send headers, so it ships as a meta tag (no frame-ancestors).
@@ -34,10 +37,24 @@ function commit(): string {
   }
 }
 
+// ADR 9: after the build, list dist/ and write sw.js with a per-commit cache name.
+let outDir = 'dist';
+const sw: Plugin = {
+  name: 'udb-service-worker',
+  apply: 'build',
+  configResolved: (config) => void (outDir = config.build.outDir),
+  closeBundle() {
+    const files = readdirSync(outDir, { recursive: true, encoding: 'utf8' })
+      .map((f) => f.replaceAll('\\', '/'))
+      .filter((f) => !f.endsWith('/') && f !== 'sw.js' && /\.[a-z0-9]+$/i.test(f));
+    writeFileSync(join(outDir, 'sw.js'), serviceWorkerSource(commit().slice(0, 12), ['./', ...files]));
+  },
+};
+
 export default defineConfig({
   base: './',
   define: { __COMMIT__: JSON.stringify(commit()) },
-  plugins: [svelte(), csp],
+  plugins: [svelte(), csp, sw],
   build: { assetsInlineLimit: 0 },
   test: { include: ['tests/**/*.test.ts'], environment: 'node' },
 });

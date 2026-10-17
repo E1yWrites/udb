@@ -1,0 +1,15 @@
+{
+  "name": "UDB · Universal Driver Bus",
+  "short_name": "UDB",
+  "description": "One bus. Every device. A control center for gaming mice, keyboards and headsets.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#211f1d",
+  "theme_color": "#211f1d",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -316,6 +316,20 @@ Phase 5 lands as stacked branches, one per item:
   (see `SPEC.md`); the ROCCAT Kone is the first candidate
 - [ ] LampArray and Vibe75 have no profiles: their settings are not read back one by one
 
+### VIA keymap: branch `phase-5-via-keymap` (stacked on profiles)
+- [x] `04`/`05` on the allowlist only after a definition is loaded, bounded by
+  the layer count and the definition's matrix; basic keys only, or a value the
+  keyboard returned for that key (`docs/protocols/qmk-via.md`, T14)
+- [x] A parser for the VIA definition file (untrusted input) and the QMK basic
+  keycode names (`src/adapters/via-definition.ts`, `via-keycodes.ts`)
+- [x] `src/ui/ViaKeymap.svelte`: the layout drawn from the file, layer tabs,
+  user-chosen layout options, per-key read, write with read-back, restore
+- [x] Checked in Chromium against the preview Keychron: load, read, change,
+  restore, layer and option switch; no page overflow at 390px
+- [ ] Macros are not built: the VIA macro commands (`0C` to `10`) stay refused.
+  Onboard macros on other families need a protocol with a read-back first
+- [ ] The `keymap` feature stays `experimental` until a VIA keyboard confirms it (Phase 6)
+
 ## Phase 6: Security review, compatibility testing, releases
 
 - Review against `THREAT_MODEL.md`.

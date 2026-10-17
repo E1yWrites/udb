@@ -252,23 +252,6 @@
     font: inherit;
   }
 
-  .file {
-    position: relative;
-    cursor: pointer;
-  }
-
-  .file input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  .file:focus-within {
-    outline: 2px solid var(--signal);
-    outline-offset: 2px;
-  }
-
   .list {
     list-style: none;
     margin: 0;

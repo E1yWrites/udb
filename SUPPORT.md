@@ -511,7 +511,7 @@ Protocol: `vibe75` ([notes](docs/protocols/vibe75.md))
 | Logitech G910 | 046D:C335 | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
 | Logitech G915 | 046D:C33E | `logitech-hidpp` | polling-rate | onboard-profiles, keymap, lighting |
 | Logitech G915 TKL | 046D:C343 046D:B35F | `logitech-hidpp` | polling-rate, battery | onboard-profiles, keymap, lighting |
-| QMK Keyboard with VIA firmware | any device with FF60:0061 | `qmk-via` | lighting.brightness, lighting.mode, lighting.speed, lighting.color | keymap, macros |
+| QMK Keyboard with VIA firmware | any device with FF60:0061 | `qmk-via` | lighting.brightness, lighting.mode, lighting.speed, lighting.color, keymap | macros |
 | Wooting 60HE | 31E3:1300 31E3:1301 31E3:1302 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
 | Wooting 60HE (ARM) | 31E3:1310 31E3:1311 31E3:1312 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |
 | Wooting 60HE+ | 31E3:1320 31E3:1321 31E3:1322 | `wooting` | – | actuation-point, rapid-trigger, lighting, keymap |

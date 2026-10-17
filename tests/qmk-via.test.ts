@@ -314,6 +314,16 @@ describe('qmk-via keymap session (simulator, not hardware evidence)', () => {
     expect(await applySetting(s.keycode(0, 0, 0), 0x04, 0x5220)).toEqual({ kind: 'mismatch', requested: 0x04, actual: 0x2a, restored: 0x5220, restoreConfirmed: true });
   });
 
+  it('accepts a non-basic value for a key only after the keyboard returned it there', async () => {
+    const { sim, s } = await session();
+    sim.keymap.set('0,0,0', 0x5220);
+    expect(s.keycode(0, 0, 0).validate(0x5220)).not.toBeNull();
+    await s.readKeycode(0, 0, 0);
+    expect(s.keycode(0, 0, 0).validate(0x5220)).toBeNull();
+    expect(s.keycode(0, 0, 0).validate(0x5221)).not.toBeNull();
+    expect(s.keycode(0, 0, 1).validate(0x5220)).not.toBeNull();
+  });
+
   it('refuses positions outside the matrix and layers', async () => {
     const { sim, s } = await session();
     const before = sim.sent.length;

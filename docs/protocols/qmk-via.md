@@ -53,6 +53,8 @@ menus). UDB loads no definitions in this phase.
 |---|---|---|
 | `01` | get protocol version | `01 hi lo` |
 | `11` | get dynamic keymap layer count (versions 9–13 only) | `11 n` |
+| `04 layer row col` | get a keycode (after a definition is loaded) | `04 layer row col hi lo` |
+| `05 layer row col hi lo` | set a keycode (same condition) | echo |
 | `08 ch id` | get a custom value (version 12–13 only) | `08 ch id v0 [v1]` |
 | `07 ch id v0 [v1]` | set a custom value, in RAM only (`_noeeprom`) | echo |
 | `09 ch` | save the channel to EEPROM | echo |
@@ -99,15 +101,36 @@ and the user sees the step the keyboard actually uses.
 value the same way, so EEPROM always holds the last value the keyboard
 confirmed.
 
+## Keymap commands (Phase 5)
+
+`04` and `05` are refused until the user loads a VIA definition for this
+keyboard. The definition gives the matrix size; the layer count comes from `11`.
+The allowlist then accepts a position only inside `layers × rows × cols`.
+(QMK itself returns `KC_NO` for a get outside the matrix and ignores a set
+there.) A set also needs:
+
+- a basic keycode (`<= 00FF`, the HID keyboard and consumer usages), or exactly
+  a value the keyboard returned for that same key. The 16-bit space above `FF`
+  holds layer, macro and quantum keycodes, including bootloader and
+  EEPROM-clear keys, so UDB never assigns one that the keyboard didn't already
+  hold at that key;
+- no bytes past the keycode.
+
+`05` stores to EEPROM at once (`dynamic_keymap_set_keycode`), so a restore after
+a mismatch needs no separate save. Layout options (which key variants the board
+was built with) are not read: `02 02` is not allowed, so the user chooses them
+in the UI. Names and values of the basic keys are from QMK `keycodes.h` at
+`7a1bbf37`.
+
 ## Refused by the allowlist
 
 Everything not listed above. In particular:
 
 - `0B` bootloader jump (removed from current QMK, still present in older and
   vendor forks), `0A` EEPROM reset, `06` keymap reset, `10` macro reset
-- `05`, `0F`, `13`, `15`: keymap, macro, buffer and encoder writes (keymap
-  editing needs the board's matrix size from a VIA definition; planned for
-  Phase 5)
+- `0C` to `10`, `12`, `13`, `15`: macro, buffer and encoder commands (macros are
+  not built). `04` and `05` are refused outside the loaded matrix and layers,
+  and `05` with a keycode above `FF` that the keyboard didn't return for that key
 - `02 03` switch matrix state: it reports which keys are held, which is
   keystroke data (THREAT_MODEL)
 - `03` set keyboard value (layout options, device indication)

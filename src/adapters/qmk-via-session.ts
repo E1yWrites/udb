@@ -42,7 +42,11 @@ export class ViaSession {
 
   /** The matrix of the loaded definition and the keyboard's layer count; keymap commands are refused until this is set. */
   setKeymap(layers: number, rows: number, cols: number) {
-    this.keymap = { layers, rows, cols, returned: (l, r, c, k) => this.seen.get(`${l},${r},${c}`)?.has(k) ?? false };
+    this.keymap = { layers, rows, cols, returned: (l, r, c, k) => this.returned(l, r, c, k) };
+  }
+
+  private returned(layer: number, row: number, col: number, keycode: number): boolean {
+    return this.seen.get(`${layer},${row},${col}`)?.has(keycode) ?? false;
   }
 
   /** `04`: the keycode at one position. */
@@ -63,7 +67,7 @@ export class ViaSession {
    */
   keycode(layer: number, row: number, col: number): Setting<number> {
     return {
-      validate: (n) => (Number.isInteger(n) && n >= 0 && n <= via.BASIC_MAX ? null : `Must be a basic key (0 to ${via.BASIC_MAX})`),
+      validate: (n) => (Number.isInteger(n) && ((n >= 0 && n <= via.BASIC_MAX) || this.returned(layer, row, col, n)) ? null : `Must be a basic key (0 to ${via.BASIC_MAX})`),
       write: async (n) => {
         if (via.unhandled(await this.ask(via.setKeycode(layer, row, col, n)))) throw new Error('The keyboard refused the command (unhandled)');
       },

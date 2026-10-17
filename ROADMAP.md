@@ -303,6 +303,19 @@ Phase 5 lands as stacked branches, one per item:
   the build is precached, and a reload with the network off still opens the app
 - [x] `tests/service-worker.test.ts` runs the generated worker against a fake scope
 
+### Profiles: branch `phase-5-profiles` (stacked on the PWA)
+- [x] Browser profiles on the five panels with per-setting read-back
+  (`compx`, `corsair-nxp`, `logitech-hidpp`, `razer`, `qmk-via`): save what the
+  device returned, apply through the write procedure, export and import as JSON
+  (`src/lib/profiles.ts`, `src/ui/ProfileBar.svelte`)
+- [x] Imported files are untrusted: size, shape and every key and value checked
+  (`tests/profiles.test.ts`, THREAT_MODEL T13)
+- [x] Checked in Chromium against the preview Corsair: save, change, apply
+  restores the saved value with device confirmation, a bad import is rejected
+- [ ] On-device profile switching: no current adapter has a read-back selector
+  (see `SPEC.md`); the ROCCAT Kone is the first candidate
+- [ ] LampArray and Vibe75 have no profiles: their settings are not read back one by one
+
 ## Phase 6: Security review, compatibility testing, releases
 
 - Review against `THREAT_MODEL.md`.

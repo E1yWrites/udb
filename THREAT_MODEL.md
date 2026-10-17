@@ -24,7 +24,7 @@ flowchart LR
   PAGES -->|JS bundle| TAB[Browser tab]
   TAB -->|WebHID, granted devices only| DEV[Device firmware]
   DEV -->|input/feature reports: untrusted| TAB
-  TAB -->|IndexedDB| STORE[(Local browser storage)]
+  TAB -->|localStorage| STORE[(Local browser storage)]
 ```
 
 ## Threats and mitigations
@@ -36,13 +36,14 @@ flowchart LR
 | T3 | **Hostile or buggy device response** (wrong length, out-of-range values) | Parser crash, wrong UI state, false "confirmed" | Every response is untrusted: check the report ID, length and bounds before parsing; complement/checksum checks where the protocol has them; decoders tested against captured fixtures | Low |
 | T4 | **Bad write by UDB** (wrong encoding, out-of-range value) | Device misbehaves until reset | Validate ranges from the registry before sending; read back after every write; restore and report on mismatch; experimental features need an extra confirmation | Medium for `experimental` features, by design |
 | T5 | **Firmware, bootloader, DFU, pairing or factory reset** | Brick, unpaired device | Not implemented. Registry denylist of collections (G14 `FF82:00CF`); adapter allowlists exclude them; firmware needs separate approval from the owner, per the brief | Low |
-| T6 | **Privacy leak** of macros, serials, device lists | Keystroke patterns, fingerprinting | No telemetry; `connect-src 'self'`; data stays in IndexedDB; export only on explicit user action; device dumps reach the project only when the user files them | Low |
+| T6 | **Privacy leak** of macros, serials, device lists | Keystroke patterns, fingerprinting | No telemetry; `connect-src 'self'`; data stays in this browser's storage (localStorage); export only on explicit user action; device dumps reach the project only when the user files them | Low |
 | T7 | **Over-broad permission** | Access to unrelated devices | `requestDevice` filters only by registry-matched VID/PID and usage page, or, for a family identified by protocol, by its own collection: `FF60:0061` for QMK/VIA, the HID++ collections of VID `046D` for Logitech, and the standard LampArray collection `0059:0001`. Such a device gets only the protocol's identification query (VIA `01`) until it answers as that protocol. The prompt explains why each device is requested | Low |
 | T8 | **Injection through device strings** (`productName`, LCD text) | XSS in the UDB origin, which would expose the grants | Svelte escapes text by default; `{@html}` is banned (lint rule in Phase 2); CSP `script-src 'self'` | Low |
 | T9 | **Interface conflict** with vendor software | Interleaved commands corrupting settings | Detect `open()` failure or unexpected responses; name the conflicting app from the registry; never retry writes blindly | Medium |
 | T10 | **Embedding / clickjacking** | Tricking a user into a grant | WebHID in a cross-origin iframe needs a `hid` permissions-policy grant that UDB never gives. GitHub Pages can't send `frame-ancestors` (a `<meta>` CSP can't set it). | Low |
 | T11 | **Malicious registry data** (misleading `write-verified` claims) | Users trust an unverified control | The schema requires hardware evidence for `read-verified`/`write-verified` and read-back for `write-verified` (`scripts/check-registry.sh`); reviewers check the evidence | Reviewer error |
 | T12 | **Cached stale or tampered code** (the service worker keeps a bundle after the deploy is fixed or rolled back) | A bad bundle keeps running | Navigations go to the network first, so a reload gets the current page; no `skipWaiting`, so a new worker never takes over mid-session; the cache name changes every commit and old caches are deleted; users can clear site data or uninstall (ADR 9) | Low; an offline user runs the last version they loaded |
+| T13 | **Hostile or careless profile file** (imported by the user) | Extreme values written to a device; a parser or storage bug | The file is size-capped and parsed as JSON only; name, registry id and every key and value are validated, and unknown fields are dropped; applying goes through each setting's range check, then the write procedure with read-back; nothing is executed | Low |
 
 ## Decisions this threat model depends on
 

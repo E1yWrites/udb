@@ -247,6 +247,15 @@ checks happen in the Phase 6 compatibility pass.
 - [ ] Waiting on device reports per family, and a decision on how to show a
   write the mouse acknowledges but cannot report
 
+### Long tail: Glorious, branch `phase-4-glorious` (stacked on SteelSeries), detection only
+- [x] `docs/protocols/glorious.md`: the Pixart, classic and 4K/8K generations,
+  the O 2 PRO 4K/8K frame layout from OpenMouse's capture notes, uncertain PIDs,
+  why there is no adapter and what would unblock one
+- [x] 23 mouse entries (42 product IDs) from OpenMouse's tables
+  (`npm run import:glorious`); no adapter, UDB sends them nothing
+- [ ] Waiting on a device report from a Glorious mouse, and a way to show which
+  profile a write lands in
+
 ## Phase 5: Profiles, advanced settings, diagnostics, packaging, contributors
 
 - On-device profiles through the adapters; browser profiles with

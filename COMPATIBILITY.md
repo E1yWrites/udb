@@ -32,7 +32,7 @@ Column meanings:
 | Corsair | classic (NXP) and Bragi | OpenMouse (AGPL-3.0-or-later; NIGHTSWORD hardware notes), ckb-next (GPL-2.0-only, not used) | ✅ `FFC2:0004` feature reports; Bragi `FF42` usage unknown | ✅ classic, live settings only | – | Phase 4 long tail: classic experimental, Bragi detection only |
 | HyperX | NGENUITY HID | OpenRGB (GPL-2.0-or-later), lighting only | ❓ | ❓ | – | Phase 4, later |
 | ASUS ROG / TUF | Aura (about ten sub-protocols) | OpenRGB (GPL-2.0-or-later), asusctl (MPL-2.0); facts only | ❓ collections unknown | ❌ lighting is write-only | – | Phase 4 long tail: **detection only** (55 keyboards and mice) |
-| Glorious | Sinowealth-based | OpenRGB (lighting) | ❓ | ❓ | – | Phase 4, later |
+| Glorious | Pixart, classic (Sinowealth) and 4K/8K generations | OpenMouse (AGPL-3.0-or-later; one USBPcap capture of the O 2 PRO 4K/8K); facts only | ⚠️ `FFFF:0000` on the 4K/8K only | ❌ no setting can be read; firmware and battery only | – | Phase 4 long tail: **detection only** (23 models) |
 | Turtle Beach / Roccat | Roccat | libratbag (MIT) | ❓ | ✅ (libratbag reads) | – | Phase 4, later |
 
 **Phase 4 update (2026-10-15):** ATK and VXE turned out to be the same
@@ -82,6 +82,11 @@ LampArray. See `docs/protocols/asus-aura.md`.
 product IDs across 24 incompatible codec families, and none has a settings
 getter, so the 56 models are detection only. See
 `docs/protocols/steelseries-mouse.md`.
+
+**Phase 4 update (2026-10-18):** Glorious. Three protocol generations, none with
+a settings read, and mice that cannot say which of their three profiles is
+active. 23 models (42 product IDs) are detection only. See
+`docs/protocols/glorious.md`.
 
 ## Keyboards
 

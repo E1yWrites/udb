@@ -1,0 +1,89 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "glorious/model-d-wireless",
+  "vendor": "Glorious",
+  "model": "Model D Wireless",
+  "category": "mouse",
+  "identities": [
+    {
+      "vid": "0x258A",
+      "pid": "0x2012",
+      "connection": "wired"
+    },
+    {
+      "vid": "0x258A",
+      "pid": "0x2023",
+      "connection": "dongle"
+    }
+  ],
+  "protocol": {
+    "family": "glorious",
+    "doc": "docs/protocols/glorious.md",
+    "references": [
+      {
+        "title": "OpenMouse mouse-protocol (Glorious drivers, product tables, O 2 PRO 4K/8K capture)",
+        "url": "https://github.com/OpenMouse-Project/mouse-protocol",
+        "license": "AGPL-3.0-or-later",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Detection only"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "Glorious CORE"
+  ],
+  "limitations": [
+    "Detection only: UDB sends nothing to Glorious mice.",
+    "Classic generation: OpenMouse’s `glorious-classic` codec, write-only.",
+    "No setting can be read back, so none could be write-verified. The mice keep several profiles and cannot report which one is active.",
+    "Identified by VID/PID through “Identify another device”; UDB requests no Glorious interface.",
+    "Generated from OpenMouse mouse-protocol @54c68c69: src/drivers/vendors.ts (GLORIOUS_PRODUCTS, GLORIOUS_CLASSIC_PRODUCTS) and src/glorious-core2/index.ts (GLORIOUS_CORE2_PRODUCTS)."
+  ],
+  "features": [
+    {
+      "id": "dpi",
+      "kind": "range",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @54c68c69: src/drivers/vendors.ts (GLORIOUS_PRODUCTS, GLORIOUS_CLASSIC_PRODUCTS) and src/glorious-core2/index.ts (GLORIOUS_CORE2_PRODUCTS): DPI stage commands",
+          "hardware": null,
+          "date": "2026-10-18",
+          "confidence": "low",
+          "notes": "OpenMouse knows no read of any Glorious setting; see docs/protocols/glorious.md"
+        }
+      ]
+    },
+    {
+      "id": "polling-rate",
+      "kind": "enum",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @54c68c69: src/drivers/vendors.ts (GLORIOUS_PRODUCTS, GLORIOUS_CLASSIC_PRODUCTS) and src/glorious-core2/index.ts (GLORIOUS_CORE2_PRODUCTS): polling-rate commands",
+          "hardware": null,
+          "date": "2026-10-18",
+          "confidence": "low",
+          "notes": "Write-only; see docs/protocols/glorious.md"
+        }
+      ]
+    }
+  ]
+}

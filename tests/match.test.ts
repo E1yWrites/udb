@@ -115,4 +115,11 @@ describe('shared receiver IDs', () => {
     expect(dongle?.entry.id).toBe('steelseries/aerox-3-wireless');
     expect(cable?.entry.collections.use).toEqual([]);
   });
+
+  it('keeps Glorious models that differ by a trailing minus apart', () => {
+    const o = matchDevice({ vendorId: 0x258a, productId: 0x2011, productName: 'Glorious Model O' }, registry);
+    const ominus = matchDevice({ vendorId: 0x258a, productId: 0x2013, productName: 'Glorious Model O-' }, registry);
+    expect(o?.entry.id).toBe('glorious/model-o-wireless');
+    expect(ominus?.entry.id).toBe('glorious/model-o-minus-wireless');
+  });
 });

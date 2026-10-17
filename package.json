@@ -18,7 +18,8 @@
     "import:logitech": "node scripts/import-logitech.ts",
     "import:razer": "node scripts/import-razer.ts",
     "import:aura": "node scripts/import-aura.ts",
-    "import:steelseries": "node scripts/import-steelseries.ts"
+    "import:steelseries": "node scripts/import-steelseries.ts",
+    "import:glorious": "node scripts/import-glorious.ts"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "7.3.1",

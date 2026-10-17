@@ -1,0 +1,179 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "corsair/nightsword-rgb",
+  "vendor": "Corsair",
+  "model": "NIGHTSWORD RGB",
+  "category": "mouse",
+  "identities": [
+    {
+      "vid": "0x1B1C",
+      "pid": "0x1B5C",
+      "connection": "wired"
+    }
+  ],
+  "protocol": {
+    "family": "corsair-nxp",
+    "doc": "docs/protocols/corsair.md",
+    "references": [
+      {
+        "title": "OpenMouse mouse-protocol (Corsair drivers and captures)",
+        "url": "https://github.com/OpenMouse-Project/mouse-protocol",
+        "license": "AGPL-3.0-or-later",
+        "use": "code"
+      }
+    ]
+  },
+  "collections": {
+    "use": [
+      {
+        "interface": 1,
+        "usagePage": "0xFFC2",
+        "usage": "0x0004",
+        "reportIds": [
+          0
+        ],
+        "purpose": "Config channel: 64-byte feature report 0 (GET answers through GET_FEATURE; SET has no reply)"
+      }
+    ],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Target platform; not yet tested"
+    },
+    "linux": {
+      "status": "documented",
+      "notes": "Needs a udev rule for hidraw"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "Corsair iCUE"
+  ],
+  "limitations": [
+    "Nothing here has been verified on hardware by UDB; OpenMouse tested the protocol on this model.",
+    "Live settings only: changes are lost when the mouse powers off, and iCUE overwrites them when it re-applies its profile.",
+    "Polling rate, the stage mask, onboard profiles, buttons and lighting are not implemented."
+  ],
+  "features": [
+    {
+      "id": "dpi.stages",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "constraints": {
+        "stages": 6,
+        "min": 100,
+        "max": 18000
+      },
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: captures/corsair-nightsword (NIGHTSWORD RGB fw 3.41, third-party hardware test) and src/corsair/index.ts: 07 13 Dn rewrites read back",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ],
+      "notes": "Live setting (volatile); stage 0 is the sniper slot"
+    },
+    {
+      "id": "dpi.current-stage",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: captures/corsair-nightsword (NIGHTSWORD RGB fw 3.41, third-party hardware test) and src/corsair/index.ts: write probe 07 13 02 00 n read back",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ],
+      "notes": "Live setting (volatile)"
+    },
+    {
+      "id": "lift-off-distance",
+      "kind": "range",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "constraints": {
+        "min": 1,
+        "max": 5
+      },
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: captures/corsair-nightsword (NIGHTSWORD RGB fw 3.41, third-party hardware test) and src/corsair/index.ts: write probe, heights 1-5 read back",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ],
+      "notes": "Live setting (volatile)"
+    },
+    {
+      "id": "angle-snapping",
+      "kind": "bool",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: captures/corsair-nightsword (NIGHTSWORD RGB fw 3.41, third-party hardware test) and src/corsair/index.ts: write probe read back",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ],
+      "notes": "Live setting (volatile)"
+    },
+    {
+      "id": "polling-rate",
+      "kind": "enum",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: captures/corsair-nightsword (NIGHTSWORD RGB fw 3.41, third-party hardware test) and src/corsair/index.ts: 07 0A",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low",
+          "notes": "The mouse re-enumerates after this write (ckb-next); refused for now"
+        }
+      ]
+    },
+    {
+      "id": "onboard-profiles",
+      "kind": "profile",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: captures/corsair-nightsword (NIGHTSWORD RGB fw 3.41, third-party hardware test) and src/corsair/index.ts: file-based profile format not decoded",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    },
+    {
+      "id": "lighting",
+      "kind": "color",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @e53af6d5: captures/corsair-nightsword (NIGHTSWORD RGB fw 3.41, third-party hardware test) and src/corsair/index.ts",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "low"
+        }
+      ]
+    }
+  ]
+}

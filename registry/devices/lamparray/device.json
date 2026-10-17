@@ -1,0 +1,130 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "lamparray/device",
+  "vendor": "HID LampArray",
+  "model": "Lighting device (Windows Dynamic Lighting)",
+  "category": "keyboard",
+  "identities": [
+    {
+      "byCollection": true,
+      "connection": "unknown",
+      "notes": "Any device exposing the standard LampArray collection 0059:0001: keyboards, mice and accessories that support Windows Dynamic Lighting. The name shown is the device's own."
+    }
+  ],
+  "protocol": {
+    "family": "lamparray",
+    "doc": "docs/protocols/lamparray.md",
+    "references": [
+      {
+        "title": "USB HID Usage Tables 1.4 (Lighting And Illumination page)",
+        "url": "https://usb.org/document-library/hid-usage-tables-14",
+        "license": "USB-IF specification",
+        "use": "facts-only"
+      },
+      {
+        "title": "Microsoft ArduinoHidForWindows (LampArray reference device)",
+        "url": "https://github.com/microsoft/ArduinoHidForWindows",
+        "license": "MIT",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [
+      {
+        "usagePage": "0x0059",
+        "usage": "0x0001",
+        "purpose": "HID LampArray: attribute, lamp, range-update and control feature reports; IDs and layout read from the descriptor"
+      }
+    ],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Windows Dynamic Lighting and vendor apps drive the same reports"
+    },
+    "linux": {
+      "status": "documented",
+      "notes": "Needs a udev rule for hidraw"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "Windows Dynamic Lighting",
+    "the device maker's lighting app"
+  ],
+  "limitations": [
+    "A standard: report layout comes from the device's descriptor, so any LampArray device works the same way.",
+    "Colours and autonomous mode cannot be read back; UDB reports them as sent, never confirmed.",
+    "Host-set colours are volatile; devices start in autonomous mode.",
+    "Per-key colours (multi-lamp updates) are not implemented."
+  ],
+  "features": [
+    {
+      "id": "lighting.lamparray-info",
+      "kind": "readonly",
+      "location": "device",
+      "readBack": true,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "HID Usage Tables 1.4, page 0x59; Microsoft ArduinoHidForWindows reference device @deb7e5e2: LampArrayAttributesReport (02) and LampAttributesResponseReport (22) via GET_FEATURE",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium"
+        }
+      ],
+      "notes": "Lamp count, size, kind and per-lamp attributes"
+    },
+    {
+      "id": "lighting.color",
+      "kind": "color",
+      "location": "device",
+      "readBack": false,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "HID Usage Tables 1.4, page 0x59; Microsoft ArduinoHidForWindows reference device @deb7e5e2: LampRangeUpdateReport (60)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "No read-back exists; UDB reports colours as sent"
+        }
+      ]
+    },
+    {
+      "id": "lighting.autonomous",
+      "kind": "bool",
+      "location": "device",
+      "readBack": false,
+      "status": "experimental",
+      "evidence": [
+        {
+          "source": "HID Usage Tables 1.4, page 0x59; Microsoft ArduinoHidForWindows reference device @deb7e5e2: LampArrayControlReport (70)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "The reference device does not answer GET on this report"
+        }
+      ]
+    },
+    {
+      "id": "lighting.per-key",
+      "kind": "color",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "HID Usage Tables 1.4, page 0x59; Microsoft ArduinoHidForWindows reference device @deb7e5e2: LampMultiUpdateReport (50)",
+          "hardware": null,
+          "date": "2026-10-15",
+          "confidence": "medium",
+          "notes": "Refused until a per-key editor exists"
+        }
+      ]
+    }
+  ]
+}

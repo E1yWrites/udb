@@ -10,6 +10,7 @@ const FEATURE_LABELS: Record<string, string> = {
   'dpi.current-stage': 'Active DPI stage',
   'lift-off-distance': 'Lift-off distance',
   'debounce-ms': 'Debounce',
+  'angle-snapping': 'Angle snapping',
   battery: 'Battery',
   'lighting.per-key': 'Per-key lighting',
   'lighting.mode': 'Lighting mode',

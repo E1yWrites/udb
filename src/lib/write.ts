@@ -53,3 +53,20 @@ export async function applySetting<T>(s: Setting<T>, requested: T, previous: T):
   }
   return { kind: 'mismatch', requested, actual, restored, restoreConfirmed: same(restored, previous) };
 }
+
+export type SendResult = { kind: 'sent'; at: string } | { kind: 'invalid'; reason: string } | { kind: 'failed'; error: string };
+
+/**
+ * For settings the device cannot report back (SPEC): validate and send, and
+ * say so. Never reported as confirmed, so never `write-verified`.
+ */
+export async function sendSetting<T>(s: Pick<Setting<T>, 'validate' | 'write'>, value: T): Promise<SendResult> {
+  const reason = s.validate(value);
+  if (reason) return { kind: 'invalid', reason };
+  try {
+    await s.write(value);
+    return { kind: 'sent', at: new Date().toISOString() };
+  } catch (e) {
+    return { kind: 'failed', error: message(e) };
+  }
+}

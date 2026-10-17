@@ -288,7 +288,7 @@ button {
   font-weight: 600;
 }
 
-.live .ask {
+.live .line .ask {
   grid-area: ask;
   display: flex;
   gap: var(--space-2);
@@ -315,7 +315,7 @@ button {
   opacity: 0.5;
 }
 
-.live .told {
+.live .line .told {
   grid-area: told;
   display: flex;
   align-items: baseline;
@@ -333,7 +333,7 @@ button {
   color: var(--faint);
 }
 
-.live .outcome {
+.live .line .outcome {
   grid-area: outcome;
 }
 

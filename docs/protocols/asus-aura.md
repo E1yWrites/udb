@@ -1,6 +1,8 @@
 # Protocol family: `asus-aura` (ROG laptop keyboards)
 
-Status: **not researched.** This is a Phase 4 target. So far there is only
+Status: **not researched.** The G14's lighting is reachable now through its
+standard LampArray collection (`docs/protocols/lamparray.md`); Aura (`FF31`) is
+a later Phase 4 target. So far there is only
 descriptor metadata from the dev machine's ROG Zephyrus G14 (GA403),
 `0B05:19B6`, read with `HidP_GetCaps` (no reports sent):
 

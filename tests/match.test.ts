@@ -99,4 +99,12 @@ describe('shared receiver IDs', () => {
     const r = resolveByProtocolIdentity({ vendorId: 0x3710, productId: 0x5406, productName: 'Pulsar 8K Dongle' }, registry, { cid: 87, mid: 82 });
     expect(r?.entry.id).toBe('pulsar/x2-crazylight');
   });
+
+  it('recognises a detection-only Aura keyboard and keeps the G14 on its own entry', () => {
+    const scope = matchDevice({ vendorId: 0x0b05, productId: 0x190c, productName: 'ROG STRIX SCOPE TKL' }, registry);
+    expect(scope?.entry.id).toBe('asus/rog-strix-scope-tkl');
+    expect(scope?.entry.collections.use).toEqual([]);
+    const g14 = matchDevice({ vendorId: 0x0b05, productId: 0x19b6, productName: 'ITE Device(8910)' }, registry);
+    expect(g14?.entry.id).toBe('asus/rog-zephyrus-g14-ga403-keyboard');
+  });
 });

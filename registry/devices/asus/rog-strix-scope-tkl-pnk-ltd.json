@@ -1,0 +1,68 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "asus/rog-strix-scope-tkl-pnk-ltd",
+  "vendor": "ASUS",
+  "model": "ROG Strix Scope TKL PNK LTD",
+  "category": "keyboard",
+  "identities": [
+    {
+      "vid": "0x0B05",
+      "pid": "0x1954",
+      "connection": "wired"
+    }
+  ],
+  "protocol": {
+    "family": "asus-aura",
+    "doc": "docs/protocols/asus-aura.md",
+    "references": [
+      {
+        "title": "OpenRGB AsusAuraUSBController",
+        "url": "https://gitlab.com/CalcProgrammer1/OpenRGB",
+        "license": "GPL-2.0-or-later",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Detection only"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "Armoury Crate"
+  ],
+  "limitations": [
+    "Detection only: UDB sends nothing to ASUS Aura devices.",
+    "Aura lighting is streamed to the device and cannot be read back, so it could never be write-verified.",
+    "Identified by VID/PID through “Identify another device”; UDB requests no Aura interface.",
+    "Generated from OpenRGB @8e16de27, Controllers/AsusAuraUSBController: AsusAuraUSBControllerDetect.cpp, AsusAuraMouseController/AsusAuraMouseDevices.h (GPL-2.0-or-later): product IDs and names."
+  ],
+  "features": [
+    {
+      "id": "lighting",
+      "kind": "color",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenRGB @8e16de27, Controllers/AsusAuraUSBController: AsusAuraUSBControllerDetect.cpp, AsusAuraMouseController/AsusAuraMouseDevices.h (GPL-2.0-or-later): product IDs and names",
+          "hardware": null,
+          "date": "2026-10-17",
+          "confidence": "low",
+          "notes": "No read-back exists in OpenRGB’s driver; see docs/protocols/asus-aura.md"
+        }
+      ]
+    }
+  ]
+}

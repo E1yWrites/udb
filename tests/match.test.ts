@@ -122,4 +122,10 @@ describe('shared receiver IDs', () => {
     expect(o?.entry.id).toBe('glorious/model-o-wireless');
     expect(ominus?.entry.id).toBe('glorious/model-o-minus-wireless');
   });
+
+  it('recognises the three Kone Pure product IDs as one ROCCAT model', () => {
+    for (const productId of [0x2dc2, 0x2dbe, 0x2dcb]) {
+      expect(matchDevice({ vendorId: 0x1e7d, productId, productName: 'ROCCAT Kone Pure' }, registry)?.entry.id).toBe('roccat/kone-pure');
+    }
+  });
 });

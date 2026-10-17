@@ -10,6 +10,7 @@
   import RazerPanel from './RazerPanel.svelte';
   import LampArrayPanel from './LampArrayPanel.svelte';
   import CorsairPanel from './CorsairPanel.svelte';
+  import Diagnostics from './Diagnostics.svelte';
 
   let { device }: { device: UdbDevice } = $props();
 
@@ -216,6 +217,8 @@
       <p class="footnote">Report sizes in bytes, excluding the report ID.</p>
     {/if}
   </section>
+
+  <Diagnostics {device} />
 
   <footer class="actions">
     <button class="btn" onclick={copyReport}><Icon name="copy" />Copy device report</button>

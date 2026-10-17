@@ -10,6 +10,7 @@
 
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
   import { CompxSession } from '../adapters/compx-session.ts';
   import { POLLING_RATES, type Info } from '../adapters/compx.ts';
@@ -51,7 +52,7 @@
   let dpiRaw = $state<Record<number, { x: number; y: number } | null>>({});
   const dpiRows = $derived(sensor && stageCount ? Array.from({ length: stageCount }, (_, i) => `dpi${i}` as Row) : []);
   function historyFor(key: string) {
-    if (!history.has(key)) history.set(key, { log: [], writes: [] });
+    if (!history.has(key)) history.set(key, { log: logFor(key), writes: [] });
     return history.get(key)!;
   }
   const past = $derived(historyFor(device.key));

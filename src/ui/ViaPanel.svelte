@@ -8,6 +8,7 @@
 
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
   import { ViaSession } from '../adapters/qmk-via-session.ts';
   import { VALUES, hasChannels, knownVersion, maxOf, type Channel } from '../adapters/qmk-via.ts';
@@ -46,7 +47,7 @@
   let session: ViaSession | null = null;
 
   function historyFor(key: string) {
-    if (!history.has(key)) history.set(key, { log: [], writes: [] });
+    if (!history.has(key)) history.set(key, { log: logFor(key), writes: [] });
     return history.get(key)!;
   }
   const past = $derived(historyFor(device.key));

@@ -8,6 +8,7 @@
 
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
   import { paramsFrom, RazerSession, type Params } from '../adapters/razer-session.ts';
   import type { UdbDevice } from '../lib/devices.svelte.ts';
@@ -36,7 +37,7 @@
   let session: RazerSession | null = null;
 
   function historyFor(key: string) {
-    if (!history.has(key)) history.set(key, { log: [], writes: [] });
+    if (!history.has(key)) history.set(key, { log: logFor(key), writes: [] });
     return history.get(key)!;
   }
   const past = $derived(historyFor(device.key));

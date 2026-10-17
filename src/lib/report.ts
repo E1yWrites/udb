@@ -2,7 +2,9 @@
 // path and Phase 2's detection evidence). Descriptor metadata only: no input
 // data, no keystrokes, no serial numbers.
 
+import { descriptorLines } from './descriptor.ts';
 import type { Match } from './match.ts';
+import type { LogEntry } from './transport.ts';
 
 const hex4 = (n: number) => `0x${n.toString(16).toUpperCase().padStart(4, '0')}`;
 
@@ -39,5 +41,20 @@ export function deviceReport(d: ReportSource, now: Date, userAgent: string): obj
     productName: d.productName,
     registryMatch: d.match ? { id: d.match.entry.id, connection: d.match.identity.connection, modelConfirmed: d.match.modelConfirmed } : null,
     interfaces: d.interfaces.map((i) => ({ collections: i.collections.map(describe) })),
+  };
+}
+
+/**
+ * The device report plus the readable descriptor and the byte log, for the
+ * diagnostics export. The log holds only what UDB sent and the replies it
+ * matched. Replies can carry identifiers (serials, firmware strings), so the
+ * user reviews the file before sharing it.
+ */
+export function diagnosticsReport(d: ReportSource, log: LogEntry[], now: Date, userAgent: string): object {
+  return {
+    ...deviceReport(d, now, userAgent),
+    udbDiagnostics: 1,
+    descriptor: d.interfaces.map((i) => descriptorLines(i.collections)),
+    log,
   };
 }

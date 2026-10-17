@@ -107,4 +107,12 @@ describe('shared receiver IDs', () => {
     const g14 = matchDevice({ vendorId: 0x0b05, productId: 0x19b6, productName: 'ITE Device(8910)' }, registry);
     expect(g14?.entry.id).toBe('asus/rog-zephyrus-g14-ga403-keyboard');
   });
+
+  it('recognises a detection-only SteelSeries mouse on the cable and on the dongle', () => {
+    const cable = matchDevice({ vendorId: 0x1038, productId: 0x183a, productName: 'SteelSeries Aerox 3 Wireless' }, registry);
+    const dongle = matchDevice({ vendorId: 0x1038, productId: 0x1838, productName: 'SteelSeries Aerox 3 Wireless' }, registry);
+    expect(cable?.entry.id).toBe('steelseries/aerox-3-wireless');
+    expect(dongle?.entry.id).toBe('steelseries/aerox-3-wireless');
+    expect(cable?.entry.collections.use).toEqual([]);
+  });
 });

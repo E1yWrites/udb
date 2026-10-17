@@ -1,0 +1,98 @@
+{
+  "$schema": "../../schema/device.schema.json",
+  "id": "steelseries/sensei-pro-rival-pro",
+  "vendor": "SteelSeries",
+  "model": "Sensei Pro / Rival Pro",
+  "category": "mouse",
+  "identities": [
+    {
+      "vid": "0x1038",
+      "pid": "0x1880",
+      "connection": "dongle",
+      "notes": "OpenMouse codec family “sensei-rival-pro”."
+    },
+    {
+      "vid": "0x1038",
+      "pid": "0x1882",
+      "connection": "dongle",
+      "notes": "OpenMouse codec family “sensei-rival-pro”."
+    }
+  ],
+  "protocol": {
+    "family": "steelseries-mouse",
+    "doc": "docs/protocols/steelseries-mouse.md",
+    "references": [
+      {
+        "title": "OpenMouse mouse-protocol (SteelSeries product table, hardware notes)",
+        "url": "https://github.com/OpenMouse-Project/mouse-protocol",
+        "license": "AGPL-3.0-or-later",
+        "use": "facts-only"
+      },
+      {
+        "title": "rivalcfg",
+        "url": "https://github.com/flozz/rivalcfg",
+        "license": "WTFPL",
+        "use": "facts-only"
+      }
+    ]
+  },
+  "collections": {
+    "use": [],
+    "deny": []
+  },
+  "platform": {
+    "windows": {
+      "status": "documented",
+      "notes": "Detection only"
+    },
+    "linux": {
+      "status": "unknown"
+    },
+    "macos": {
+      "status": "unknown"
+    }
+  },
+  "conflictingSoftware": [
+    "SteelSeries GG",
+    "SteelSeries Engine"
+  ],
+  "limitations": [
+    "Detection only: UDB sends nothing to SteelSeries mice.",
+    "DPI, polling rate, lighting and buttons cannot be read back on any SteelSeries family OpenMouse covers, so they could never be write-verified.",
+    "Each codec family has its own command set; one family’s commands would misprogram another’s mice.",
+    "Identified by VID/PID through “Identify another device”; UDB requests no SteelSeries interface.",
+    "Generated from OpenMouse mouse-protocol @54c68c69: src/steelseries/devices.ts (third_party/openmouse/steelseries-devices.ts), traced there to rivalcfg and the vendor’s GG specification."
+  ],
+  "features": [
+    {
+      "id": "dpi",
+      "kind": "range",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @54c68c69: src/steelseries/devices.ts (third_party/openmouse/steelseries-devices.ts), traced there to rivalcfg and the vendor’s GG specification: per-family DPI command",
+          "hardware": null,
+          "date": "2026-10-18",
+          "confidence": "low",
+          "notes": "OpenMouse lists no settings getter for any SteelSeries family; see docs/protocols/steelseries-mouse.md"
+        }
+      ]
+    },
+    {
+      "id": "polling-rate",
+      "kind": "enum",
+      "location": "device",
+      "status": "unsupported",
+      "evidence": [
+        {
+          "source": "OpenMouse mouse-protocol @54c68c69: src/steelseries/devices.ts (third_party/openmouse/steelseries-devices.ts), traced there to rivalcfg and the vendor’s GG specification: per-family polling-rate command",
+          "hardware": null,
+          "date": "2026-10-18",
+          "confidence": "low",
+          "notes": "OpenMouse lists no settings getter for any SteelSeries family; see docs/protocols/steelseries-mouse.md"
+        }
+      ]
+    }
+  ]
+}

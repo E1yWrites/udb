@@ -63,7 +63,7 @@ flowchart LR
   DISC[Discovery: getDevices, connect events, registry match] --> AD
   REG[(Registry: JSON data)] --> DISC
   REG --> CAP
-  CAP --> PERS[(Persistence: IndexedDB, browser-side only)]
+  CAP --> PERS[(Persistence: browser storage, browser-side only)]
   PROF[Profiles] --> CAP
 ```
 
@@ -149,6 +149,31 @@ See `THREAT_MODEL.md`. In short:
 - every device response is untrusted (lengths and bounds checked before
   parsing)
 - nothing is uploaded
+
+## Profiles
+
+**Browser profiles** (`src/lib/profiles.ts`, `src/ui/ProfileBar.svelte`) are
+available on the panels whose settings are read back one by one: `compx`,
+`corsair-nxp`, `logitech-hidpp`, `razer` and `qmk-via`.
+- A profile is a name, the registry entry it was saved from, and the values the
+  device last returned, by the panel's own setting id. UDB never saves a value
+  it only requested.
+- It lives in this browser's `localStorage` (label: Browser). Nothing is sent
+  anywhere. A profile lists only under its registry entry.
+- Applying one writes each value through the panel's write procedure, in the
+  panel's row order, behind the same "allow unverified writes" gate. Each value
+  is read back; the result per setting (confirmed, mismatch, failed, not
+  written, already set, skipped) is shown.
+- Export and import use a JSON file: `{ "udbProfile": 1, "name", "registryId",
+  "settings": { "<setting id>": <integer> } }`. An import is untrusted input:
+  size, shape, name, registry id and every key and value are checked, and the
+  values still go through each setting's range check when applied.
+
+**On-device profiles.** No adapter implements profile switching yet: the
+stored-profile and onboard-mode commands of Corsair and Logitech are on the
+allowlists' deny side (THREAT_MODEL T2), and Glorious and ROCCAT have no
+adapter. The first candidate is the ROCCAT Kone (its current profile reads
+back; `docs/protocols/roccat.md`).
 
 ## Error handling
 

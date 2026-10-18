@@ -10,6 +10,7 @@
 
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import ProfileBar from './ProfileBar.svelte';
   import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
   import { CompxSession } from '../adapters/compx-session.ts';
@@ -191,6 +192,14 @@
     return `${v} ms`;
   }
 
+  /** Profile apply: the saved value goes through this panel's own write procedure, read back. */
+  async function applyProfileRow(row: string, value: number) {
+    results[row as Row] = undefined;
+    requested[row as Row] = value;
+    await apply(row as Row);
+    return results[row as Row];
+  }
+
   async function copyEvidence() {
     const report = {
       udbEvidence: 1,
@@ -324,6 +333,16 @@
     {#if stageCount === 1}
       <p class="note">This mouse has one DPI stage configured, so there is no stage to switch to.</p>
     {/if}
+
+    <ProfileBar
+      entryId={(model ?? entry).id}
+      current={Object.fromEntries(Object.entries(readings).map(([r, x]) => [r, x?.value]))}
+      label={(r) => label(r as Row)}
+      show={(r, v) => show(r as Row, v)}
+      canWrite={allowUnverified}
+      busy={busy !== null}
+      apply={applyProfileRow}
+    />
 
     <footer class="actions">
       <button class="btn" onclick={connect}>Read again</button>

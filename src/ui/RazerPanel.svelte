@@ -8,6 +8,7 @@
 
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import ProfileBar from './ProfileBar.svelte';
   import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
   import { paramsFrom, RazerSession, type Params } from '../adapters/razer-session.ts';
@@ -144,6 +145,14 @@
     busy = null;
   }
 
+  /** Profile apply: the saved value goes through this panel's own write procedure, read back. */
+  async function applyProfileRow(row: string, value: number) {
+    results[row as Row] = undefined;
+    requested[row as Row] = value;
+    await apply(row as Row);
+    return results[row as Row];
+  }
+
   async function copyEvidence() {
     const report = {
       udbEvidence: 1,
@@ -255,6 +264,16 @@
     {#if params.battery}
       <p class="note">Low-power mode is unavailable above 1,000 Hz; UDB checks the mouse’s polling rate before writing it.</p>
     {/if}
+
+    <ProfileBar
+      entryId={entry.id}
+      current={Object.fromEntries(Object.entries(readings).map(([r, x]) => [r, x?.value]))}
+      label={(r) => LABEL[r as Row]}
+      show={(r, v) => show(r as Row, v)}
+      canWrite={allowUnverified}
+      busy={busy !== null}
+      apply={applyProfileRow}
+    />
 
     <footer class="actions">
       <button class="btn" onclick={read} disabled={busy !== null}>Read again</button>

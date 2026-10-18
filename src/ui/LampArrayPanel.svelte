@@ -6,6 +6,7 @@
 
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import { logFor } from '../lib/history.svelte.ts';
   import { LampArraySession } from '../adapters/lamparray-session.ts';
   import { KINDS, layoutOf, PAGE, U, type Attributes, type Lamp } from '../adapters/lamparray.ts';
   import type { UdbDevice } from '../lib/devices.svelte.ts';
@@ -31,7 +32,7 @@
   let session = $state.raw<LampArraySession | null>(null);
 
   function historyFor(key: string) {
-    if (!history.has(key)) history.set(key, { log: [], sends: [] });
+    if (!history.has(key)) history.set(key, { log: logFor(key), sends: [] });
     return history.get(key)!;
   }
   const past = $derived(historyFor(device.key));

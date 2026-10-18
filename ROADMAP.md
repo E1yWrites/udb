@@ -285,6 +285,15 @@ Phase 5 lands as stacked branches, one per item:
   simulators, the evidence rules, how a hardware test becomes registry evidence
 - [x] `README.md` points at both
 
+### Diagnostics: branch `phase-5-diagnostics` (stacked on contributor docs)
+- [x] A Diagnostics section on every device pane: the report descriptor as the
+  browser parsed it (collections, reports, items), and the report log, with
+  "Copy diagnostics" and "Save as file". Exports stay local and carry a warning
+  that replies can hold identifiers.
+- [x] One byte log per device, shared by every panel and the diagnostics view
+  (`src/lib/history.svelte.ts`), so the log updates live
+- [x] Tests: the descriptor formatter and the export's contents
+
 ## Phase 6: Security review, compatibility testing, releases
 
 - Review against `THREAT_MODEL.md`.

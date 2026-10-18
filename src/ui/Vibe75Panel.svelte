@@ -7,6 +7,7 @@
 
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
   import { Vibe75Session, type ProfileReading } from '../adapters/vibe75-session.ts';
   import { BRIGHTNESS_MAX } from '../adapters/vibe75.ts';
@@ -19,7 +20,7 @@
   const entry = $derived(device.match!.entry);
 
   function historyFor(key: string) {
-    if (!history.has(key)) history.set(key, { log: [], writes: [] });
+    if (!history.has(key)) history.set(key, { log: logFor(key), writes: [] });
     return history.get(key)!;
   }
   const past = $derived(historyFor(device.key));

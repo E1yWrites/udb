@@ -8,6 +8,7 @@
 
 <script lang="ts">
   import Icon from './Icon.svelte';
+  import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
   import { HidppSession, type Identity } from '../adapters/logitech-hidpp-session.ts';
   import { DIRECT, type Battery } from '../adapters/logitech-hidpp.ts';
@@ -42,7 +43,7 @@
   let session: HidppSession | null = null;
 
   function historyFor(key: string) {
-    if (!history.has(key)) history.set(key, { log: [], writes: [] });
+    if (!history.has(key)) history.set(key, { log: logFor(key), writes: [] });
     return history.get(key)!;
   }
   const past = $derived(historyFor(device.key));

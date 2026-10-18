@@ -42,12 +42,14 @@ flowchart LR
 | T9 | **Interface conflict** with vendor software | Interleaved commands corrupting settings | Detect `open()` failure or unexpected responses; name the conflicting app from the registry; never retry writes blindly | Medium |
 | T10 | **Embedding / clickjacking** | Tricking a user into a grant | WebHID in a cross-origin iframe needs a `hid` permissions-policy grant that UDB never gives. GitHub Pages can't send `frame-ancestors` (a `<meta>` CSP can't set it). | Low |
 | T11 | **Malicious registry data** (misleading `write-verified` claims) | Users trust an unverified control | The schema requires hardware evidence for `read-verified`/`write-verified` and read-back for `write-verified` (`scripts/check-registry.sh`); reviewers check the evidence | Reviewer error |
+| T12 | **Cached stale or tampered code** (the service worker keeps a bundle after the deploy is fixed or rolled back) | A bad bundle keeps running | Navigations go to the network first, so a reload gets the current page; no `skipWaiting`, so a new worker never takes over mid-session; the cache name changes every commit and old caches are deleted; users can clear site data or uninstall (ADR 9) | Low; an offline user runs the last version they loaded |
 
 ## Decisions this threat model depends on
 
 - ADR 1 (browser-only): no daemon means no localhost attack surface.
 - ADR 5 (no telemetry, supply chain).
 - ADR 6 (deploy from `main` only).
+- ADR 9 (service worker: network-first navigation, no early takeover).
 
 ## Actions for the owner
 

@@ -216,3 +216,119 @@ describe('qmk-via session (simulator, not hardware evidence)', () => {
     await expect(s.handshake()).rejects.toBeInstanceOf(TransportRejected);
   });
 });
+
+describe('qmk-via keymap commands', () => {
+  const keymap = (returned: Record<string, number> = {}): via.Keymap => ({ layers: 4, rows: 2, cols: 3, returned: (l, r, c, k) => returned[`${l},${r},${c}`] === k });
+
+  it('frames get and set keycode like via.c: 04/05 layer row col, then hi lo', () => {
+    expect(via.getKeycode(1, 2, 3).data.subarray(0, 6)).toEqual(Uint8Array.of(0x04, 1, 2, 3, 0, 0));
+    expect(via.setKeycode(1, 0, 2, 0x0029).data.subarray(0, 6)).toEqual(Uint8Array.of(0x05, 1, 0, 2, 0x00, 0x29));
+    const req = via.getKeycode(0, 1, 2).data;
+    expect(via.decodeKeycode(req, Uint8Array.of(0x04, 0, 1, 2, 0x52, 0x20, ...new Array(26).fill(0)))).toBe(0x5220);
+    expect(via.decodeKeycode(req, Uint8Array.of(0x04, 0, 1, 9, 0, 4, ...new Array(26).fill(0)))).toBeNull();
+    expect(via.decodeKeycode(req, Uint8Array.of(0xff, 0, 1, 2, 0, 0, ...new Array(26).fill(0)))).toBeNull();
+  });
+
+  it('allows get and set inside the layers and matrix, basic keys only', () => {
+    const allow = via.allowFor(0x0d, keymap());
+    expect(allow(via.getKeycode(3, 1, 2))).toBe(true);
+    expect(allow(via.setKeycode(0, 0, 0, 0x04))).toBe(true);
+    expect(allow(via.setKeycode(3, 1, 2, via.BASIC_MAX))).toBe(true);
+    for (const v of [9, 11, 12]) expect(via.allowFor(v, keymap())(via.getKeycode(0, 0, 0))).toBe(true);
+  });
+
+  it.each([
+    ['a layer past the keyboard’s count', via.getKeycode(4, 0, 0)],
+    ['a row past the definition’s matrix', via.getKeycode(0, 2, 0)],
+    ['a column past the definition’s matrix', via.setKeycode(0, 0, 3, 0x04)],
+    ['a bootloader keycode nobody read from the keyboard', via.setKeycode(0, 0, 0, 0x7c00)],
+    ['a clear-EEPROM keycode', via.setKeycode(0, 0, 0, 0x7c03)],
+    ['a layer key nobody read from the keyboard', via.setKeycode(0, 0, 0, 0x5220)],
+    ['trailing bytes after a get', { ...via.getKeycode(0, 0, 0), data: Uint8Array.from(via.getKeycode(0, 0, 0).data, (v, i) => (i === 6 ? 1 : v)) }],
+    ['trailing bytes after a set', { ...via.setKeycode(0, 0, 0, 4), data: Uint8Array.from(via.setKeycode(0, 0, 0, 4).data, (v, i) => (i === 6 ? 1 : v)) }],
+  ])('refuses %s', (_name, report) => {
+    expect(via.allowFor(0x0d, keymap())(report)).toBe(false);
+  });
+
+  it('refuses keymap commands with no keymap, before the handshake and on unknown versions', () => {
+    expect(via.allowFor(0x0d)(via.getKeycode(0, 0, 0))).toBe(false);
+    expect(via.allowFor(null, keymap())(via.getKeycode(0, 0, 0))).toBe(false);
+    for (const v of [8, 14]) expect(via.allowFor(v, keymap())(via.getKeycode(0, 0, 0))).toBe(false);
+  });
+
+  it('writes a non-basic key only to put back exactly what the keyboard returned for that key', () => {
+    const allow = via.allowFor(0x0d, keymap({ '0,0,0': 0x5220 }));
+    expect(allow(via.setKeycode(0, 0, 0, 0x5220))).toBe(true);
+    expect(allow(via.setKeycode(0, 0, 0, 0x5221))).toBe(false);
+    expect(allow(via.setKeycode(0, 0, 1, 0x5220))).toBe(false);
+  });
+});
+
+describe('qmk-via keymap session (simulator, not hardware evidence)', () => {
+  async function session(opts: ConstructorParameters<typeof ViaSim>[0] = {}) {
+    const sim = new ViaSim({ matrix: { rows: 2, cols: 3 }, ...opts });
+    const s = new ViaSession(sim, []);
+    await s.handshake();
+    s.setKeymap((await s.layerCount())!, 2, 3);
+    return { sim, s };
+  }
+
+  it('reads keycodes, and sends no keymap command before the matrix is known', async () => {
+    const sim = new ViaSim();
+    const early = new ViaSession(sim, []);
+    await early.handshake();
+    await expect(early.readKeycode(0, 0, 0)).rejects.toBeInstanceOf(TransportRejected);
+    const { s } = await session();
+    expect(await s.readKeycode(0, 0, 0)).toBe(0x04);
+    expect(await s.readKeycode(0, 1, 2)).toBe(0x09);
+    expect(await s.readKeycode(2, 0, 0)).toBe(0x01);
+  });
+
+  it('writes a key and confirms it only by reading it back, and it survives a power cycle', async () => {
+    const { sim, s } = await session();
+    expect(await applySetting(s.keycode(0, 0, 1), 0x29, 0x05)).toEqual({ kind: 'confirmed', value: 0x29 });
+    expect(sim.sent.slice(-2).map((b) => b.slice(0, 6))).toEqual([
+      [0x05, 0, 0, 1, 0x00, 0x29],
+      [0x04, 0, 0, 1, 0x00, 0x00],
+    ]);
+    sim.powerCycle();
+    expect(await s.readKeycode(0, 0, 1)).toBe(0x29);
+  });
+
+  it('rejects a non-basic request before sending anything', async () => {
+    const { sim, s } = await session();
+    const before = sim.sent.length;
+    expect(await applySetting(s.keycode(0, 0, 0), 0x7c00, 0x04)).toEqual({ kind: 'invalid', reason: 'Must be a basic key (0 to 255)' });
+    expect(sim.sent).toHaveLength(before);
+  });
+
+  it('restores the previous key when the keyboard keeps a different one', async () => {
+    const { s } = await session({ remapKeycode: { 0x05: 0x2a } });
+    expect(await applySetting(s.keycode(0, 0, 0), 0x05, 0x04)).toEqual({ kind: 'mismatch', requested: 0x05, actual: 0x2a, restored: 0x04, restoreConfirmed: true });
+  });
+
+  it('can put back a layer key the keyboard had, because it read it first', async () => {
+    const { sim, s } = await session({ remapKeycode: { 0x04: 0x2a } });
+    sim.keymap.set('0,0,0', 0x5220);
+    expect(await s.readKeycode(0, 0, 0)).toBe(0x5220);
+    expect(await applySetting(s.keycode(0, 0, 0), 0x04, 0x5220)).toEqual({ kind: 'mismatch', requested: 0x04, actual: 0x2a, restored: 0x5220, restoreConfirmed: true });
+  });
+
+  it('accepts a non-basic value for a key only after the keyboard returned it there', async () => {
+    const { sim, s } = await session();
+    sim.keymap.set('0,0,0', 0x5220);
+    expect(s.keycode(0, 0, 0).validate(0x5220)).not.toBeNull();
+    await s.readKeycode(0, 0, 0);
+    expect(s.keycode(0, 0, 0).validate(0x5220)).toBeNull();
+    expect(s.keycode(0, 0, 0).validate(0x5221)).not.toBeNull();
+    expect(s.keycode(0, 0, 1).validate(0x5220)).not.toBeNull();
+  });
+
+  it('refuses positions outside the matrix and layers', async () => {
+    const { sim, s } = await session();
+    const before = sim.sent.length;
+    await expect(s.readKeycode(0, 2, 0)).rejects.toBeInstanceOf(TransportRejected);
+    await expect(s.readKeycode(4, 0, 0)).rejects.toBeInstanceOf(TransportRejected);
+    expect(sim.sent).toHaveLength(before);
+  });
+});

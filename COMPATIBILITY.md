@@ -108,8 +108,9 @@ reports. See `docs/protocols/roccat.md`.
 
 **Phase 4 update (2026-10-15):** QMK/VIA is in as one generic registry entry
 (`qmk/via-keyboard`) that matches any keyboard exposing `FF60:0061`. Lighting
-(brightness, effect, speed, colour) is `experimental`. Keymap and macros wait
-for VIA definitions (Phase 5). See `docs/protocols/qmk-via.md`.
+(brightness, effect, speed, colour) is `experimental`. Keymap editing (Phase 5,
+from a definition file the user loads) is `experimental` too, basic keys only;
+macros are not built. See `docs/protocols/qmk-via.md`.
 
 ## Headsets
 

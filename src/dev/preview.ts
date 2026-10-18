@@ -25,7 +25,7 @@ const pulsar = Object.assign(new CompxSim({ mid: 82, type: 5 }), {
   close: async () => {},
 }) as unknown as HIDDevice;
 // A VIA keyboard (Keychron Q2 IDs) answering through tests/qmk-via-sim.ts.
-const keychron = Object.assign(new ViaSim({ channels: { rgbMatrix: { max: 200 } } }), {
+const keychron = Object.assign(new ViaSim({ channels: { rgbMatrix: { max: 200 } }, matrix: { rows: 6, cols: 16 } }), {
   vendorId: 0x3434,
   productId: 0x0111,
   productName: 'Keychron Q2',

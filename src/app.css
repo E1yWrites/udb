@@ -148,6 +148,23 @@ button {
   cursor: not-allowed;
 }
 
+/* A file chooser styled as a button: the real input sits invisibly over it. */
+.btn.file {
+  position: relative;
+}
+
+.btn.file input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.btn.file:focus-within {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
 .num {
   font-variant-numeric: tabular-nums;
 }

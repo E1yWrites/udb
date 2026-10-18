@@ -9,6 +9,7 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
   import ProfileBar from './ProfileBar.svelte';
+  import ViaKeymap from './ViaKeymap.svelte';
   import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
   import { ViaSession } from '../adapters/qmk-via-session.ts';
@@ -45,7 +46,7 @@
   let allowUnverified = $state(false);
   let checks = $state<{ row: Row; expected: number; observed: number | null }[]>([]);
   let copied = $state(false);
-  let session: ViaSession | null = null;
+  let session = $state.raw<ViaSession | null>(null);
 
   function historyFor(key: string) {
     if (!history.has(key)) history.set(key, { log: logFor(key), writes: [] });
@@ -173,8 +174,8 @@
   {#if phase !== 'ready'}
     <p class="lede">
       UDB first asks the keyboard whether it speaks VIA, then reads its lighting. Reading changes nothing. The only
-      commands UDB can send are the version and layer queries, and lighting reads, writes and saves. Never bootloader,
-      reset or keymap commands.
+      commands UDB can send are the version and layer queries, lighting reads, writes and saves, and, once you load a
+      keyboard definition, reading keys and changing one key to a basic key. Never bootloader, reset or macro commands.
     </p>
     {#if phase === 'error'}<p class="problem" role="alert"><Icon name="alert" />{error}</p>{/if}
     <button class="btn primary" onclick={read} disabled={phase === 'reading'}>
@@ -301,6 +302,12 @@
         Effect numbers depend on the effects this firmware was built with; 0 turns the lighting off. The keyboard scales
         brightness to its own maximum, so it can report a slightly different value than the one you set.
       </p>
+    {/if}
+
+    {#if session && knownVersion(version) && layers !== null}
+      {#key session}
+        <ViaKeymap {session} {layers} vendorId={device.vendorId} productId={device.productId} reconnects={device.reconnects} writes={past.writes} />
+      {/key}
     {/if}
 
     <ProfileBar

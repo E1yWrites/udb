@@ -152,16 +152,17 @@
       "id": "keymap",
       "kind": "keymap",
       "location": "device",
-      "status": "unsupported",
+      "status": "experimental",
       "evidence": [
         {
-          "source": "QMK via.c id_dynamic_keymap_get/set_keycode (04/05)",
+          "source": "QMK via.c id_dynamic_keymap_get/set_keycode (04/05), commit 7a1bbf37; dynamic_keymap_set_keycode writes EEPROM",
           "hardware": null,
-          "date": "2026-10-15",
-          "confidence": "high",
-          "notes": "Needs the matrix size from the board's VIA definition; planned for Phase 5"
+          "date": "2026-10-18",
+          "confidence": "medium",
+          "notes": "Needs a VIA definition file loaded by the user for the matrix size. Basic keys only; tested against a simulator that follows via.c, not a keyboard."
         }
-      ]
+      ],
+      "readBack": true
     },
     {
       "id": "macros",

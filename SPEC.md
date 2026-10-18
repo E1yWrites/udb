@@ -175,6 +175,26 @@ allowlists' deny side (THREAT_MODEL T2), and Glorious and ROCCAT have no
 adapter. The first candidate is the ROCCAT Kone (its current profile reads
 back; `docs/protocols/roccat.md`).
 
+## Keymap editing
+
+QMK/VIA keyboards only (`src/ui/ViaKeymap.svelte`; protocol in
+`docs/protocols/qmk-via.md`). Experimental, with no hardware evidence yet.
+- The key layout comes from a VIA definition JSON the user loads. It is
+  untrusted input (size, shape, every number checked) and must name this
+  keyboard's VID/PID. Its matrix size bounds the commands UDB will send; the
+  layer count comes from the keyboard.
+- Layout options are chosen by the user, since UDB sends no command that reads
+  them.
+- A key is read from the keyboard, never from the file. Writing is gated by its
+  own checkbox, changes one key at a time, and is read back like any setting.
+- Only basic keys (HID usages up to `FF`) can be assigned. Layer, macro and
+  quantum keycodes (which include bootloader and EEPROM-clear keys) are shown
+  as numbers and can only be written back to a key that the keyboard itself
+  returned for that position, for a restore.
+- A change is stored in the keyboard's EEPROM at once. "Restore original" puts
+  back what UDB first read at that key in this session.
+- Macros are not built: the VIA macro commands stay refused.
+
 ## Error handling
 
 | Situation | Behaviour |

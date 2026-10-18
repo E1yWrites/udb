@@ -276,6 +276,15 @@ checks happen in the Phase 6 compatibility pass.
   evidence rules).
 - Separate decisions needed: pairing, factory reset, a companion service.
 
+Phase 5 lands as stacked branches, one per item:
+
+### Contributor docs: branch `phase-5-contributors`
+- [x] `CONTRIBUTING.md`: the rules, the device workflow (device report,
+  protocol doc, registry entry, adapter, tests), PR conventions
+- [x] `TESTING.md`: the checks, what the suite covers, fixture format,
+  simulators, the evidence rules, how a hardware test becomes registry evidence
+- [x] `README.md` points at both
+
 ## Phase 6: Security review, compatibility testing, releases
 
 - Review against `THREAT_MODEL.md`.

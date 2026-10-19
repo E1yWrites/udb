@@ -6,3 +6,6 @@ captures/raw/
 *.log
 .DS_Store
 graphify-out/
+
+# Design decision comps (impeccable): local working files, never committed.
+.impeccable/mocks/

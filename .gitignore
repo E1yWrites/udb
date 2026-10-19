@@ -5,3 +5,4 @@ dist/
 captures/raw/
 *.log
 .DS_Store
+graphify-out/

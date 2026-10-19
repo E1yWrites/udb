@@ -19,7 +19,8 @@
     "import:razer": "node scripts/import-razer.ts",
     "import:aura": "node scripts/import-aura.ts",
     "import:steelseries": "node scripts/import-steelseries.ts",
-    "import:glorious": "node scripts/import-glorious.ts"
+    "import:glorious": "node scripts/import-glorious.ts",
+    "import:images": "node --dns-result-order=ipv4first --network-family-autoselection-attempt-timeout=2000 scripts/import-images.ts"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "7.3.1",

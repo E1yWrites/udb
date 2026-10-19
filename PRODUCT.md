@@ -63,11 +63,14 @@ needing a companion app.
 ## Brand Commitments
 
 - Name: **UDB, Universal Driver Bus**. Tagline: "One bus. Every device."
-- Visual character pinned by the owner: precision instrument combined with
-  industrial hardware minimalism. Requested vs. confirmed-by-device is the
-  central visual idea. Not a generic gaming dashboard (the brief rules that
-  out).
-- Never redistribute vendor logos or product photos.
+- Visual character pinned by the owner (2026-10-19, Phase 7, replacing the
+  earlier "precision instrument" look): a device launcher in the manner of
+  Pulsar's BBB and the Redragon launcher. The connected device stands lit on a
+  stage; requested vs. confirmed-by-device stays the central idea. No neon,
+  glow or angular "gamer" chrome.
+- Vendor product images are bundled and served from UDB's own origin, with
+  provenance (ADR 10). Never vendor logos as UI chrome, and an image never
+  stands for support.
 
 ## Evidence on Hand
 

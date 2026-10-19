@@ -1,22 +1,32 @@
-/* UDB tokens. Dark graphite is primary (dim desk lit by monitors); the light
-   theme follows the OS. One signal colour means "needs attention". */
+/* UDB tokens (DESIGN.md). A launcher at night: deep ink-blue shell, the device
+   lit on a stage, one accent for selection and primary actions. Amber still
+   means "needs attention" and green means "the device confirmed it". */
 :root {
   color-scheme: dark;
-  --bg: oklch(0.205 0.006 70);
-  --rail: oklch(0.18 0.006 70);
-  --raised: oklch(0.245 0.007 70);
-  --line: oklch(0.33 0.008 70);
-  --line-strong: oklch(0.45 0.01 70);
-  --text: oklch(0.94 0.008 80);
-  --muted: oklch(0.74 0.01 75);
-  --faint: oklch(0.62 0.01 75);
-  --signal: oklch(0.82 0.14 75);
+  --bg: oklch(0.165 0.018 262);
+  --rail: oklch(0.145 0.018 262);
+  --surface: oklch(0.205 0.022 262);
+  --raised: oklch(0.245 0.024 262);
+  --line: oklch(0.31 0.022 262);
+  --line-strong: oklch(0.44 0.024 262);
+  --text: oklch(0.96 0.006 250);
+  --muted: oklch(0.78 0.018 255);
+  --faint: oklch(0.66 0.02 258);
+  --accent: oklch(0.74 0.14 232);
+  --accent-ink: oklch(0.17 0.04 240);
+  --accent-soft: oklch(0.74 0.14 232 / 0.16);
+  --signal: oklch(0.83 0.14 78);
   --signal-ink: oklch(0.2 0.03 75);
-  --confirmed: oklch(0.82 0.07 160);
-  --danger: oklch(0.75 0.13 30);
-  --primary-bg: var(--text);
-  --primary-fg: var(--bg);
-  --selection: oklch(0.82 0.14 75 / 0.35);
+  --confirmed: oklch(0.82 0.12 162);
+  --danger: oklch(0.74 0.15 25);
+  --primary-bg: var(--accent);
+  --primary-fg: var(--accent-ink);
+  --selection: oklch(0.74 0.14 232 / 0.35);
+  --stage-light: oklch(0.6 0.13 236 / 0.34);
+  --stage-floor: oklch(0.1 0.02 262 / 0.9);
+  --chrome: oklch(0.165 0.018 262 / 0.72);
+  --art-line: oklch(0.62 0.04 250);
+  --art-fill: oklch(0.24 0.026 260);
 
   --font-ui: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
   --font-display: 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
@@ -25,7 +35,9 @@
   --step--1: 0.8125rem;
   --step-0: 0.9375rem;
   --step-1: 1.125rem;
+  --step-2: 1.5rem;
   --step-3: 2rem;
+  --step-4: clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem);
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -33,26 +45,47 @@
   --space-6: 1.5rem;
   --space-8: 2rem;
   --space-12: 3rem;
-  --radius: 6px;
+  --radius: 10px;
+  --radius-lg: 18px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Critically damped spring (damping 1.0, response ~0.35s), sampled for CSS. */
+  --spring: linear(0, 0.2 6%, 0.52 14%, 0.76 24%, 0.9 35%, 0.96 46%, 0.99 60%, 1);
+  --spring-time: 520ms;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
     color-scheme: light;
-    --bg: oklch(0.972 0.006 85);
-    --rail: oklch(0.945 0.008 85);
-    --raised: oklch(0.995 0.003 85);
-    --line: oklch(0.87 0.01 80);
-    --line-strong: oklch(0.72 0.012 75);
-    --text: oklch(0.22 0.01 70);
-    --muted: oklch(0.44 0.012 70);
-    --faint: oklch(0.52 0.012 70);
-    --signal: oklch(0.56 0.15 60);
+    --bg: oklch(0.965 0.006 255);
+    --rail: oklch(0.935 0.01 255);
+    --surface: oklch(0.995 0.002 255);
+    --raised: oklch(0.93 0.012 255);
+    --line: oklch(0.87 0.012 255);
+    --line-strong: oklch(0.7 0.018 255);
+    --text: oklch(0.2 0.02 262);
+    --muted: oklch(0.42 0.022 262);
+    --faint: oklch(0.5 0.022 262);
+    --accent: oklch(0.52 0.16 245);
+    --accent-ink: oklch(0.99 0.005 250);
+    --accent-soft: oklch(0.52 0.16 245 / 0.12);
+    --signal: oklch(0.55 0.15 60);
     --signal-ink: oklch(0.99 0.01 85);
-    --confirmed: oklch(0.45 0.08 160);
-    --danger: oklch(0.52 0.17 30);
-    --selection: oklch(0.56 0.15 60 / 0.22);
+    --confirmed: oklch(0.46 0.1 162);
+    --danger: oklch(0.52 0.18 27);
+    --selection: oklch(0.52 0.16 245 / 0.2);
+    --stage-light: oklch(0.82 0.08 236 / 0.55);
+    --stage-floor: oklch(0.3 0.03 262 / 0.35);
+    --chrome: oklch(0.965 0.006 255 / 0.74);
+    --art-line: oklch(0.55 0.03 255);
+    --art-fill: oklch(0.98 0.004 255);
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --line: var(--line-strong);
+    --muted: var(--text);
+    --chrome: var(--bg);
   }
 }
 
@@ -73,8 +106,9 @@ body {
   color: var(--text);
   font: 400 var(--step-0) / 1.5 var(--font-ui);
   -webkit-font-smoothing: antialiased;
-  caret-color: var(--signal);
+  caret-color: var(--accent);
   scrollbar-color: var(--line-strong) transparent;
+  accent-color: var(--accent);
 }
 
 #app {
@@ -87,9 +121,9 @@ body {
 }
 
 :focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 a {
@@ -117,20 +151,31 @@ button {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
-  min-height: 2.25rem;
+  min-height: 2.5rem;
   padding: 0 var(--space-4);
   border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
+  border-radius: 999px;
+  white-space: nowrap;
   background: transparent;
   font-weight: 600;
+  letter-spacing: 0.005em;
   cursor: pointer;
-  transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out);
+  transition:
+    background-color 160ms var(--ease-out),
+    border-color 160ms var(--ease-out),
+    transform 100ms var(--ease-out);
 }
 
 .btn:hover {
   background: var(--raised);
-  border-color: var(--text);
+  border-color: var(--muted);
+}
+
+/* Feedback on press, not on release. */
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .btn.primary {
@@ -140,11 +185,23 @@ button {
 }
 
 .btn.primary:hover {
-  background: color-mix(in oklch, var(--primary-bg) 88%, var(--bg));
+  background: color-mix(in oklch, var(--primary-bg) 86%, var(--text));
+}
+
+.btn.quiet {
+  border-color: transparent;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.btn.quiet:hover {
+  color: var(--text);
+  background: var(--raised);
+  border-color: transparent;
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -161,7 +218,7 @@ button {
 }
 
 .btn.file:focus-within {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -196,18 +253,19 @@ button {
   white-space: nowrap;
 }
 
-/* Live device panels (src/ui/*Panel.svelte) and their setting lines (SettingLine.svelte). */
+/* Live device panels (src/ui/*Panel.svelte) and their setting tiles (SettingLine.svelte). */
 .live {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
-.live .section {
-  font-size: var(--step--1);
-  font-weight: 650;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--muted);
+.live > .section {
+  /* The tab already names this panel. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 
 .live .lede {
@@ -229,8 +287,15 @@ button {
 .live .facts {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-4) var(--space-8);
+  gap: var(--space-3);
   margin: 0;
+}
+
+.live .facts > div {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
 }
 
 .live .facts dt {
@@ -244,6 +309,7 @@ button {
   flex-wrap: wrap;
   gap: var(--space-2) var(--space-3);
   align-items: baseline;
+  font-weight: 600;
 }
 
 .live .checks h3 {
@@ -274,9 +340,11 @@ button {
   display: flex;
   gap: var(--space-3);
   align-items: flex-start;
-  padding: var(--space-3) 0;
-  border-block: 1px solid var(--line);
-  color: var(--muted);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--signal) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--signal) 30%, transparent);
+  color: var(--text);
   max-width: 75ch;
   cursor: pointer;
 }
@@ -288,39 +356,54 @@ button {
 
 .live .lines {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  gap: var(--space-3);
 }
 
+/* One setting: what the device returned leads; the request sits below it. */
 .live .line {
   display: grid;
-  grid-template-columns: minmax(9rem, 12rem) auto 1fr;
-  grid-template-areas: 'name ask told' '. outcome outcome';
-  gap: var(--space-2) var(--space-6);
-  align-items: center;
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--line);
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'name' 'told' 'ask' 'outcome';
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--line);
 }
 
 .live .line .name {
   grid-area: name;
+  font-size: var(--step--1);
   font-weight: 600;
+  color: var(--muted);
 }
 
 .live .line .ask {
   grid-area: ask;
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .live select,
-.live input[type='number'] {
-  min-height: 2.25rem;
+.live input[type='number'],
+.live input[type='text'] {
+  min-height: 2.5rem;
   padding: 0 var(--space-3);
   border: 1px solid var(--line-strong);
   border-radius: var(--radius);
-  background: var(--raised);
+  background: var(--bg);
   color: var(--text);
   font: inherit;
   font-variant-numeric: tabular-nums;
+}
+
+.live select {
+  flex: 1;
+  min-width: 8rem;
 }
 
 .live input[type='number'] {
@@ -334,15 +417,41 @@ button {
 
 .live .line .told {
   grid-area: told;
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'tag tag' 'value value' 'when when';
+  gap: 0.125rem;
+}
+
+.live .line .told .tag {
+  grid-area: tag;
+  color: var(--faint);
+}
+
+.live .line .told .value {
+  grid-area: value;
+}
+
+.live .line .told .when {
+  grid-area: when;
 }
 
 .live .value {
-  font-size: var(--step-1);
-  font-weight: 600;
+  font: 650 var(--step-2) / 1.15 var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+/* The signature moment: a value the device returned settles into place. */
+.live .value.settle {
+  animation: settle var(--spring-time) var(--spring) both;
+}
+
+@keyframes settle {
+  from {
+    opacity: 0.2;
+    filter: blur(6px);
+    transform: translateY(6px);
+  }
 }
 
 .live .when {
@@ -393,18 +502,22 @@ button {
   gap: var(--space-2) var(--space-3);
 }
 
-@media (max-width: 40rem) {
-  .live .line {
-    grid-template-columns: 1fr;
-    grid-template-areas: 'name' 'told' 'ask' 'outcome';
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     transition-duration: 0ms !important;
     animation-duration: 0ms !important;
+  }
+
+  /* A short cross-fade instead of the blur and lift. */
+  .live .value.settle {
+    animation: fade 200ms ease-out both !important;
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0.3;
+    }
   }
 }

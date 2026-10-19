@@ -1,39 +1,45 @@
 ---
 name: UDB · Universal Driver Bus
-description: One bus. Every device. A control center that shows only what the device reported back.
+description: One bus. Every device. A launcher that puts the connected device on a stage and shows only what it reported back.
 colors:
-  graphite-bg: "oklch(0.205 0.006 70)"
-  graphite-rail: "oklch(0.18 0.006 70)"
-  graphite-raised: "oklch(0.245 0.007 70)"
-  line: "oklch(0.33 0.008 70)"
-  line-strong: "oklch(0.45 0.01 70)"
-  text: "oklch(0.94 0.008 80)"
-  muted: "oklch(0.74 0.01 75)"
-  faint: "oklch(0.62 0.01 75)"
-  signal: "oklch(0.82 0.14 75)"
-  confirmed: "oklch(0.82 0.07 160)"
-  danger: "oklch(0.75 0.13 30)"
-  light-bg: "oklch(0.972 0.006 85)"
-  light-text: "oklch(0.22 0.01 70)"
-  light-signal: "oklch(0.56 0.15 60)"
-  light-confirmed: "oklch(0.45 0.08 160)"
+  bg: "oklch(0.165 0.018 262)"
+  rail: "oklch(0.145 0.018 262)"
+  surface: "oklch(0.205 0.022 262)"
+  raised: "oklch(0.245 0.024 262)"
+  line: "oklch(0.31 0.022 262)"
+  line-strong: "oklch(0.44 0.024 262)"
+  text: "oklch(0.96 0.006 250)"
+  muted: "oklch(0.78 0.018 255)"
+  faint: "oklch(0.66 0.02 258)"
+  accent: "oklch(0.74 0.14 232)"
+  accent-ink: "oklch(0.17 0.04 240)"
+  signal: "oklch(0.83 0.14 78)"
+  confirmed: "oklch(0.82 0.12 162)"
+  danger: "oklch(0.74 0.15 25)"
+  stage-light: "oklch(0.6 0.13 236 / 0.34)"
+  light-bg: "oklch(0.965 0.006 255)"
+  light-surface: "oklch(0.995 0.002 255)"
+  light-text: "oklch(0.2 0.02 262)"
+  light-accent: "oklch(0.52 0.16 245)"
+  light-signal: "oklch(0.55 0.15 60)"
+  light-confirmed: "oklch(0.46 0.1 162)"
 typography:
   display:
     fontFamily: "'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "2rem"
-    fontWeight: 600
-    lineHeight: 1.15
-    letterSpacing: "-0.02em"
+    fontSize: "clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem)"
+    fontWeight: 700
+    lineHeight: 1.04
+    letterSpacing: "-0.03em"
+  value:
+    fontFamily: "'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif"
+    fontSize: "1.5rem"
+    fontWeight: 650
+    letterSpacing: "-0.01em"
   body:
     fontFamily: "'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif"
     fontSize: "0.9375rem"
     fontWeight: 400
     lineHeight: 1.5
-  section:
-    fontFamily: "'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif"
-    fontSize: "0.8125rem"
-    fontWeight: 650
-    letterSpacing: "0.06em"
   tag:
     fontFamily: "'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif"
     fontSize: "0.6875rem"
@@ -43,7 +49,9 @@ typography:
     fontFamily: "ui-monospace, 'Cascadia Mono', Consolas, monospace"
     fontSize: "0.92em"
 rounded:
-  control: "6px"
+  control: "10px"
+  tile: "18px"
+  pill: "999px"
 spacing:
   "1": "4px"
   "2": "8px"
@@ -54,137 +62,113 @@ spacing:
   "12": "48px"
 components:
   button-primary:
-    backgroundColor: "{colors.text}"
-    textColor: "{colors.graphite-bg}"
-    rounded: "{rounded.control}"
-    height: "36px"
+    backgroundColor: "{colors.accent}"
+    textColor: "{colors.accent-ink}"
+    rounded: "{rounded.pill}"
+    height: "40px"
     padding: "0 16px"
   button:
     backgroundColor: "transparent"
     textColor: "{colors.text}"
-    rounded: "{rounded.control}"
-    height: "36px"
+    rounded: "{rounded.pill}"
+    height: "40px"
     padding: "0 16px"
-  button-quiet:
-    backgroundColor: "transparent"
-    textColor: "{colors.muted}"
-    rounded: "{rounded.control}"
-    height: "36px"
-  rail-item-current:
-    backgroundColor: "{colors.graphite-raised}"
+  dock-item-current:
+    backgroundColor: "{colors.surface}"
     textColor: "{colors.text}"
-    rounded: "{rounded.control}"
-    padding: "12px"
+    rounded: "{rounded.tile}"
+    padding: "8px"
+  setting-tile:
+    backgroundColor: "{colors.surface}"
+    rounded: "{rounded.tile}"
+    padding: "16px"
 ---
 
 # Design System: UDB
 
 ## Overview
 
-A precision instrument with industrial-minimal restraint, built for a working
-screen (Operate mode). The visual system serves one promise: **the device's
-word is the only truth on screen.** A calibration certificate supplies the
-character: tabular figures, small all-caps tags, and hairline rules instead
-of cards. Braun-style minimalism supplies warm neutrals and a single signal
-colour. Dark graphite is primary (a desk in a dim room lit by monitors). The
-warm off-white light theme follows the OS (`prefers-color-scheme`) and gets
-equal care. Source of truth: `src/app.css`.
+A device launcher at night (Operate mode), in the manner of Pulsar's BBB and
+the Redragon launcher, chosen by the owner in Phase 7. The connected device
+stands lit on a stage; everything around it is what the device itself
+reported. The scene is a gamer's desk in a dim room, so the deep ink-blue
+dark theme is primary; the light theme follows the OS and gets equal care.
+Source of truth: `src/app.css`. Images: ADR 10.
 
 ## Colors
 
-### Primary
-- **Text-as-ink** (`text`): primary buttons are solid ink on the ground, not a
-  brand hue.
+- **Shell:** ink-blue steps `rail` < `bg` < `surface` < `raised`, with `line`
+  and `line-strong` hairlines. Text tiers `text`, `muted`, `faint`, tinted
+  blue, never pure grey.
+- **Accent** (`accent`): selection, primary actions, focus ring, caret, the
+  stage light. Nothing else.
+- **Signal amber** (`signal`): needs your attention (unverified, model not
+  confirmed, busy, the write gate). Never decorative.
+- **Confirmed green** (`confirmed`): the hardware backed it up.
+- **Danger** (`danger`): failures and collections UDB blocks.
 
-### Secondary
-- **Signal amber** (`signal`, `light-signal` in the light theme): means "needs
-  your attention" and nothing else. Used for unverified, model not confirmed,
-  busy, focus rings and the caret.
-- **Confirmed green-grey** (`confirmed`): a value or identity the hardware
-  backed up.
-- **Danger** (`danger`): only for collections UDB blocks (firmware).
-
-### Neutral
-Warm graphite steps (`graphite-bg`, `graphite-rail`, `graphite-raised`) with
-hairlines (`line`, `line-strong`). Text tiers are `text`, `muted` and `faint`,
-all tinted warm, never pure grey.
-
-### Named Rules
-- **One signal.** Amber is never decorative. If nothing needs attention,
-  nothing is amber.
-- **Never colour alone.** Every status is an icon plus a word plus a colour.
-- **Device LED colours are data.** They appear only as small chips, never as
-  UI chrome.
+### Named rules
+- **Never colour alone.** Every status is an icon, a word and a colour.
+- **Device LED colours are data.** They appear only as small chips.
+- Mix amber into surfaces in sRGB (`color-mix(in srgb, …)`); an oklch mix
+  swings the hue through blue on the light theme.
 
 ## Typography
 
-The system UI stack (Segoe UI Variable on Windows); no web fonts, per the CSP
-(ADR 5). Monospace (`data`) only for hex identifiers and raw values.
-Everywhere else, numbers use `font-variant-numeric: tabular-nums` (`.num`).
-
-### Hierarchy
-- Device name and empty-state title: `display`.
-- Section headings ("What UDB knows", "Interfaces"): `section`, all caps.
-- Location and role tags (DEVICE, BROWSER, COMPANION, USED BY UDB): `tag`.
-- Body copy at most 68–75ch.
+The system UI stack (Segoe UI Variable on Windows); no web fonts. Tracking by
+size: display `-0.03em`, values `-0.01em`, body `0`, tags `+0.08em` caps.
+Monospace only for hex identifiers and raw values; other numbers use
+`tabular-nums` (`.num`).
 
 ## Layout
 
-A top bar, then a two-column workspace: a device rail of 15–18rem with
-state words, and a detail pane capped at 60rem. Below 48rem, the rail becomes
-a horizontally scrolling strip above the pane and the wordmark's subtitle
-hides. The empty state centres a single column of at most 38rem. A footer
-holds the privacy line and the support matrix and source links.
+A sticky translucent top bar (wordmark, "Identify another device", "Add
+device"). Below it, a device dock of 15–18rem and the device pane, capped at
+76rem: a hero of stage and identity side by side (stacked under 60rem), then a
+segmented tab control: Controls, What UDB knows, Interfaces & diagnostics.
+Hidden tab panels stay mounted, so a live session survives a tab switch. Under
+48rem the dock becomes a horizontal snap strip. The empty state is a lit
+stage with the three category drawings above one primary action.
 
-## Elevation & Depth
+## Elevation & depth
 
-Flat. Depth comes from surface steps (rail < ground < raised) and hairlines,
-never from shadows.
-
-## Shapes
-
-A 6px radius on controls and rail items. Tables and notices have no radius;
-they are ruled with top and bottom hairlines.
+Surface steps and hairlines first. Shadows carry an offset and a blur: the
+current dock tile, the selected tab, and the product image's drop shadow on
+the stage. The top bar is a material: `backdrop-filter: blur(20px)` over
+`--chrome`, solid under `prefers-reduced-transparency`.
 
 ## Components
 
-### Buttons
-Primary is ink-filled; the default is outlined in `line-strong`; quiet has no
-border and muted text. Each has a 36px minimum height. Hover raises the
-background and strengthens the border over 160ms with an expo ease-out.
+- **Stage:** a `figure` with a radial stage light and a floor shadow. It shows
+  the product image (ADR 10) or an authored category drawing
+  (`DeviceArt.svelte`). Captions say when the image is representative of a
+  line, or when the model isn't confirmed.
+- **Dock tile:** thumbnail, label, state word with icon. Disconnected devices
+  show a grey thumbnail.
+- **Notice:** a tile with an icon heading and the recovery ("Close Pulsar
+  Fusion, then try again"); amber-tinted when it needs attention.
+- **Setting tile (signature):** the setting, then the value the device
+  returned (tag DEVICE, `value` type, read time), then the request and Apply,
+  then the outcome. The device's value **settles** into place when it
+  changes: blur, lift and opacity on the `--spring` curve (critically damped,
+  no overshoot); a short cross-fade under reduced motion.
+- **Buttons:** pills, 40px high, scale 0.97 on press.
+- **Icons:** authored SVG on a 20px grid, 1.5px round stroke, `currentColor`.
 
-### Navigation (device rail)
-The rail is a `nav` holding a list of buttons, with `aria-current` on the
-selected one. Each item shows a state icon, the device label, and a state
-word in its tone: Detected (confirmed), Model not confirmed or In use by
-another app (signal), Unsupported or Disconnected (muted).
+## Motion
 
-### Notices
-A ruled block with an icon, an h2 and an explanation. Each notice names the
-problem and the recovery (e.g. "Close Pulsar Fusion, then try again").
+Feedback on press. Two authored moments only: the device materialising on the
+stage (scale, blur, opacity) and the read-back settle. `prefers-reduced-motion`
+swaps both for cross-fades; `prefers-contrast: more` strengthens lines and
+makes the chrome solid.
 
-### Readings table (signature)
-Each row is setting / stored on / status / read-back. Status shows an icon
-plus a word. In Phase 3, rows become the **read-back line**: the requested
-value on the left, and on the right only the value the device returned, which
-settles into place once the device confirms it.
+## Do's and don'ts
 
-### Icons
-Authored SVG on a 20px grid, 1.5px round stroke, `currentColor`
-(`src/ui/Icon.svelte`). No emoji and no Unicode glyphs as icons.
-
-## Do's and Don'ts
-
-### Do:
-- Show the last value the device returned, never the requested one, as the
-  current state.
-- Name where a setting lives: Device, Browser or Companion.
-- Theme browser surfaces too: selection, caret, focus ring, scrollbar.
-
-### Don't:
-- Use gaming chrome: neon, glow, angular frames.
-- Dress the app up as an instrument: scope grids, knobs, terminal type
-  everywhere.
-- Fall back on cards and generic admin dashboards.
-- Hide numbers for the sake of minimalism.
-- Use vendor logos or product photos.
+- Do show the last value the device returned as the current state, never the
+  requested one.
+- Do say where a setting lives: Device, Browser or Companion.
+- Do label a product image as representative when it shows the line, not the
+  variant.
+- Don't use neon, glow, angular "gamer" frames or gradient text.
+- Don't let an image or a hero stand in for support status.
+- Don't load anything from a vendor at runtime.

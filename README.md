@@ -16,3 +16,7 @@ back. Chrome or Edge, over HTTPS or `localhost` (WebHID).
 npm ci
 npm run dev
 ```
+
+Product images in `public/devices/` belong to their vendors and are not
+covered by UDB's licence. Their sources are listed in `registry/images.json`
+(ADR 10).

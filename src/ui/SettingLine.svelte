@@ -36,7 +36,7 @@
   <div class="ask">{@render children()}</div>
   <div class="told">
     <span class="tag">Device</span>
-    <span class="value num">{show(value)}</span>
+    {#key value}<span class="value num settle">{show(value)}</span>{/key}
     <span class="when">read {readAt ? clock(readAt) : '–'}</span>
   </div>
   <p class="outcome" aria-live="polite">

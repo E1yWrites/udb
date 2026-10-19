@@ -39,7 +39,7 @@ const text = (url: string) => get(url, (r) => r.text());
 // ATK HUB: the web app bundles product cutouts keyed "../assets/device/<cat>/<line>/<colour>.webp".
 async function atkHub(): Promise<(key: string) => Source> {
   const html = await text('https://hub.atk.pro/');
-  const js = await text(new URL(html.match(/src="([^"]*index-[^"]+\.js)"/)![1], 'https://hub.atk.pro/').href);
+  const js = await text(new URL(html.match(/src="([^"]*index-[^"]+\.js)"/)![1]!, 'https://hub.atk.pro/').href);
   const urls = new Map([...js.matchAll(/([\w$]+)="(https:\/\/bpcdn\.atkgear\.com\/hub-v3\/production\/[^"]+)"/g)].map((m) => [m[1], m[2]]));
   const map = new Map([...js.matchAll(/"\.\.\/assets\/device\/([^"]+)":([\w$]+)/g)].map((m) => [m[1], urls.get(m[2])]));
   const version = [...urls.values()][0]?.match(/production\/([\d.]+)\//)?.[1] ?? 'unknown';
@@ -67,7 +67,7 @@ async function openRazer(): Promise<Map<number, string>> {
 // Shopify stores publish /products/<handle>.json; take the image named by `view`, else a top view, else the first.
 async function shop(host: string, handle: string, view?: string): Promise<Source> {
   const p = JSON.parse(await text(`https://${host}/products/${handle}.json`)).product;
-  const has = (re: RegExp) => p.images.find((i: { src: string }) => re.test(i.src.split('?')[0].split('/').pop()!));
+  const has = (re: RegExp) => p.images.find((i: { src: string }) => re.test(i.src.split('?')[0]!.split('/').pop()!));
   const img = (view && has(new RegExp(view, 'i'))) || has(/top/i) || p.images[0];
   return { url: img.src.split('?')[0], page: `https://${host}/products/${handle}`, publisher: `${host} store` };
 }
@@ -219,8 +219,8 @@ const shopCache = new Map<string, Source>();
 async function resolve(src: string): Promise<Source> {
   if (src.startsWith('hub:')) return hub(src.slice(4));
   if (!shopCache.has(src)) {
-    const [host, rest] = src.slice(5).split('/');
-    const [handle, view] = rest.split('#');
+    const [host, rest] = src.slice(5).split('/') as [string, string];
+    const [handle, view] = rest.split('#') as [string, string?];
     shopCache.set(src, await shop(host, handle, view));
   }
   return shopCache.get(src)!;
@@ -253,7 +253,7 @@ for (const [file, src] of [...sources].sort(([a], [b]) => a.localeCompare(b))) {
   );
   const out = got && (await chrome.process(got.bytes, got.type));
   // Only cutouts ship; a photo on a scene or a dark backdrop would sit in a box on the stage.
-  if (!out?.transparent) {
+  if (!got || !out?.transparent) {
     if (out) console.warn(`skip ${src.url}: no transparent background`);
     for (const [id, d] of Object.entries(devices)) if (d.file === file) delete devices[id];
     continue;

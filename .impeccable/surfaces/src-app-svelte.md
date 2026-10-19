@@ -2,23 +2,23 @@
 version: 1
 slug: "src-app-svelte"
 primary_target: "src/App.svelte"
-related_targets: []
+related_targets: ["src/ui/DevicePane.svelte","src/ui/DeviceArt.svelte"]
 ---
 
 # Surface: UDB control center (app shell)
 
-Mode: Operate. Audience, job and states: see `docs/design.md` (approved 2026-10-15).
+Mode: Operate. Audience, job and states: see `docs/design.md` (approved 2026-10-15). Redesigned in Phase 7 (owner-pinned launcher look, 2026-10-19).
 
 ## Direction contract
 
-THESIS: The device's word is the only truth on screen. Every reading pairs what the user asked for with what the hardware reported back; refuses the gaming-dashboard default of glowing cards that echo the requested value as if applied.
+THESIS: The connected device stands lit on a stage, and everything around it is what the device reported back. Refuses the launcher default of echoing the requested value as applied, and its neon chrome.
 
-OWN-WORLD: Warm graphite ground (light theme: warm off-white), calibration-certificate typography: system UI stack, tabular figures, small all-caps tags (DEVICE / BROWSER / COMPANION), hairline rules instead of cards. One signal amber for "needs attention", a calm green-grey for "confirmed". Authored SVG glyphs at one stroke weight.
+OWN-WORLD: Deep ink-blue shell (cool steps rail < bg < surface < raised), one sky accent for selection and primary actions, amber for attention, green for confirmed. Pill buttons, 18px tiles, a radial stage light with a floor shadow, vendor cutouts or authored category drawings.
 
-STORY: The visitor sees every granted device and its state at a glance, opens one, and trusts what they read because unverified things say so.
+STORY: The visitor sees every granted device as a thumbnail, opens one, sees it on stage with its identity and status, reads it, changes one setting, and watches the device's own value settle in.
 
-FIRST VIEWPORT: Top bar (wordmark left, "Add device" primary button right). Left rail: device list with state words. Right pane: selected device header (model, connection, identity) then a readings table of registry capabilities with status tags. Empty state: one centred action with the permission explanation.
+FIRST VIEWPORT: Translucent top bar (wordmark left; Identify another device, Add device right). Dock of device tiles left. Pane: stage (about 26rem image) beside the display-size name, identity chips and status notice; then the tab control with Controls first.
 
-FORM: pinned by owner (precision instrument × industrial minimalism); no concept-seed roll; translated per mode-operate (type, palette, density, one signature move: the read-back line).
+FORM: pinned by owner (references Pulsar BBB, Redragon launcher); no concept-seed roll; translated per mode-operate (type, palette, density, one signature move: the read-back settle).
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

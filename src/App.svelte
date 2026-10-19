@@ -66,11 +66,22 @@
     if (devices.list.length > before) open(devices.list[devices.list.length - 1]!.key);
   }
 
+  const CATEGORY: Record<string, string> = { mouse: 'Mouse', keyboard: 'Keyboard', headset: 'Headset' };
+
+  // Esc closes the device; ← and → step to its neighbours. Never while a control,
+  // the tab list or a radio group owns the keys.
   function onkey(e: KeyboardEvent) {
-    if (e.key !== 'Escape' || view.name !== 'device' || e.defaultPrevented) return;
+    if (view.name !== 'device' || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const t = e.target as HTMLElement | null;
     if (t?.closest('input, select, textarea, [contenteditable], dialog')) return;
-    close();
+    if (e.key === 'Escape') return close();
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    if (t?.closest('[role=tablist], [role=radiogroup]')) return;
+    const list = devices.list;
+    const to = list[list.findIndex((d) => d.key === (view as { key: string }).key) + (e.key === 'ArrowLeft' ? -1 : 1)];
+    if (!to) return;
+    e.preventDefault();
+    open(to.key);
   }
 </script>
 
@@ -111,7 +122,23 @@
   {:else if view.name === 'profiles'}
     <ProfileLibrary />
   {:else if view.name === 'device' && selected}
+    {@const i = devices.list.indexOf(selected)}
     <div class="workspace">
+      <main class="detail">
+        <button class="btn quiet close" onclick={close} title="Close (Esc)" aria-label="Close {devices.label(selected)} and go to Home">
+          <Icon name="close" />Close
+        </button>
+        {#key selected.key}
+          <DevicePane
+            device={selected}
+            prev={devices.list[i - 1]}
+            next={devices.list[i + 1]}
+            position="{CATEGORY[selected.match?.entry.category ?? ''] ?? 'Device'} · {i + 1} of {devices.list.length}"
+            onstep={(d) => open(d.key)}
+          />
+        {/key}
+      </main>
+      <!-- The device dock: every granted device as a pill; the open one is yellow. -->
       <nav class="dock" aria-label="Devices">
         <ul>
           {#each devices.list as d (d.key)}
@@ -125,21 +152,13 @@
                 onclick={() => open(d.key)}
               >
                 <span class="thumb"><DeviceArt entryId={d.match?.entry.id} kind={d.match?.entry.category} alt="" /></span>
-                <span class="device-text">
-                  <span class="device-name">{devices.label(d)}</span>
-                  <span class="device-state {s.tone}"><Icon name={s.icon} size={14} />{s.word}</span>
-                </span>
+                <span class="device-name">{devices.label(d)}</span>
+                {#if s.tone !== 'confirmed'}<span class="device-state {s.tone}"><Icon name={s.icon} size={14} />{s.word}</span>{:else}<span class="visually-hidden">, {s.word}</span>{/if}
               </button>
             </li>
           {/each}
         </ul>
       </nav>
-      <main class="detail">
-        <button class="btn quiet close" onclick={close} title="Close (Esc)" aria-label="Close {devices.label(selected)} and go to Home">
-          <Icon name="close" />Close
-        </button>
-        {#key selected.key}<DevicePane device={selected} />{/key}
-      </main>
     </div>
   {:else}
     <Home onopen={open} onadd={add} />
@@ -254,38 +273,60 @@
   .workspace {
     flex: 1;
     display: grid;
-    grid-template-columns: minmax(15rem, 18rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 1fr auto;
   }
 
-  /* Device dock: one tile per granted device, product image first. */
+  /* The dock sits on the bottom edge, a row of pills; the open device is yellow. */
   .dock {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
     min-width: 0;
-    background: var(--rail);
-    border-right: 1px solid var(--line);
-    padding: var(--space-4) var(--space-3);
+    background: color-mix(in srgb, var(--rail) 88%, transparent);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--line);
+    padding: var(--space-2) clamp(var(--space-4), 3vw, var(--space-8));
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .dock {
+      background: var(--rail);
+      backdrop-filter: none;
+    }
   }
 
   .dock ul {
-    position: sticky;
-    top: 4.75rem;
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
+    display: flex;
     gap: var(--space-2);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+
+  .dock li {
+    flex: none;
+    scroll-snap-align: start;
   }
 
   .device {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 3.5rem minmax(0, 1fr);
-    gap: var(--space-3);
+    /* Contains the visually hidden state text, which would otherwise escape the dock's scroll strip. */
+    position: relative;
+    display: flex;
     align-items: center;
-    padding: var(--space-2);
+    gap: var(--space-2);
+    min-height: 3rem;
+    padding: var(--space-1) var(--space-4) var(--space-1) var(--space-1);
     border: 1px solid transparent;
-    border-radius: var(--radius-lg);
+    border-radius: 999px;
     background: transparent;
-    text-align: left;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: var(--step--1);
+    white-space: nowrap;
     cursor: pointer;
     transition:
       background-color 160ms var(--ease-out),
@@ -295,25 +336,26 @@
 
   .device:hover {
     background: var(--surface);
+    color: var(--text);
   }
 
   .device:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
 
   .device.current {
+    color: var(--text);
     background: color-mix(in srgb, var(--yellow) 9%, var(--surface));
-    border-color: color-mix(in srgb, var(--yellow) 70%, transparent);
-    box-shadow: 0 6px 18px -10px oklch(0 0 0 / 0.6);
+    border-color: color-mix(in srgb, var(--yellow) 75%, transparent);
   }
 
   .thumb {
     display: block;
-    width: 3.5rem;
-    height: 3.5rem;
-    padding: var(--space-1);
-    border-radius: var(--radius);
-    background: radial-gradient(circle at 50% 40%, color-mix(in oklch, var(--accent) 14%, var(--raised)), var(--raised) 70%);
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 3px;
+    border-radius: 50%;
+    background: var(--surface);
   }
 
   .away .thumb {
@@ -321,21 +363,10 @@
     filter: grayscale(1);
   }
 
-  .device-text {
-    display: grid;
-    min-width: 0;
-  }
-
-  .device-name {
-    font-weight: 600;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
-  }
-
   .device-state {
     display: inline-flex;
     align-items: center;
-    gap: 0.35em;
+    gap: 0.3em;
     font-size: var(--step--1);
   }
 
@@ -396,27 +427,5 @@
       justify-content: space-between;
     }
 
-    .workspace {
-      grid-template-columns: minmax(0, 1fr);
-      align-content: start;
-    }
-
-    .dock {
-      border-right: 0;
-      border-bottom: 1px solid var(--line);
-      padding: var(--space-2);
-    }
-
-    .dock ul {
-      position: static;
-      grid-auto-flow: column;
-      grid-auto-columns: minmax(13rem, 1fr);
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-    }
-
-    .dock li {
-      scroll-snap-align: start;
-    }
   }
 </style>

@@ -408,23 +408,62 @@ button {
   accent-color: var(--signal);
 }
 
+/* Setting tiles (SettingLine.svelte): closed tiles show what the device returned;
+   the one you're editing lifts and opens to its control. Only the chrome of a
+   closed tile dims; its value keeps full contrast. */
 .live .lines {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
   gap: var(--space-3);
 }
 
-/* One setting: what the device returned leads; the request sits below it. */
 .live .line {
+  flex: 1 1 12.5rem;
+  min-width: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: 'name' 'told' 'ask' 'outcome';
   gap: var(--space-2);
-  align-content: start;
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4) var(--space-4);
   border-radius: var(--radius-lg);
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
   border: 1px solid var(--line);
+  transition:
+    transform 200ms var(--ease-out),
+    box-shadow 200ms var(--ease-out),
+    border-color 200ms var(--ease-out),
+    background-color 200ms var(--ease-out);
+}
+
+.live .line.open {
+  flex: 2 1 28rem;
+  background: color-mix(in srgb, var(--yellow) 5%, var(--surface));
+  border-color: color-mix(in srgb, var(--yellow) 70%, transparent);
+  box-shadow: 0 22px 36px -24px oklch(0 0 0 / 0.75);
+  transform: translateY(-4px);
+}
+
+.live .line .head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'name mini' 'tag tag' 'value value';
+  gap: 0.125rem var(--space-2);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  border-radius: var(--radius);
+}
+
+.live .line.open .head {
+  cursor: default;
+}
+
+.live .line:not(.open):hover {
+  border-color: var(--line-strong);
+  background: var(--surface);
 }
 
 .live .line .name {
@@ -434,12 +473,32 @@ button {
   color: var(--muted);
 }
 
+.live .line .head .tag {
+  grid-area: tag;
+  color: var(--faint);
+}
+
+.live .line .head .value {
+  grid-area: value;
+}
+
+.live .line .mini {
+  grid-area: mini;
+}
+
+.live .line .body {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.live .line .body[hidden] {
+  display: none;
+}
+
 .live .line .ask {
-  grid-area: ask;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  margin-top: var(--space-2);
 }
 
 .live select,
@@ -465,29 +524,8 @@ button {
 }
 
 .live select:disabled,
-.live input:disabled {
+.live input:disabled:not([type='radio'], [type='color']) {
   opacity: 0.5;
-}
-
-.live .line .told {
-  grid-area: told;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  grid-template-areas: 'tag tag' 'value value' 'when when';
-  gap: 0.125rem;
-}
-
-.live .line .told .tag {
-  grid-area: tag;
-  color: var(--faint);
-}
-
-.live .line .told .value {
-  grid-area: value;
-}
-
-.live .line .told .when {
-  grid-area: when;
 }
 
 .live .value {
@@ -511,10 +549,6 @@ button {
 .live .when {
   font-size: var(--step--1);
   color: var(--faint);
-}
-
-.live .line .outcome {
-  grid-area: outcome;
 }
 
 .live .outcome:empty {
@@ -557,6 +591,10 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .live .line.open {
+    transform: none;
+  }
+
   *,
   *::before,
   *::after {

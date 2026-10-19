@@ -2,23 +2,23 @@
 version: 1
 slug: "src-app-svelte"
 primary_target: "src/App.svelte"
-related_targets: ["src/ui/DevicePane.svelte","src/ui/DeviceArt.svelte"]
+related_targets: ["src/ui/DevicePane.svelte","src/ui/SettingLine.svelte"]
 ---
 
 # Surface: UDB control center (app shell)
 
-Mode: Operate. Audience, job and states: see `docs/design.md` (approved 2026-10-15). Redesigned in Phase 7 (owner-pinned launcher look, 2026-10-19).
+Mode: Operate. Audience, job and states: see `docs/design.md` (approved 2026-10-15). Brand: PRODUCT.md (Phase 8, green/yellow, Dee). Home is the landing page (owner decision 2026-10-19); this brief covers the device view.
 
 ## Direction contract
 
-THESIS: The connected device stands lit on a stage, and everything around it is what the device reported back. Refuses the launcher default of echoing the requested value as applied, and its neon chrome.
+THESIS: One device in focus, lit on its stage, with its neighbours waiting dimmed at the edges; settings are tiles and only the one you're editing opens. Refuses the launcher default of a sidebar of devices beside a long form, and any value shown that the device didn't return.
 
-OWN-WORLD: Deep ink-blue shell (cool steps rail < bg < surface < raised), one sky accent for selection and primary actions, amber for attention, green for confirmed. Pill buttons, 18px tiles, a radial stage light with a floor shadow, vendor cutouts or authored category drawings.
+OWN-WORLD: Phase 8 tokens: green-tinted dark shell, grass-green accent, Dee yellow for the focused tile and the current dock pill, teal confirmed, orange attention. Fredoka for names, pills, 18px tiles, a radial stage light with a floor shadow, product cutouts or category drawings.
 
-STORY: The visitor sees every granted device as a thumbnail, opens one, sees it on stage with its identity and status, reads it, changes one setting, and watches the device's own value settle in.
+STORY: The visitor opens a device from Home, sees it large with identity and status, reads it, opens one tile, changes it, watches the device's value settle, steps to the next device with an arrow key or the dock.
 
-FIRST VIEWPORT: Translucent top bar (wordmark left; Identify another device, Add device right). Dock of device tiles left. Pane: stage (about 26rem image) beside the display-size name, identity chips and status notice; then the tab control with Controls first.
+FIRST VIEWPORT: Top bar. Left column: category and position ("Mouse · 2 of 4"), display-size name, identity chips, status, Dee's tip. Centre: the device image large on the stage, previous and next devices dimmed and small on either side as buttons. Below: tab control, then the tile row with the first tile open. Bottom: a sticky dock of device pills.
 
-FORM: pinned by owner (references Pulsar BBB, Redragon launcher); no concept-seed roll; translated per mode-operate (type, palette, density, one signature move: the read-back settle).
+FORM: surface roll 24d6e104, re-roll 1, card E (streaming-wall raise: the focused tile lifts and opens, the rest stay closed). Values on closed tiles keep full contrast; only their chrome dims.
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance

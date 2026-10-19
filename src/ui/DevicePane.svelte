@@ -1,7 +1,8 @@
 <script lang="ts">
   import Icon from './Icon.svelte';
   import { devices, type UdbDevice } from '../lib/devices.svelte.ts';
-  import { CONNECTION_ICON, LOCATION, STATUS, featureLabel, hex4 } from '../lib/labels.ts';
+  import { setContext } from 'svelte';
+  import { CONNECTION_ICON, LINE_GROUP, LOCATION, STATUS, featureLabel, hex4 } from '../lib/labels.ts';
   import { deviceReport } from '../lib/report.ts';
   import CompxPanel from './CompxPanel.svelte';
   import Vibe75Panel from './Vibe75Panel.svelte';
@@ -15,7 +16,25 @@
   import Guide from './Guide.svelte';
   import { imageFor } from '../lib/images.ts';
 
-  let { device }: { device: UdbDevice } = $props();
+  let {
+    device,
+    prev,
+    next,
+    position,
+    onstep,
+  }: {
+    device: UdbDevice;
+    /** The neighbours in the device list, shown dimmed beside the stage. */
+    prev?: UdbDevice;
+    next?: UdbDevice;
+    /** "Mouse · 2 of 4". */
+    position: string;
+    onstep: (to: UdbDevice) => void;
+  } = $props();
+
+  // Setting tiles open one at a time (SettingLine.svelte).
+  const tiles = $state<{ open: string | null }>({ open: null });
+  setContext(LINE_GROUP, tiles);
 
   /** Families with a live panel below; anything else is identified but never sent to. */
   const PANEL_FAMILIES = ['compx', 'vibe75', 'qmk-via', 'logitech-hidpp', 'razer', 'lamparray', 'corsair-nxp'];
@@ -72,18 +91,8 @@
 
 <article class="pane" aria-labelledby="device-title">
   <section class="hero">
-    <figure class="stage">
-      <div class="art" class:photo={!!image}>
-        <DeviceArt entryId={entry?.id} kind={entry?.category} alt={entry ? `${entry.vendor} ${entry.model}` : ''} />
-      </div>
-      {#if image && entry && !device.match?.modelConfirmed}
-        <figcaption>Pictured: {entry.vendor} {entry.model}. The model isn't confirmed yet.</figcaption>
-      {:else if image?.match === 'line'}
-        <figcaption>Representative image of this product line, not this exact variant.</figcaption>
-      {/if}
-    </figure>
-
     <header class="head">
+      <span class="tag">{position}</span>
       <h1 id="device-title" tabindex="-1">{title}</h1>
       <p class="identity">
         {#if connection && connection !== 'unknown'}
@@ -154,7 +163,40 @@
           </p>
         </div>
       {/if}
+      <Guide size={52}>
+        <p>
+          ← and → move between devices. Reading changes nothing on the device; the number on each tile is what it sent
+          back, and a write is always read back.
+        </p>
+      </Guide>
     </header>
+
+    <div class="ring">
+      {#if prev}
+        <button class="side" onclick={() => onstep(prev)} aria-label="Previous device: {devices.label(prev)}">
+          <span class="side-art"><DeviceArt entryId={prev.match?.entry.id} kind={prev.match?.entry.category} alt="" /></span>
+          <span class="side-name">{devices.label(prev)}</span>
+          <span class="arrow" aria-hidden="true"><Icon name="back" size={18} /></span>
+        </button>
+      {:else}<span class="side empty"></span>{/if}
+      <figure class="stage">
+        <div class="art" class:photo={!!image}>
+          <DeviceArt entryId={entry?.id} kind={entry?.category} alt={entry ? `${entry.vendor} ${entry.model}` : ''} />
+        </div>
+        {#if image && entry && !device.match?.modelConfirmed}
+          <figcaption>Pictured: {entry.vendor} {entry.model}. The model isn't confirmed yet.</figcaption>
+        {:else if image?.match === 'line'}
+          <figcaption>Representative image of this product line, not this exact variant.</figcaption>
+        {/if}
+      </figure>
+      {#if next}
+        <button class="side" onclick={() => onstep(next)} aria-label="Next device: {devices.label(next)}">
+          <span class="side-art"><DeviceArt entryId={next.match?.entry.id} kind={next.match?.entry.category} alt="" /></span>
+          <span class="side-name">{devices.label(next)}</span>
+          <span class="arrow" aria-hidden="true"><Icon name="chevron" size={18} /></span>
+        </button>
+      {:else}<span class="side empty"></span>{/if}
+    </div>
   </section>
 
   <div class="tabs" role="tablist" aria-label="Device sections">
@@ -175,13 +217,6 @@
 
   {#if live}
     <div id="panel-controls" role="tabpanel" aria-labelledby="tab-controls" class="panel" hidden={tab !== 'controls'}>
-      <Guide size={56}>
-        <p>
-          Read first: nothing changes on the device. Each setting then shows <span class="tag">Device</span>, the value it
-          sent back. A write is always read back, and if the device returns something else, I put the old value back and
-          say so.
-        </p>
-      </Guide>
       {#if entry?.protocol.family === 'compx'}
         <CompxPanel {device} />
       {:else if entry?.protocol.family === 'vibe75'}
@@ -285,15 +320,29 @@
     display: grid;
     gap: var(--space-6);
     padding: var(--space-6) clamp(var(--space-4), 4vw, var(--space-12)) var(--space-12);
-    max-width: 76rem;
+    max-width: 84rem;
+    margin-inline: auto;
   }
 
-  /* The device on its stage, with what UDB knows about it beside it. */
+  /* One device in focus: identity on the left, the device lit large in the
+     middle, its neighbours dimmed at the edges as buttons. */
   .hero {
     display: grid;
-    grid-template-columns: minmax(16rem, 1.1fr) minmax(0, 1fr);
-    gap: var(--space-6) clamp(var(--space-6), 4vw, var(--space-12));
+    grid-template-columns: minmax(16rem, 22rem) minmax(0, 1fr);
+    gap: var(--space-6) clamp(var(--space-6), 3vw, var(--space-12));
     align-items: center;
+  }
+
+  .ring {
+    display: grid;
+    grid-template-columns: minmax(6rem, 0.55fr) minmax(0, 1.6fr) minmax(6rem, 0.55fr);
+    align-items: center;
+    gap: var(--space-4);
+    min-height: 24rem;
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(42% 60% at 50% 44%, var(--stage-light), transparent 72%),
+      radial-gradient(26% 7% at 50% 88%, var(--stage-floor), transparent 100%);
   }
 
   .stage {
@@ -301,19 +350,75 @@
     display: grid;
     gap: var(--space-2);
     justify-items: center;
-    padding: var(--space-6) var(--space-4) var(--space-4);
+  }
+
+  .side {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-2);
+    border: 0;
     border-radius: var(--radius-lg);
-    background:
-      radial-gradient(70% 55% at 50% 42%, var(--stage-light), transparent 72%),
-      radial-gradient(46% 9% at 50% 90%, var(--stage-floor), transparent 100%),
-      var(--rail);
-    border: 1px solid var(--line);
-    overflow: hidden;
+    background: none;
+    color: var(--muted);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .side.empty {
+    cursor: default;
+  }
+
+  .side-art {
+    display: block;
+    width: 100%;
+    max-width: 9rem;
+    height: 8rem;
+    opacity: 0.38;
+    filter: saturate(0.5);
+    transition:
+      opacity 200ms var(--ease-out),
+      filter 200ms var(--ease-out);
+  }
+
+  .side-name {
+    font-size: var(--step--1);
+    font-weight: 600;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  .side .arrow {
+    position: absolute;
+    top: calc(var(--space-3) + 4rem);
+    left: 50%;
+    translate: -50% -50%;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: var(--chrome);
+    color: var(--text);
+    backdrop-filter: blur(8px);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .side:hover .side-art {
+      opacity: 0.7;
+      filter: none;
+    }
+  }
+
+  .side:active .arrow {
+    scale: 0.94;
   }
 
   .art {
-    width: min(100%, 26rem);
-    height: clamp(14rem, 30vw, 22rem);
+    width: min(100%, 28rem);
+    height: clamp(14rem, 30vw, 23rem);
     animation: enter var(--spring-time) var(--spring) both;
   }
 
@@ -591,6 +696,33 @@
   @media (max-width: 60rem) {
     .hero {
       grid-template-columns: minmax(0, 1fr);
+    }
+
+    /* The device first, then who it is. */
+    .ring {
+      order: -1;
+      min-height: 0;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .ring {
+      grid-template-columns: 3.5rem minmax(0, 1fr) 3.5rem;
+      gap: var(--space-1);
+    }
+
+    .side-art {
+      height: 3.5rem;
+    }
+
+    .side-name {
+      display: none;
+    }
+
+    .side .arrow {
+      top: calc(var(--space-3) + 1.75rem);
+      width: 2.25rem;
+      height: 2.25rem;
     }
   }
 

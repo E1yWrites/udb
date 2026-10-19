@@ -143,13 +143,17 @@ switch. Three views, kept in the URL hash so Back works:
   with Add device. Then "Your devices" as cards, the way into Supported
   devices, and Settings (Dee's tips, Replay the tour). Under 52rem the hero
   stacks and cards go two across.
-- **Device** (`#/device/<key>`): the device dock of 15–18rem and the device
-  pane, capped at 76rem, with Close at the top right (Esc too). A hero of stage
-  and identity side by side (stacked under 60rem), then a segmented tab control:
-  Controls, What UDB knows, Interfaces & diagnostics. Hidden tab panels stay
-  mounted, so a live session survives a tab switch; closing the device or
-  switching to another ends it. Under 48rem the dock becomes a horizontal
-  snap strip.
+- **Device** (`#/device/<key>`), the focus view (Phase 8, comp E): one device
+  in focus. The identity column (category and position, the display-size name,
+  chips, status, Dee's tip) sits beside the stage, where the device stands
+  large with its previous and next neighbours dimmed at the edges as buttons;
+  ← and → step between devices (never while a control, the tab list or a
+  radio group owns the keys), Close or Esc returns Home. Then a segmented tab
+  control (Controls, What UDB knows, Interfaces & diagnostics) and the setting
+  tiles. A sticky dock of device pills runs along the bottom edge; the open
+  device's pill is yellow. Under 60rem the stage comes first; under 40rem the
+  neighbours shrink to ‹ › buttons. Hidden tab panels stay mounted; switching
+  devices ends the live session.
 - **Supported devices** (`#/supported`): search (name, brand, protocol, USB ID),
   a category switch, and one row per registry entry that opens to its
   features, where each lives, and status.
@@ -174,9 +178,11 @@ the stage. The top bar is a material: `backdrop-filter: blur(20px)` over
   show a grey thumbnail.
 - **Notice:** a tile with an icon heading and the recovery ("Close Pulsar
   Fusion, then try again"); amber-tinted when it needs attention.
-- **Setting tile (signature):** the setting, then the value the device
-  returned (tag DEVICE, `value` type, read time), then the request and Apply,
-  then the outcome. The device's value **settles** into place when it
+- **Setting tile (signature):** a tile per setting, one open at a time. Closed,
+  it shows the setting and the value the device returned (tag DEVICE, `value`
+  type) at full contrast, plus an icon for the last write's result; only its
+  chrome dims. Open, it lifts with a yellow edge and shows the read time, the
+  control and the outcome. The device's value **settles** into place when it
   changes: blur, lift and opacity on the `--spring` curve (critically damped,
   no overshoot); a short cross-fade under reduced motion.
 - **Dee** (`Dee.svelte`, `Guide.svelte`): the mascot beside a speech bubble

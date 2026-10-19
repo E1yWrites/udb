@@ -404,3 +404,9 @@ Keyboard) you can edit. Four stacked branches.
 - [ ] Mouse colour: no mouse adapter writes lighting, so it's stored and
   skipped. Needs a protocol with a lighting read-back first
 - [ ] Headset profiles (sidetone) are not covered; v1 ones are kept
+
+### Motion and focus view: branches `phase-8-motion`, `phase-8-focus` (stacked on profiles)
+- [x] The animation survey's six quiet entrances and the theme cross-fade
+- [x] Redesign comps (two rolls, six structures); owner picked E, the focus view
+- [x] One device in focus with dimmed neighbours, ←/→ between devices, setting
+  tiles that open one at a time, a bottom dock of device pills

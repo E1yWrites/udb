@@ -345,11 +345,12 @@ Phase 5 lands as stacked branches, one per item:
 Owner decision, 2026-10-19: a launcher look (references: Pulsar's BBB, the
 Redragon launcher) with product images of the supported models.
 - [x] ADR 10: vendor images bundled with provenance, never loaded from vendors
-  at runtime; `npm run import:images`; 110 cutouts cover 266 of 489 entries
+  at runtime; `npm run import:images`; 191 cutouts cover 363 of 489 entries
 - [x] Device stage (image or category drawing, "representative" and "model not
   confirmed" captions), device dock with thumbnails, tabs, read-back tiles
 - [x] Service worker skips `devices/` on install; `tests/images.test.ts` checks
   files, digests and mappings
-- [ ] Image sources for Logitech, SteelSeries, Corsair, HyperX, ROCCAT, ASUS
-  and Wooting
+- [x] Image sources for Logitech, ROG, HyperX, Wooting and Corsair
+- [ ] Remaining gaps: most SteelSeries mice, older Logitech, ASUS TUF and older
+  ROG, ROCCAT, older Wooting (ADR 10)
 

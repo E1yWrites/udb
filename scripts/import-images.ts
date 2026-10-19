@@ -72,6 +72,98 @@ async function shop(host: string, handle: string, view?: string): Promise<Source
   return { url: img.src.split('?')[0], page: `https://${host}/products/${handle}`, publisher: `${host} store` };
 }
 
+// Vendor product pages (no product JSON): headless Chromium loads the page, and a
+// per-site picker takes the gallery image and asks the CDN for the full-size original.
+// `related`: the page also shows other products (navigation, cross-sells), so the image name must
+// carry the product's own model tokens from the page URL.
+// `product`: take the page's own JSON-LD Product images instead of everything it shows.
+const PAGES: { host: RegExp; pick: RegExp; full: (u: string) => string; publisher: string; related?: boolean; product?: boolean }[] = [
+  {
+    host: /(^|\.)logitech\.com$/,
+    pick: /resource\.logitech\.com\/.*\.png/,
+    full: (u) => u.replace(/^(https:\/\/resource\.logitech\.com)\/.*?\/(content\/dam\/)/, '$1/$2'),
+    publisher: 'Logitech product page',
+    product: true,
+  },
+  {
+    host: /(^|\.)steelseries\.com$/,
+    pick: /images\.ctfassets\.net\/.*(img_buy_0?1|buyimg_?0?1)/i,
+    full: (u) => `${u.split('?')[0]}?fm=png&w=1400`,
+    publisher: 'SteelSeries product page',
+    related: true,
+  },
+  {
+    host: /^rog\.asus\.com$/,
+    pick: /dlcdnwebimgs\.asus\.com\/gain\//,
+    full: (u) => u.replace(/\/w\d+\/h\d+$/, '/w1000/h1000'),
+    publisher: 'ROG product gallery',
+  },
+  {
+    host: /(^|\.)wooting\.io$/,
+    pick: /Prebuilt_Angle_View|front-view(-main)?\.webp|ANSI_Main\.webp/i,
+    full: (u) => new URL(u).searchParams.get('url') ?? u,
+    publisher: 'Wooting product page',
+  },
+  {
+    host: /(^|\.)corsair\.com$/,
+    pick: /res\.cloudinary\.com\/corsair-pwa\/.*\/Gallery\/.*_0?1\.(png|jpe?g)/i,
+    full: (u) => u.replace(/\/c_scale[^/]*\//, '/c_scale,w_1400/'),
+    publisher: 'Corsair product page',
+  },
+];
+
+const GENERIC = new Set(['gaming', 'mouse', 'mice', 'wireless', 'wired', 'keyboard', 'headset', 'refurbished', 'business', 'mechanical', 'rgb', 'lightspeed', 'for', 'and', 'the', 'with', 'shop', 'en', 'us', 'p', 'gaming-mice', 'gaming-headsets']);
+const tokens = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t && !GENERIC.has(t));
+
+/** The image name carries the page's model tokens: every one with a digit (g502, 3s, 750), else at least half. */
+function related(image: string, pageUrl: string): boolean {
+  const slug = new URL(pageUrl).pathname.split('/').pop()!;
+  const name = decodeURIComponent(new URL(image).pathname.split('/').pop()!);
+  // A page for a headset never takes an image named for a mouse, and so on.
+  const kinds = (s: string) => ['headset', 'keyboard', 'mouse'].filter((k) => s.toLowerCase().includes(k));
+  if (kinds(slug).length && kinds(name).length && !kinds(name).some((k) => kinds(slug).includes(k))) return false;
+  const want = tokens(slug);
+  const have = new Set(tokens(name));
+  const strong = want.filter((t) => /\d/.test(t) && /[a-z]/.test(t) || /^\d{3,}$/.test(t));
+  if (strong.length) return strong.every((t) => have.has(t));
+  return want.filter((t) => have.has(t)).length * 2 >= want.length && want.length > 0;
+}
+
+// Every image URL the page loaded or references: <img>, srcset, og:image and network entries.
+const PAGE_IMAGES = `(async () => {
+  for (const y of [600, 1400, 0]) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 1200)); }
+  const out = [];
+  const add = (u) => { try { if (u) out.push(new URL(u, location.href).href); } catch {} };
+  document.querySelectorAll('img').forEach((i) => { add(i.currentSrc || i.src); (i.srcset || '').split(',').forEach((x) => add(x.trim().split(' ')[0])); });
+  document.querySelectorAll('source').forEach((x) => (x.srcset || '').split(',').forEach((y) => add(y.trim().split(' ')[0])));
+  add(document.querySelector('meta[property="og:image"]')?.content);
+  performance.getEntriesByType('resource').forEach((e) => add(e.name));
+  const product = [];
+  document.querySelectorAll('script[type="application/ld+json"]').forEach((x) => {
+    try { [JSON.parse(x.textContent)].flat().filter((j) => /Product/.test(j['@type'])).forEach((j) => [j.image].flat().forEach((i) => i && product.push(typeof i === 'string' ? i : i.url))); } catch {}
+  });
+  return { all: [...new Set(out)], product };
+})()`;
+
+async function page(url: string): Promise<Source> {
+  const site = PAGES.find((p) => p.host.test(new URL(url).hostname));
+  if (!site) throw new Error(`no picker for ${url}`);
+  const tab = await cdpTab();
+  try {
+    await tab.call('Network.setUserAgentOverride', { userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36' });
+    await tab.call('Page.enable', {});
+    await tab.call('Page.navigate', { url });
+    await new Promise((ok) => setTimeout(ok, 8000));
+    const r = await tab.call('Runtime.evaluate', { expression: PAGE_IMAGES, awaitPromise: true, returnByValue: true });
+    const seen = r.result.result.value as { all: string[]; product: string[] };
+    const found = (site.product ? seen.product : seen.all).find((u) => site.pick.test(u) && (!site.related || related(u, url)));
+    if (!found) throw new Error(`no product image on ${url}`);
+    return { url: site.full(found), page: url, publisher: site.publisher };
+  } finally {
+    await tab.close();
+  }
+}
+
 type Rule = [vendorDir: string, model: RegExp, src: string, match: Match];
 // First matching rule wins. "line" means the image shows the same shell or product line, not this exact variant.
 const RULES: Rule[] = [
@@ -114,6 +206,108 @@ const RULES: Rule[] = [
   ['glorious', /^Model O3 Wireless/, 'shop:www.gloriousgaming.com/model-o-3-wireless-mouse', 'model'],
   ['glorious', /^Series 2 PRO/, 'shop:www.gloriousgaming.com/series-2-pro-wireless-mouse', 'model'],
   ['glorious', /^Model O(-| Wireless| Pro| V2)/, 'shop:www.gloriousgaming.com/model-o-classic-wireless-mouse', 'line'],
+  ['logitech', /^G PRO 2 LIGHTSPEED$/, 'page:https://www.logitech.com/en-us/shop/p/pro-2-lightspeed', 'model'],
+  ['logitech', /^G PRO Keyboard$/, 'page:https://www.logitech.com/en-us/shop/p/pro-mechanical-gaming-keyboard', 'model'],
+  ['logitech', /^G PRO X 2 headset$/, 'page:https://www.logitech.com/en-us/shop/p/pro-x-2-wireless-headset', 'model'],
+  ['logitech', /^G PRO X headset$/, 'page:https://www.logitech.com/en-us/shop/p/pro-x-gaming-headset-blue-voice-mic-tech', 'model'],
+  ['logitech', /^G Pro X Wireless Superlight$/, 'page:https://www.logitech.com/en-us/shop/p/pro-x-superlight-wireless-mouse', 'model'],
+  ['logitech', /^G102 LIGHTSYNC$|^Gaming Mouse G102\/G103\/G203$/, 'page:https://www.logitech.com/en-us/shop/p/g203-lightsync-rgb-gaming-mouse', 'line'],
+  ['logitech', /^G403 Hero$/, 'page:https://www.logitech.com/en-us/shop/p/g403-hero-gaming-mouse', 'model'],
+  ['logitech', /^G403/, 'page:https://www.logitech.com/en-us/shop/p/g403-hero-gaming-mouse', 'line'],
+  ['logitech', /^G413$/, 'page:https://www.logitech.com/en-us/shop/p/g413-se-gaming-keyboard', 'line'],
+  ['logitech', /^G432 headset$/, 'page:https://www.logitech.com/en-us/shop/p/g432-7-1-surround-sound-gaming-headset', 'model'],
+  ['logitech', /^G431 headset$/, 'page:https://www.logitech.com/en-us/shop/p/g432-7-1-surround-sound-gaming-headset', 'line'],
+  ['logitech', /^G502 Hero$/, 'page:https://www.logitech.com/en-us/shop/p/g502-hero-gaming-mouse', 'model'],
+  ['logitech', /^G502 Hero Wireless$/, 'page:https://www.logitech.com/en-us/shop/p/g502-lightspeed-wireless-gaming-mouse', 'model'],
+  ['logitech', /^G502 Proteus/, 'page:https://www.logitech.com/en-us/shop/p/g502-hero-gaming-mouse', 'line'],
+  ['logitech', /^G502 X$/, 'page:https://www.logitech.com/en-us/shop/p/g502-x-wired-lightforce', 'model'],
+  ['logitech', /^G502 X PLUS$/, 'page:https://www.logitech.com/en-us/shop/p/g502-x-plus-wireless-lightforce', 'model'],
+  ['logitech', /^G502 X Wireless$/, 'page:https://www.logitech.com/en-us/shop/p/g502-x-wireless-lightforce', 'model'],
+  ['logitech', /^G513$/, 'page:https://www.logitech.com/en-us/shop/p/g512-mechanical-gaming-keyboard', 'line'],
+  ['logitech', /^G703 Hero$/, 'page:https://www.logitech.com/en-us/shop/p/g703-hero-wireless-gaming-mouse', 'model'],
+  ['logitech', /^G703$/, 'page:https://www.logitech.com/en-us/shop/p/g703-hero-wireless-gaming-mouse', 'line'],
+  ['logitech', /^G733 headset$/, 'page:https://www.logitech.com/en-us/shop/p/g733-rgb-wireless-headset', 'model'],
+  ['logitech', /^G903 Hero$/, 'page:https://www.logitech.com/en-us/shop/p/g903-hero-wireless-gaming-mouse', 'model'],
+  ['logitech', /^G90[03]$/, 'page:https://www.logitech.com/en-us/shop/p/g903-hero-wireless-gaming-mouse', 'line'],
+  ['logitech', /^G915$/, 'page:https://www.logitech.com/en-us/shop/p/g915-x-mechanical-gaming-keyboard', 'line'],
+  ['logitech', /^G915 TKL$/, 'page:https://www.logitech.com/en-us/shop/p/g915-x-tkl-wireless', 'line'],
+  ['logitech', /^Gaming Mouse G305$/, 'page:https://www.logitech.com/en-us/shop/p/g305-lightspeed-wireless-gaming-mouse', 'model'],
+  ['logitech', /^M325$/, 'page:https://www.logitech.com/en-us/shop/p/m325s-wireless-mouse', 'line'],
+  ['logitech', /^M500s$/, 'page:https://www.logitech.com/en-us/shop/p/m500s-corded-mouse', 'model'],
+  ['logitech', /^M585\/M590$/, 'page:https://www.logitech.com/en-us/shop/p/m585-wireless-mouse', 'model'],
+  ['logitech', /^M720$/, 'page:https://www.logitech.com/en-us/shop/p/m720-triathlon', 'model'],
+  ['logitech', /^MX Anywhere 3S$/, 'page:https://www.logitech.com/en-us/shop/p/mx-anywhere-3s', 'model'],
+  ['logitech', /^MX Anywhere 3B?$/, 'page:https://www.logitech.com/en-us/shop/p/mx-anywhere-3s', 'line'],
+  ['logitech', /^MX Ergo$/, 'page:https://www.logitech.com/en-us/shop/p/mx-ergo-wireless-trackball-mouse', 'model'],
+  ['logitech', /^MX Master 3S for Business$/, 'page:https://www.logitech.com/en-us/shop/p/mx-master-3s-business-wireless-mouse', 'model'],
+  ['logitech', /^MX Master 3S$/, 'page:https://www.logitech.com/en-us/shop/p/mx-master-3s', 'model'],
+  ['logitech', /^MX Master 3$/, 'page:https://www.logitech.com/en-us/shop/p/mx-master-3s', 'line'],
+  ['logitech', /^MX Master 4$/, 'page:https://www.logitech.com/en-us/shop/p/mx-master-4', 'model'],
+  ['logitech', /^MX Vertical$/, 'page:https://www.logitech.com/en-us/shop/p/mx-vertical-ergonomic-mouse', 'model'],
+  ['logitech', /^Marathon M705$/, 'page:https://www.logitech.com/en-us/shop/p/m705-wireless-mouse', 'model'],
+  ['logitech', /^PRO X SUPERLIGHT 2$/, 'page:https://www.logitech.com/en-us/shop/p/pro-x2-superlight-wireless-mouse', 'model'],
+  ['logitech', /^PRO X SUPERLIGHT 2 DEX$/, 'page:https://www.logitech.com/en-us/shop/p/pro-x-superlight-2-dex', 'model'],
+  ['logitech', /^Zone 750 headset$/, 'page:https://www.logitech.com/en-us/shop/p/zone-750-wired-usb-refurbished', 'model'],
+  ['logitech', /^Zone Wired headset$/, 'page:https://www.logitech.com/en-us/shop/p/zone-wired-noise-canceling', 'model'],
+  ['steelseries', /^Aerox 3 Wireless CS2 Dragon Lore/, 'page:https://steelseries.com/gaming-mice/wireless-gaming-mouse-cs2-dragon-lore', 'model'],
+  ['steelseries', /^Aerox 3 Wireless Gen 2$/, 'page:https://steelseries.com/gaming-mice/aerox-3-wireless-gen-2', 'model'],
+  ['steelseries', /^Aerox 3/, 'page:https://steelseries.com/gaming-mice/aerox-3-2022', 'line'],
+  ['steelseries', /^Aerox 5/, 'page:https://steelseries.com/gaming-mice/aerox-5', 'line'],
+  ['steelseries', /^Aerox 9/, 'page:https://steelseries.com/gaming-mice/aerox-9', 'line'],
+  ['steelseries', /^Arctis Nova 7$/, 'page:https://steelseries.com/gaming-headsets/arctis-nova-7', 'model'],
+  ['steelseries', /^Prime/, 'page:https://steelseries.com/gaming-mice/prime', 'line'],
+  ['steelseries', /^Rival 3 Wireless Gen 2$|^Rival 3 Gen 2$/, 'page:https://steelseries.com/gaming-mice/rival-3-gen-2', 'line'],
+  ['steelseries', /^Rival 3( Wireless)?$/, 'page:https://steelseries.com/gaming-mice/rival-3', 'line'],
+  ['steelseries', /^Rival 5$/, 'page:https://steelseries.com/gaming-mice/rival-5', 'model'],
+  ['steelseries', /^Rival 600/, 'page:https://steelseries.com/gaming-mice/rival-600', 'line'],
+  ['steelseries', /^Rival 650 Wireless$/, 'page:https://steelseries.com/gaming-mice/rival-650', 'model'],
+  ['steelseries', /^Sensei TEN/, 'page:https://steelseries.com/gaming-mice/sensei-ten', 'line'],
+  ['steelseries', /^Sensei Pro \/ Rival Pro$/, 'page:https://steelseries.com/gaming-mice/sensei-rival-pro', 'model'],
+  ['wooting', /^60HE( \(ARM\)|\+)?$/, 'page:https://wooting.io/wooting-60he', 'line'],
+  ['wooting', /^60HE V2$/, 'page:https://wooting.io/wooting-60he-v2', 'model'],
+  ['wooting', /^80HE$/, 'page:https://wooting.io/wooting-80he', 'model'],
+  ['wooting', /^Two HE/, 'page:https://wooting.io/wooting-two-he', 'line'],
+  ['corsair', /^NIGHTSWORD RGB$/, 'page:https://www.corsair.com/us/en/p/gaming-mouse/ch-9306011-na/nightsword-rgb-tunable-fps-moba-wired-gaming-mouse-ch-9306011-na', 'model'],
+  ['asus', /^ROG Azoth$/, 'page:https://rog.asus.com/keyboards/keyboards/aura-rgb/rog-azoth-model/gallery/', 'model'],
+  ['asus', /^ROG Chakram$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-chakram-model/gallery/', 'model'],
+  ['asus', /^ROG Chakram Core$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-chakram-core-model/gallery/', 'model'],
+  ['asus', /^ROG Chakram X$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/wireless/rog-chakram-x-model/gallery/', 'model'],
+  ['asus', /^ROG Falchion$/, 'page:https://rog.asus.com/keyboards/keyboards/aura-rgb/rog-falchion-model/gallery/', 'model'],
+  ['asus', /^ROG Gladius II$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-gladius-ii-model/gallery/', 'model'],
+  ['asus', /^ROG Gladius II Core$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-gladius-ii-core-model/gallery/', 'model'],
+  ['asus', /^ROG Gladius II Origin PNK LTD$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-gladius-ii-origin-pnk-ltd-model/gallery/', 'model'],
+  ['asus', /^ROG Gladius II Origin$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-gladius-ii-origin-model/gallery/', 'model'],
+  ['asus', /^ROG Gladius II Wireless$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/wireless/rog-gladius-ii-wireless-model/gallery/', 'model'],
+  ['asus', /^ROG Gladius III$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-gladius-iii-model/gallery/', 'model'],
+  ['asus', /^ROG Gladius III Core$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-gladius-iii-core/gallery/', 'model'],
+  ['asus', /^ROG Gladius III Wireless$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-gladius-iii-wireless-model/gallery/', 'model'],
+  ['asus', /^ROG Gladius III Wireless AimPoint$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/wireless/rog-gladius-iii-wireless-aimpoint-model/gallery/', 'model'],
+  ['asus', /^ROG Keris$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-keris-model/gallery/', 'model'],
+  ['asus', /^ROG Keris Wireless$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/wireless/rog-keris-wireless-model/gallery/', 'model'],
+  ['asus', /^ROG Keris Wireless AimPoint$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-keris-wireless-aimpoint-model/gallery/', 'model'],
+  ['asus', /^ROG Pugio$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ambidextrous/rog-pugio-model/gallery/', 'model'],
+  ['asus', /^ROG Pugio II$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ambidextrous/rog-pugio-ii-model/gallery/', 'model'],
+  ['asus', /^ROG Spatha X$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ergonomic-right-handed/rog-spatha-x-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Flare II$/, 'page:https://rog.asus.com/keyboards/keyboards/pbt-keycaps/rog-strix-flare-ii-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Flare II Animate$/, 'page:https://rog.asus.com/keyboards/keyboards/pbt-keycaps/rog-strix-flare-ii-animate-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Impact II$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ambidextrous/rog-strix-impact-ii-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Impact II Electro Punk$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ambidextrous/rog-strix-impact-ii-electro-punk-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Impact II Moonlight White$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ambidextrous/rog-strix-impact-ii-moonlight-white-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Impact II Wireless$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/wireless/rog-strix-impact-ii-wireless-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Impact III$/, 'page:https://rog.asus.com/mice-mouse-pads/mice/ambidextrous/rog-strix-impact-iii-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope$/, 'page:https://rog.asus.com/keyboards/keyboards/aura-rgb/rog-strix-scope-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope II$/, 'page:https://rog.asus.com/keyboards/keyboards/pbt-keycaps/rog-strix-scope-ii/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope II 96 RX Wireless$/, 'page:https://rog.asus.com/keyboards/keyboards/aura-rgb/rog-strix-scope-ii-96-rx-wireless/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope II 96 Wireless$/, 'page:https://rog.asus.com/keyboards/keyboards/compact/rog-strix-scope-ii-96-wireless/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope II RX$/, 'page:https://rog.asus.com/keyboards/keyboards/pbt-keycaps/rog-strix-scope-ii-rx/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope NX Wireless Deluxe$/, 'page:https://rog.asus.com/keyboards/keyboards/pbt-keycaps/rog-strix-scope-nx-wireless-deluxe-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope RX$/, 'page:https://rog.asus.com/keyboards/keyboards/aura-rgb/rog-strix-scope-rx-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope RX EVA-02 Edition$/, 'page:https://rog.asus.com/keyboards/keyboards/aura-rgb/rog-strix-scope-rx-eva-02-edition/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope RX TKL Wireless Deluxe$/, 'page:https://rog.asus.com/keyboards/keyboards/compact/rog-strix-scope-rx-tkl-wireless-deluxe-model/gallery/', 'model'],
+  ['asus', /^ROG Strix Scope TKL$/, 'page:https://rog.asus.com/keyboards/keyboards/aura-rgb/rog-strix-scope-tkl-model/gallery/', 'model'],
+  ['hyperx', /^Cloud Alpha Wireless$/, 'shop:hyperx.com/hyperx-cloud-alpha-wireless', 'model'],
+  ['hyperx', /^Cloud II Wireless/, 'shop:hyperx.com/hyperx-cloud-ii-wireless', 'model'],
+  ['hyperx', /^Cloud III$/, 'shop:hyperx.com/hyperx-cloud-iii-wired-gaming-headset', 'model'],
 ];
 
 // Resize to fit MAX, cut out a flat light background seen at all four corners, trim, and encode WebP.
@@ -150,7 +344,7 @@ const PROCESS = `async (dataUrl, max) => {
     for (let i = 0; i < w * h; i++) if (seen[i]) p[i * 4 + 3] = 0;
     cutout = true;
   }
-  // Drop detached specks (size labels, captions): opaque blobs under 2% of the largest one.
+  // Drop detached specks (size labels, captions, award badges): opaque blobs under 12% of the largest one.
   const label = new Int32Array(w * h).fill(-1), areas = [];
   for (let s0 = 0; s0 < w * h; s0++) {
     if (label[s0] >= 0 || p[s0 * 4 + 3] <= 8) continue;
@@ -164,7 +358,7 @@ const PROCESS = `async (dataUrl, max) => {
     areas.push(a);
   }
   const big = Math.max(0, ...areas);
-  for (let i = 0; i < w * h; i++) if (label[i] >= 0 && areas[label[i]] < big * 0.02) p[i * 4 + 3] = 0;
+  for (let i = 0; i < w * h; i++) if (label[i] >= 0 && areas[label[i]] < big * 0.12) p[i * 4 + 3] = 0;
   x.putImageData(d, 0, 0);
   // A cutout leaves a good share of the frame empty; a boxed photo leaves almost none.
   let clearPx = 0;
@@ -180,7 +374,7 @@ const PROCESS = `async (dataUrl, max) => {
   return { webp: btoa(bin), width: o.width, height: o.height, cutout, transparent };
 }`;
 
-async function browser() {
+async function cdpTab() {
   const target = await (await fetch(`${CDP}/json/new?about:blank`, { method: 'PUT' })).json();
   const ws = new WebSocket(target.webSocketDebuggerUrl);
   await new Promise((ok, fail) => ((ws.onopen = ok), (ws.onerror = fail)));
@@ -190,22 +384,29 @@ async function browser() {
     const m = JSON.parse(String(e.data));
     pending.get(m.id)?.(m);
   };
-  const call = (method: string, params: object) =>
-    new Promise<any>((ok) => {
-      pending.set(++id, ok);
-      ws.send(JSON.stringify({ id, method, params }));
-    });
   return {
-    async process(bytes: Buffer, type: string) {
-      const expr = `(${PROCESS})(${JSON.stringify(`data:${type};base64,${bytes.toString('base64')}`)}, ${MAX})`;
-      const r = await call('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true });
-      if (r.result.exceptionDetails) throw new Error(r.result.exceptionDetails.text);
-      return r.result.result.value as { webp: string; width: number; height: number; cutout: boolean; transparent: boolean };
-    },
+    call: (method: string, params: object) =>
+      new Promise<any>((ok) => {
+        pending.set(++id, ok);
+        ws.send(JSON.stringify({ id, method, params }));
+      }),
     close: async () => {
       ws.close();
       await fetch(`${CDP}/json/close/${target.id}`);
     },
+  };
+}
+
+async function browser() {
+  const tab = await cdpTab();
+  return {
+    async process(bytes: Buffer, type: string) {
+      const expr = `(${PROCESS})(${JSON.stringify(`data:${type};base64,${bytes.toString('base64')}`)}, ${MAX})`;
+      const r = await tab.call('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true });
+      if (r.result.exceptionDetails) throw new Error(r.result.exceptionDetails.text);
+      return r.result.result.value as { webp: string; width: number; height: number; cutout: boolean; transparent: boolean };
+    },
+    close: tab.close,
   };
 }
 
@@ -218,6 +419,10 @@ const razer = await openRazer();
 const shopCache = new Map<string, Source>();
 async function resolve(src: string): Promise<Source> {
   if (src.startsWith('hub:')) return hub(src.slice(4));
+  if (src.startsWith('page:')) {
+    if (!shopCache.has(src)) shopCache.set(src, await page(src.slice(5)));
+    return shopCache.get(src)!;
+  }
   if (!shopCache.has(src)) {
     const [host, rest] = src.slice(5).split('/') as [string, string];
     const [handle, view] = rest.split('#') as [string, string?];
@@ -236,7 +441,10 @@ for (const e of entries) {
     if (url) src = { url, page: 'https://github.com/openrazer/openrazer (DEVICE_IMAGE)', publisher: 'Razer, linked by OpenRazer' };
   } else {
     const rule = RULES.find(([v, re]) => v === dir && re.test(e.model));
-    if (rule) [src, match] = [await resolve(rule[2]), rule[3]];
+    if (rule) {
+      match = rule[3];
+      src = await resolve(rule[2]).catch((err) => (console.warn(`skip ${e.id}: ${err.message}`), undefined));
+    }
   }
   if (!src) continue;
   devices[e.id] = { file: fileName(src.url), match };

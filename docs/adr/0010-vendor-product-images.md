@@ -15,8 +15,11 @@ T6 and ADR 5. The owner chose to bundle vendor images.
 ## Decision
 - `npm run import:images` (`scripts/import-images.ts`) fetches the vendors'
   own product images: ATK HUB's bundled cutouts, Razer's images as linked by
-  OpenRazer (`DEVICE_IMAGE`, matched by USB PID), and the product JSON of the
-  Pulsar, VXE, ATK, Glorious and Mechlands stores. Headless Chromium resizes
+  OpenRazer (`DEVICE_IMAGE`, matched by USB PID), the product JSON of the
+  Pulsar, VXE, ATK, Glorious, Mechlands and HyperX stores, and the product
+  pages of Logitech (the page's JSON-LD Product images), ROG (gallery),
+  SteelSeries, Wooting and Corsair, read in headless Chromium. Pages that show
+  other products too must name the product in the image (`related()`). Headless Chromium resizes
   them to 640 px, cuts out flat light backdrops, drops detached labels, trims
   them and encodes them as WebP into `public/devices/`. Only images that end up
   with a transparent background ship.
@@ -37,7 +40,9 @@ T6 and ADR 5. The owner chose to bundle vendor images.
 - The images are the vendors' copyrighted material and are not covered by
   UDB's licence, and the README says so. If a vendor objects, removing
   its rule from the script and re-running it removes its images.
-- Logitech, SteelSeries, Corsair, HyperX, ROCCAT, ASUS and Wooting have no
-  image source yet (coverage in `registry/images.json`).
+- Coverage on 2026-10-19: 363 of 489 entries. Gaps: most SteelSeries mice
+  (the site shows them only in scenes, which the transparency check rejects),
+  older Logitech, ASUS TUF and older ROG models, ROCCAT, older Wooting boards,
+  and the two generic entries (QMK/VIA, LampArray). They show a drawing.
 - Re-running the script can change files when a vendor changes its images; the
   digests show what changed.

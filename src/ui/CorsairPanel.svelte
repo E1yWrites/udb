@@ -11,6 +11,9 @@
   import ProfileBar from './ProfileBar.svelte';
   import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
+  import RangeField from './controls/RangeField.svelte';
+  import Segments from './controls/Segments.svelte';
+  import { rowWriter } from '../lib/commit.ts';
   import { CorsairNxpSession } from '../adapters/corsair-nxp-session.ts';
   import { enabledStages, type Ident, type Stage } from '../adapters/corsair-nxp.ts';
   import type { UdbDevice } from '../lib/devices.svelte.ts';
@@ -106,10 +109,14 @@
     }
   }
 
-  async function apply(row: Row) {
+  // All writes go through one queue: one at a time, and a control ends on its newest value (src/lib/commit.ts).
+  const writer = rowWriter<Row>(applyNow);
+  const apply = writer.apply;
+
+  async function applyNow(row: Row) {
     const previous = readings[row]?.value;
     const value = requested[row];
-    if (previous == null || value == null) return;
+    if (previous == null || value == null || value === previous) return;
     busy = row;
     const result = await applySetting(setting(row), value, previous);
     const at = now();
@@ -123,6 +130,8 @@
     } else if (result.kind === 'failed') {
       readings[row] = { value: result.actual, at };
     }
+    // The control shows what the device returned, unless a newer value is already queued.
+    if (!writer.queued(row)) requested[row] = readings[row]?.value ?? requested[row];
     busy = null;
   }
 
@@ -225,35 +234,32 @@
           show={(v) => show(row, v)}
         >
           {#if isStage(row)}
-            <input
+            <RangeField
               id="corsair-{row}"
-              type="number"
-              inputmode="numeric"
+              label={label(row)}
               min={dpiRange.min}
               max={dpiRange.max}
-              step="50"
+              step={50}
+              unit="DPI"
+              curve
               bind:value={requested[row]}
-              disabled={!allowUnverified || busy !== null}
+              disabled={!allowUnverified}
+              oncommit={() => writer.commit(row)}
             />
           {:else}
-            <select id="corsair-{row}" bind:value={requested[row]} disabled={!allowUnverified || busy !== null}>
-              {#if row === 'active'}
-                {#each enabled as n (n)}<option value={n}>{stageName(n)}</option>{/each}
-              {:else if row === 'lift'}
-                {#each [1, 2, 3, 4, 5] as h (h)}<option value={h}>{h}</option>{/each}
-              {:else}
-                <option value={0}>Off</option>
-                <option value={1}>On</option>
-              {/if}
-            </select>
+            <Segments
+              id="corsair-{row}"
+              label={label(row)}
+              options={row === 'active'
+                ? enabled.map((n) => ({ value: n, label: readings[`stage${n}`]?.value ? `${stageName(n)} · ${readings[`stage${n}`]!.value!.toLocaleString()}` : stageName(n) }))
+                : row === 'lift'
+                  ? [1, 2, 3, 4, 5].map((h) => ({ value: h, label: String(h) }))
+                  : [{ value: 0, label: 'Off' }, { value: 1, label: 'On' }]}
+              bind:value={requested[row]}
+              disabled={!allowUnverified}
+              oncommit={() => writer.commit(row)}
+            />
           {/if}
-          <button
-            class="btn"
-            onclick={() => apply(row)}
-            disabled={!allowUnverified || busy !== null || requested[row] == null || requested[row] === readings[row]?.value}
-          >
-            {busy === row ? 'Writing…' : 'Apply'}
-          </button>
         </SettingLine>
       {/each}
     </div>

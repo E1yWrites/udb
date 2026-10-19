@@ -11,6 +11,9 @@
   import ProfileBar from './ProfileBar.svelte';
   import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
+  import RangeField from './controls/RangeField.svelte';
+  import Segments from './controls/Segments.svelte';
+  import { rowWriter } from '../lib/commit.ts';
   import { paramsFrom, RazerSession, type Params } from '../adapters/razer-session.ts';
   import type { UdbDevice } from '../lib/devices.svelte.ts';
   import { hex, type Collection } from '../lib/registry.ts';
@@ -125,10 +128,14 @@
     }
   }
 
-  async function apply(row: Row) {
+  // All writes go through one queue: one at a time, and a control ends on its newest value (src/lib/commit.ts).
+  const writer = rowWriter<Row>(applyNow);
+  const apply = writer.apply;
+
+  async function applyNow(row: Row) {
     const previous = readings[row]?.value;
     const value = requested[row];
-    if (previous == null || value == null) return;
+    if (previous == null || value == null || value === previous) return;
     busy = row;
     const result = await applySetting(setting(row), value, previous);
     const at = now();
@@ -142,6 +149,8 @@
     } else if (result.kind === 'failed') {
       readings[row] = { value: result.actual, at };
     }
+    // The control shows what the device returned, unless a newer value is already queued.
+    if (!writer.queued(row)) requested[row] = readings[row]?.value ?? requested[row];
     busy = null;
   }
 
@@ -236,28 +245,39 @@
           show={(v) => show(row, v)}
         >
           {#if row === 'dpi'}
-            <input
+            <RangeField
               id="razer-dpi"
-              type="number"
-              inputmode="numeric"
-              min="100"
+              label={LABEL.dpi}
+              min={100}
               max={params.maxDpi}
-              step="50"
+              step={50}
+              unit="DPI"
+              curve
               bind:value={requested.dpi}
-              disabled={!allowUnverified || busy !== null}
+              disabled={!allowUnverified}
+              oncommit={() => writer.commit('dpi')}
+            />
+          {:else if row === 'polling'}
+            <Segments
+              id="razer-polling"
+              label={LABEL.polling}
+              options={options(row, params).map((v) => ({ value: v, label: show(row, v) }))}
+              bind:value={requested.polling}
+              disabled={!allowUnverified}
+              oncommit={() => writer.commit('polling')}
             />
           {:else}
             <select id="razer-{row}" bind:value={requested[row]} disabled={!allowUnverified || busy !== null}>
               {#each options(row, params) as v (v)}<option value={v}>{show(row, v)}</option>{/each}
             </select>
+            <button
+              class="btn"
+              onclick={() => apply(row)}
+              disabled={!allowUnverified || busy !== null || requested[row] == null || requested[row] === readings[row]?.value}
+            >
+              {busy === row ? 'Writing…' : 'Apply'}
+            </button>
           {/if}
-          <button
-            class="btn"
-            onclick={() => apply(row)}
-            disabled={!allowUnverified || busy !== null || requested[row] == null || requested[row] === readings[row]?.value}
-          >
-            {busy === row ? 'Writing…' : 'Apply'}
-          </button>
         </SettingLine>
       {/each}
     </div>

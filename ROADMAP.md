@@ -379,3 +379,14 @@ Keyboard) you can edit. Four stacked branches.
   switch for the tips (`src/ui/Dee.svelte`, `src/ui/Guide.svelte`)
 - [x] Supported devices: every registry entry, searchable by name, brand,
   protocol or USB ID, with per-feature status (`src/ui/SupportedList.svelte`)
+
+### Controls: branch `phase-8-controls` (stacked on Home)
+- [x] Shared controls (`src/ui/controls/`): a DPI slider on a power curve with
+  an exact field, segmented choices for polling rate, active stage and other
+  short lists, colour swatches and the system picker, hue and saturation tracks
+- [x] Each click, release or arrow key writes once through the panel's write
+  procedure and reads back; one write at a time per device, newest value wins
+  (`src/lib/commit.ts`, `tests/commit.test.ts`)
+- [x] compx, Razer, Logitech HID++, Corsair and VIA panels; long lists (debounce,
+  sleep, VIA effect numbers) keep a select or field with Apply
+- [x] No colour control on any mouse: no mouse adapter writes lighting yet

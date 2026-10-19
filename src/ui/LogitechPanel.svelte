@@ -11,6 +11,9 @@
   import ProfileBar from './ProfileBar.svelte';
   import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
+  import RangeField from './controls/RangeField.svelte';
+  import Segments from './controls/Segments.svelte';
+  import { rowWriter } from '../lib/commit.ts';
   import { HidppSession, type Identity } from '../adapters/logitech-hidpp-session.ts';
   import { DIRECT, type Battery } from '../adapters/logitech-hidpp.ts';
   import type { UdbDevice } from '../lib/devices.svelte.ts';
@@ -130,10 +133,14 @@
     }
   }
 
-  async function apply(row: Row) {
+  // All writes go through one queue: one at a time, and a control ends on its newest value (src/lib/commit.ts).
+  const writer = rowWriter<Row>(applyNow);
+  const apply = writer.apply;
+
+  async function applyNow(row: Row) {
     const previous = readings[row]?.value;
     const value = requested[row];
-    if (previous == null || value == null) return;
+    if (previous == null || value == null || value === previous) return;
     busy = row;
     const result = await applySetting(setting(row), value, previous);
     const at = now();
@@ -147,6 +154,8 @@
     } else if (result.kind === 'failed') {
       readings[row] = { value: result.actual, at };
     }
+    // The control shows what the device returned, unless a newer value is already queued.
+    if (!writer.queued(row)) requested[row] = readings[row]?.value ?? requested[row];
     busy = null;
   }
 
@@ -279,39 +288,38 @@
             show={(v) => show(row, v)}
           >
             {#if row === 'dpi' && dpiOptions}
-              <input
+              <RangeField
                 id="hidpp-dpi"
-                type="number"
-                inputmode="numeric"
-                min={dpiOptions[0]}
-                max={dpiOptions[dpiOptions.length - 1]}
+                label={LABEL.dpi}
+                min={dpiOptions[0]!}
+                max={dpiOptions[dpiOptions.length - 1]!}
                 step={dpiStep}
+                unit="DPI"
+                curve
                 bind:value={requested.dpi}
-                disabled={!allowUnverified || busy !== null}
+                disabled={!allowUnverified}
+                oncommit={() => writer.commit('dpi')}
               />
             {:else if row === 'sidetone'}
-              <input
+              <RangeField
                 id="hidpp-sidetone"
-                type="number"
-                inputmode="numeric"
-                min="0"
-                max="100"
-                step="1"
+                label={LABEL.sidetone}
+                min={0}
+                max={100}
                 bind:value={requested.sidetone}
-                disabled={!allowUnverified || busy !== null}
+                disabled={!allowUnverified}
+                oncommit={() => writer.commit('sidetone')}
               />
             {:else if rateOptions}
-              <select id="hidpp-rate" bind:value={requested.rate} disabled={!allowUnverified || busy !== null}>
-                {#each rateOptions as hz (hz)}<option value={hz}>{hz.toLocaleString()} Hz</option>{/each}
-              </select>
+              <Segments
+                id="hidpp-rate"
+                label={LABEL.rate}
+                options={rateOptions.map((hz) => ({ value: hz, label: `${hz.toLocaleString()} Hz` }))}
+                bind:value={requested.rate}
+                disabled={!allowUnverified}
+                oncommit={() => writer.commit('rate')}
+              />
             {/if}
-            <button
-              class="btn"
-              onclick={() => apply(row)}
-              disabled={!allowUnverified || busy !== null || requested[row] == null || requested[row] === readings[row]?.value}
-            >
-              {busy === row ? 'Writing…' : 'Apply'}
-            </button>
           </SettingLine>
         {/each}
       </div>

@@ -185,6 +185,11 @@ the stage. The top bar is a material: `backdrop-filter: blur(20px)` over
   desaturated). Tips beside Controls and diagnostics follow the Guide switch.
   Happy is one small hop when the onboarding completes. The image is
   decorative; everything Dee says is text.
+- **Controls** (`src/ui/controls/`): a slider and exact field for ranges (DPI on
+  a power curve so 400–3,200 gets most of the track; arrow keys move one real
+  step), a segmented row for short lists, swatches plus the system picker for
+  colour. They commit on click or release, never while dragging, and then show
+  the value the device returned.
 - **Buttons:** pills, 40px high, scale 0.97 on press.
 - **Icons:** authored SVG on a 20px grid, 1.5px round stroke, `currentColor`.
 

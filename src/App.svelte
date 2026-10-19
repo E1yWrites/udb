@@ -229,6 +229,24 @@
     align-items: flex-start;
     padding: var(--space-3) clamp(var(--space-4), 3vw, var(--space-8));
     border-bottom: 1px solid var(--line);
+    transition:
+      opacity 240ms var(--ease-out),
+      transform 240ms var(--ease-out);
+  }
+
+  /* It drops in from under the top bar instead of popping. */
+  @starting-style {
+    .outcome {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .outcome {
+      transform: none;
+      transition: opacity 150ms ease-out !important;
+    }
   }
 
 

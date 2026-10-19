@@ -236,6 +236,7 @@
   }
 
   .list {
+    interpolate-size: allow-keywords;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -244,6 +245,25 @@
 
   .list > li {
     border-bottom: 1px solid var(--line);
+  }
+
+  /* Rows open to their height instead of snapping (Chromium, which WebHID needs anyway). */
+  details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 220ms var(--ease-out),
+      content-visibility 220ms allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    details::details-content {
+      transition: none;
+    }
   }
 
   summary {

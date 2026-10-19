@@ -27,11 +27,19 @@
     height: var(--size);
     transform-origin: 50% 100%;
     filter: drop-shadow(0 4px 6px oklch(0 0 0 / 0.28));
+    transition: transform 320ms var(--spring);
   }
 
   .worried img {
     transform: rotate(-8deg);
     filter: saturate(0.7) drop-shadow(0 4px 6px oklch(0 0 0 / 0.28));
+  }
+
+  /* Worried Dee tilts as the notice arrives rather than arriving tilted. */
+  @starting-style {
+    .worried img {
+      transform: none;
+    }
   }
 
   .happy img {

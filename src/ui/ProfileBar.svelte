@@ -302,6 +302,27 @@
     color: var(--muted);
   }
 
+  /* The result of several seconds of writes arrives as one block, not line by line. */
+  .outcome {
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 200ms var(--ease-out);
+  }
+
+  @starting-style {
+    .outcome {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .outcome {
+      transform: none;
+      transition: opacity 150ms ease-out !important;
+    }
+  }
+
   .outcome ul {
     list-style: none;
     margin: var(--space-2) 0 0;

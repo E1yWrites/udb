@@ -119,12 +119,30 @@
 
 <style>
   .editor {
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 200ms var(--ease-out);
     display: grid;
     gap: var(--space-4);
     padding: var(--space-4);
     border: 1px solid color-mix(in srgb, var(--yellow) 55%, var(--line));
     border-radius: var(--radius-lg);
     background: color-mix(in srgb, var(--yellow) 5%, var(--surface));
+  }
+
+  /* Opens out of the row's Edit button; closing stays instant. */
+  @starting-style {
+    .editor {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .editor {
+      transform: none;
+      transition: opacity 150ms ease-out !important;
+    }
   }
 
   .field {

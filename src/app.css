@@ -576,6 +576,20 @@ button {
   }
 }
 
+/* The theme switch cross-fades the page (ThemeSwitch.svelte). */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 240ms;
+  animation-timing-function: var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 120ms;
+  }
+}
+
 /* Headings take focus when a view changes (App.svelte); only keyboard users see it. */
 h1[tabindex='-1']:focus:not(:focus-visible) {
   outline: none;

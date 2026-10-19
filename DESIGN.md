@@ -195,10 +195,17 @@ the stage. The top bar is a material: `backdrop-filter: blur(20px)` over
 
 ## Motion
 
-Feedback on press. Two authored moments only: the device materialising on the
-stage (scale, blur, opacity) and the read-back settle. `prefers-reduced-motion`
-swaps both for cross-fades; `prefers-contrast: more` strengthens lines and
-makes the chrome solid.
+Feedback on press. Two authored moments: the device materialising on the
+stage (scale, blur, opacity) and the read-back settle. Around them, quiet
+bridges for things that would otherwise teleport, all on `--ease-out` or the
+critically damped `--spring`: the theme switch cross-fades the page (view
+transition, 240ms); a finished onboarding step's tick lands on the spring; the
+request notice drops in from under the top bar (240ms) as worried Dee tilts;
+the profile editor and the "Applied" result fade up (200ms); supported-device
+rows open to their height (220ms). Home, device switching, tabs and the
+segmented controls never animate their navigation: they are used too often.
+`prefers-reduced-motion` keeps short opacity fades (120–200ms) and drops every
+movement; `prefers-contrast: more` strengthens lines and makes the chrome solid.
 
 ## Do's and don'ts
 

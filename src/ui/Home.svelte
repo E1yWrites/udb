@@ -294,6 +294,25 @@
 
   .step > span {
     color: var(--muted);
+    transition: opacity 200ms var(--ease-out);
+  }
+
+  /* A finished step's tick lands on the spring; the next step's text fades in. */
+  .steps .done .mark :global(svg) {
+    transition:
+      transform var(--spring-time) var(--spring),
+      opacity 200ms var(--ease-out);
+  }
+
+  @starting-style {
+    .steps .done .mark :global(svg) {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+
+    .step > span {
+      opacity: 0;
+    }
   }
 
   .done .step strong {
@@ -587,6 +606,15 @@
   @media (prefers-reduced-motion: reduce) {
     .stage {
       animation: fade 200ms ease-out both !important;
+    }
+
+    .steps .done .mark :global(svg) {
+      transform: none;
+      transition: opacity 150ms ease-out !important;
+    }
+
+    .step > span {
+      transition: opacity 150ms ease-out !important;
     }
 
     @keyframes fade {

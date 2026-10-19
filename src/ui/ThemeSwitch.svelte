@@ -9,13 +9,19 @@
     { value: 'dark', label: 'Dark', icon: 'moon' },
   ];
   let { compact = false }: { compact?: boolean } = $props();
+
+  // The whole page changes luminance, a flash at a desk at night: cross-fade it where the browser can (app.css).
+  function choose(t: Theme) {
+    if (!document.startViewTransition) return setTheme(t);
+    document.startViewTransition(() => setTheme(t));
+  }
 </script>
 
 <fieldset class="switch" class:compact>
   <legend class="visually-hidden">Theme</legend>
   {#each OPTIONS as o (o.value)}
     <label title={o.label}>
-      <input type="radio" name="udb-theme" value={o.value} checked={prefs.theme === o.value} onchange={() => setTheme(o.value)} />
+      <input type="radio" name="udb-theme" value={o.value} checked={prefs.theme === o.value} onchange={() => choose(o.value)} />
       <Icon name={o.icon} size={16} />
       <span class:visually-hidden={compact}>{o.label}</span>
     </label>

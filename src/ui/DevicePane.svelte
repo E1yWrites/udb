@@ -12,6 +12,7 @@
   import CorsairPanel from './CorsairPanel.svelte';
   import Diagnostics from './Diagnostics.svelte';
   import DeviceArt from './DeviceArt.svelte';
+  import Guide from './Guide.svelte';
   import { imageFor } from '../lib/images.ts';
 
   let { device }: { device: UdbDevice } = $props();
@@ -83,7 +84,7 @@
     </figure>
 
     <header class="head">
-      <h1 id="device-title">{title}</h1>
+      <h1 id="device-title" tabindex="-1">{title}</h1>
       <p class="identity">
         {#if connection && connection !== 'unknown'}
           <span class="chip"><Icon name={CONNECTION_ICON[connection]} size={14} />{connection}</span>
@@ -95,17 +96,17 @@
       </p>
 
       {#if device.presence === 'disconnected'}
-        <div class="notice">
-          <h2><Icon name="unplug" size={18} />Disconnected</h2>
+        <Guide tone="worried" tip={false}>
+          <h2 class="say"><Icon name="unplug" size={18} />Disconnected</h2>
           <p>
             Plug it back in or wake it. Devices with a USB serial number come back on their own. Devices without one
             (like the Vibe75) lose the browser’s permission when unplugged, so you have to pick them again.
           </p>
           <button class="btn" onclick={() => devices.request('supported')}>Pick it again</button>
-        </div>
+        </Guide>
       {:else if device.presence === 'busy'}
-        <div class="notice signal">
-          <h2><Icon name="busy" size={18} />Another app is using this device</h2>
+        <Guide tone="worried" tip={false}>
+          <h2 class="say"><Icon name="busy" size={18} />Another app is using this device</h2>
           <p>
             {#if entry?.conflictingSoftware?.length}
               Close {entry.conflictingSoftware.join(' or ')}, then try again.
@@ -115,16 +116,16 @@
           </p>
           <p class="detail data">{device.openError}</p>
           <button class="btn" onclick={() => devices.retry(device)}>Try again</button>
-        </div>
+        </Guide>
       {:else if !entry}
-        <div class="notice">
-          <h2><Icon name="blocked" size={18} />UDB doesn't support this device yet</h2>
+        <Guide tone="worried" tip={false}>
+          <h2 class="say"><Icon name="blocked" size={18} />UDB doesn't support this device yet</h2>
           <p>
             Copy the device report under “Interfaces & diagnostics” and
             <a href="https://github.com/E1yWrites/udb/issues/new" target="_blank" rel="noreferrer">open an issue</a>
             so its protocol can be researched. The report holds descriptor details only, never what you type or click.
           </p>
-        </div>
+        </Guide>
       {:else if device.match?.identity.byCollection}
         <div class="notice signal">
           <h2><Icon name="unverified" size={18} />Recognised by its {entry.vendor} interface</h2>
@@ -174,6 +175,13 @@
 
   {#if live}
     <div id="panel-controls" role="tabpanel" aria-labelledby="tab-controls" class="panel" hidden={tab !== 'controls'}>
+      <Guide size={56}>
+        <p>
+          Read first: nothing changes on the device. Each setting then shows <span class="tag">Device</span>, the value it
+          sent back. A write is always read back, and if the device returns something else, I put the old value back and
+          say so.
+        </p>
+      </Guide>
       {#if entry?.protocol.family === 'compx'}
         <CompxPanel {device} />
       {:else if entry?.protocol.family === 'vibe75'}
@@ -254,6 +262,13 @@
       </div>
       <p class="footnote">Report sizes in bytes, excluding the report ID.</p>
     {/if}
+
+    <Guide size={56}>
+      <p>
+        Want this device supported? “Copy device report” gives a maintainer the descriptor details they need. It never
+        includes what you type or click.
+      </p>
+    </Guide>
 
     <Diagnostics {device} />
 
@@ -414,8 +429,32 @@
     max-width: 62ch;
   }
 
-  .notice .btn {
+  /* A recovery notice in Dee's bubble. */
+  .say {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--step-1);
+    font-weight: 650;
+    color: var(--text);
+  }
+
+  .say ~ :global(.btn) {
+    justify-self: start;
     margin-top: var(--space-1);
+  }
+
+  .say :global(svg) {
+    color: var(--signal);
+  }
+
+  h1:focus {
+    outline: none;
+  }
+
+  h1:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
   }
 
   .detail {

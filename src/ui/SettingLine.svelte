@@ -4,6 +4,7 @@
   import type { Snippet } from 'svelte';
   import Icon from './Icon.svelte';
   import type { WriteResult } from '../lib/write.ts';
+  import { noteReadBack } from '../lib/prefs.svelte.ts';
 
   let {
     id,
@@ -29,6 +30,9 @@
   } = $props();
 
   const clock = (iso: string) => new Date(iso).toLocaleTimeString();
+  $effect(() => {
+    if (value != null) noteReadBack();
+  });
 </script>
 
 <div class="line">

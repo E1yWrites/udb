@@ -134,13 +134,28 @@ for hex identifiers and raw values; other numbers use `tabular-nums` (`.num`).
 
 ## Layout
 
-A sticky translucent top bar (app icon and wordmark, "Identify another
-device", "Add device", the theme switch). Below it, a device dock of 15–18rem and the device pane, capped at
-76rem: a hero of stage and identity side by side (stacked under 60rem), then a
-segmented tab control: Controls, What UDB knows, Interfaces & diagnostics.
-Hidden tab panels stay mounted, so a live session survives a tab switch. Under
-48rem the dock becomes a horizontal snap strip. The empty state is a lit
-stage with the three category drawings above one primary action.
+A sticky translucent top bar: the app icon and wordmark (a link to Home),
+"Identify another device" and "Add device" in a device view, and the theme
+switch. Three views, kept in the URL hash so Back works:
+
+- **Home** (`#/`, where UDB always lands): a hero of Dee on a lit stage beside
+  the logo, the tagline and Dee's bubble (the onboarding, then a greeting),
+  with Add device. Then "Your devices" as cards, the way into Supported
+  devices, and Settings (Dee's tips, Replay the tour). Under 52rem the hero
+  stacks and cards go two across.
+- **Device** (`#/device/<key>`): the device dock of 15–18rem and the device
+  pane, capped at 76rem, with Close at the top right (Esc too). A hero of stage
+  and identity side by side (stacked under 60rem), then a segmented tab control:
+  Controls, What UDB knows, Interfaces & diagnostics. Hidden tab panels stay
+  mounted, so a live session survives a tab switch; closing the device or
+  switching to another ends it. Under 48rem the dock becomes a horizontal
+  snap strip.
+- **Supported devices** (`#/supported`): search (name, brand, protocol, USB ID),
+  a category switch, and one row per registry entry that opens to its
+  features, where each lives, and status.
+
+Focus follows the view: the device title when a device opens, its card when it
+closes, the heading otherwise.
 
 ## Elevation & depth
 
@@ -164,6 +179,12 @@ the stage. The top bar is a material: `backdrop-filter: blur(20px)` over
   then the outcome. The device's value **settles** into place when it
   changes: blur, lift and opacity on the `--spring` curve (critically damped,
   no overshoot); a short cross-fade under reduced motion.
+- **Dee** (`Dee.svelte`, `Guide.svelte`): the mascot beside a speech bubble
+  with an ink-and-yellow outline. Recovery notices (busy, disconnected,
+  unsupported, a refused or cancelled request) always show Dee, worried (tilted,
+  desaturated). Tips beside Controls and diagnostics follow the Guide switch.
+  Happy is one small hop when the onboarding completes. The image is
+  decorative; everything Dee says is text.
 - **Buttons:** pills, 40px high, scale 0.97 on press.
 - **Icons:** authored SVG on a 20px grid, 1.5px round stroke, `currentColor`.
 

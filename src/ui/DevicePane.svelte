@@ -342,8 +342,8 @@
   }
 
   h1 {
-    font: 700 var(--step-4) / 1.04 var(--font-display);
-    letter-spacing: -0.03em;
+    font: 600 var(--step-4) / 1.04 var(--font-brand);
+    letter-spacing: -0.01em;
     text-wrap: balance;
     overflow-wrap: anywhere;
   }

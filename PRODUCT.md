@@ -63,11 +63,16 @@ needing a companion app.
 ## Brand Commitments
 
 - Name: **UDB, Universal Driver Bus**. Tagline: "One bus. Every device."
-- Visual character pinned by the owner (2026-10-19, Phase 7, replacing the
-  earlier "precision instrument" look): a device launcher in the manner of
-  Pulsar's BBB and the Redragon launcher. The connected device stands lit on a
-  stage; requested vs. confirmed-by-device stays the central idea. No neon,
+- Visual character pinned by the owner (2026-10-19, Phase 8): green and
+  yellow throughout, taken from the owner's mascot art. The grass green of the
+  app icon leads (selection, primary actions); Dee's yellow is the warm
+  highlight. A System/Light/Dark switch; dark stays primary for the desk at
+  night. Still a launcher (Phase 7): the connected device stands lit on a
+  stage, and requested vs. confirmed-by-device stays the central idea. No neon,
   glow or angular "gamer" chrome.
+- **Dee**, the mascot (a USB stick in a green UDB cap), is the guide: the
+  onboarding, recovery notices and tips. Dee speaks plainly and never claims
+  support, a result or a value the device didn't return. Tips can be switched off.
 - Vendor product images are bundled and served from UDB's own origin, with
   provenance (ADR 10). Never vendor logos as UI chrome, and an image never
   stands for support.

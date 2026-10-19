@@ -354,3 +354,18 @@ Redragon launcher) with product images of the supported models.
 - [ ] Remaining gaps: most SteelSeries mice, older Logitech, ASUS TUF and older
   ROG, ROCCAT, older Wooting (ADR 10)
 
+## Phase 8: Brand, Home, controls, profiles
+
+Owner decisions, 2026-10-19: green and yellow throughout (the app icon's grass
+green leads), a light/dark switch, the mascot Dee as a guide everywhere with
+an onboarding, a Home menu when no device is open, richer DPI, polling and
+colour controls that write on release, and category profiles (Mouse,
+Keyboard) you can edit. Four stacked branches.
+
+### Brand: branch `phase-8-brand`
+- [x] Tokens: grass green accent, Dee yellow highlight, orange for attention,
+  teal for confirmed; AA contrast checked in both themes (`src/app.css`)
+- [x] System/Light/Dark switch, kept in this browser (`src/lib/prefs.svelte.ts`,
+  `src/ui/ThemeSwitch.svelte`)
+- [x] Dee, logo and app icons from the owner's art; Fredoka self-hosted (ADR 11)
+

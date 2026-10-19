@@ -13,6 +13,9 @@
     copy: 'M7.5 7.5h8v9h-8zM4.5 13V3.5h8',
     external: 'M11 3.5h5.5V9M16.5 3.5L9.5 10.5M14 12v4.5H3.5V6H8',
     busy: 'M10 3.5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13zM10 6.5V10l2.5 2',
+    sun: 'M10 6.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7zM10 2.5v1.5M10 16v1.5M2.5 10H4M16 10h1.5M4.7 4.7l1 1M14.3 14.3l1 1M4.7 15.3l1-1M14.3 5.7l1-1',
+    moon: 'M15.5 12.5A6 6 0 0 1 7.5 4.5a6 6 0 1 0 8 8z',
+    screen: 'M3.5 4.5h13v9h-13zM7.5 16.5h5M10 13.5v3',
   } as const;
   export type IconName = keyof typeof PATHS;
 </script>

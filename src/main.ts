@@ -1,6 +1,10 @@
 import { mount } from 'svelte';
 import App from './App.svelte';
 import './app.css';
+import { applyTheme } from './lib/prefs.svelte.ts';
+
+// Before mounting, so the first paint is already in the chosen theme (the CSP rules out an inline script).
+applyTheme();
 
 mount(App, { target: document.getElementById('app')! });
 

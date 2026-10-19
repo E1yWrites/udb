@@ -7,15 +7,17 @@
   import Home from './ui/Home.svelte';
   import Guide from './ui/Guide.svelte';
   import SupportedList from './ui/SupportedList.svelte';
+  import ProfileLibrary from './ui/ProfileLibrary.svelte';
   import { devices } from './lib/devices.svelte.ts';
   import { deviceState } from './lib/labels.ts';
 
-  // Views live in the URL hash so Back works: #/ (Home), #/device/<key>, #/supported.
-  type View = { name: 'home' } | { name: 'device'; key: string } | { name: 'supported' };
+  // Views live in the URL hash so Back works: #/ (Home), #/device/<key>, #/supported, #/profiles.
+  type View = { name: 'home' } | { name: 'device'; key: string } | { name: 'supported' } | { name: 'profiles' };
 
   function parse(hash: string): View {
     if (hash.startsWith('#/device/')) return { name: 'device', key: decodeURIComponent(hash.slice(9)) };
     if (hash === '#/supported') return { name: 'supported' };
+    if (hash === '#/profiles') return { name: 'profiles' };
     return { name: 'home' };
   }
 
@@ -106,6 +108,8 @@
 
   {#if view.name === 'supported'}
     <SupportedList />
+  {:else if view.name === 'profiles'}
+    <ProfileLibrary />
   {:else if view.name === 'device' && selected}
     <div class="workspace">
       <nav class="dock" aria-label="Devices">

@@ -265,7 +265,8 @@
     </div>
 
     <ProfileBar
-      entryId={entry.id}
+      family={entry.protocol.family}
+      category={entry.category}
       current={Object.fromEntries(Object.entries(readings).map(([r, x]) => [r, x?.value]))}
       label={(r) => label(r as Row)}
       show={(r, v) => show(r as Row, v)}

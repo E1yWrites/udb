@@ -328,7 +328,8 @@
     {/if}
 
     <ProfileBar
-      entryId={(model ?? entry).id}
+      family={entry.protocol.family}
+      category={entry.category}
       current={Object.fromEntries(Object.entries(readings).map(([r, x]) => [r, x?.value]))}
       label={(r) => LABEL[r as Row]}
       show={(r, v) => show(r as Row, v)}

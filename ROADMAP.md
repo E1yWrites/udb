@@ -390,3 +390,17 @@ Keyboard) you can edit. Four stacked branches.
 - [x] compx, Razer, Logitech HID++, Corsair and VIA panels; long lists (debounce,
   sleep, VIA effect numbers) keep a select or field with Apply
 - [x] No colour control on any mouse: no mouse adapter writes lighting yet
+
+### Profiles: branch `phase-8-profiles` (stacked on controls)
+- [x] v2 profiles: Mouse (DPI stages, active stage, polling rate, colour) and
+  Keyboard (colour, brightness, effect within its family), applied to any
+  device of the category (`src/lib/profiles.ts`, `src/lib/profile-map.ts`)
+- [x] Applying says what the device couldn't take; every value is written
+  through the panel's write procedure and read back
+- [x] The library on Home: make, edit, import and export without a device
+  (`src/ui/ProfileLibrary.svelte`, `src/ui/ProfileEditor.svelte`)
+- [x] v1 profiles converted once; unconvertible ones kept and exportable
+  (`tests/profiles.test.ts`, THREAT_MODEL T13)
+- [ ] Mouse colour: no mouse adapter writes lighting, so it's stored and
+  skipped. Needs a protocol with a lighting read-back first
+- [ ] Headset profiles (sidetone) are not covered; v1 ones are kept

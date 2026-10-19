@@ -356,7 +356,8 @@
     {/if}
 
     <ProfileBar
-      entryId={entry.id}
+      family={entry.protocol.family}
+      category={entry.category}
       current={Object.fromEntries(Object.entries(readings).map(([r, x]) => [r, x?.value]))}
       label={(r) => `${CHANNEL_NAME[r.split('.')[0] as Channel]}: ${PART_NAME[r.split('.')[1] as Part]}`}
       show={(r, v) => show(r as Row, v)}

@@ -10,6 +10,8 @@
   import { deviceState } from '../lib/labels.ts';
   import { registry } from '../lib/registry.ts';
   import { prefs, setGuide, setOnboarded } from '../lib/prefs.svelte.ts';
+  import { browserStore, loadProfiles } from '../lib/profiles.ts';
+  import { migrateV1 } from '../lib/profile-map.ts';
 
   let {
     onopen,
@@ -33,6 +35,9 @@
     headset: registry.filter((e) => e.category === 'headset').length,
   };
   const verified = registry.filter((e) => e.features.some((f) => f.status === 'write-verified')).length;
+  const store = browserStore();
+  const saved = store ? loadProfiles(store, migrateV1) : [];
+  const savedCount = { mouse: saved.filter((p) => p.category === 'mouse').length, keyboard: saved.filter((p) => p.category === 'keyboard').length };
 
   function replay() {
     setOnboarded(false);
@@ -143,6 +148,21 @@
             {registry.length} models UDB recognises: <span class="num">{counts.mouse}</span> mice,
             <span class="num">{counts.keyboard}</span> keyboards, <span class="num">{counts.headset}</span> headsets.
             {verified === 0 ? 'None is verified on real hardware yet.' : `${verified} verified on real hardware.`}
+          </span>
+        </span>
+        <Icon name="chevron" size={18} />
+      </a>
+      <a class="tile" href="#/profiles">
+        <span class="tile-art swatches" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="tile-text">
+          <strong>Profiles</strong>
+          <span>
+            {#if saved.length}
+              <span class="num">{savedCount.mouse}</span> mouse and <span class="num">{savedCount.keyboard}</span> keyboard
+              {saved.length === 1 ? 'profile' : 'profiles'} in this browser. Make, edit, import and export them here.
+            {:else}
+              DPI stages, polling rate, colour and brightness, saved once and applied to any mouse or keyboard UDB can write.
+            {/if}
           </span>
         </span>
         <Icon name="chevron" size={18} />
@@ -421,6 +441,36 @@
   .tile-art > span {
     display: block;
     aspect-ratio: 1;
+  }
+
+  .more {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  /* Profiles: three overlapping colour dots, brand first. */
+  .swatches {
+    grid-template-columns: repeat(3, 1.75rem);
+    gap: 0;
+    padding-right: 1.25rem;
+  }
+
+  .swatches > span {
+    width: 2.6rem;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+  }
+
+  .swatches > span:nth-child(1) {
+    background: var(--accent);
+  }
+
+  .swatches > span:nth-child(2) {
+    background: var(--yellow);
+  }
+
+  .swatches > span:nth-child(3) {
+    background: color-mix(in srgb, var(--accent) 55%, var(--ink));
   }
 
   .tile-text {

@@ -139,6 +139,14 @@
   input[type='number'] {
     width: 6.5rem;
     flex: none;
+    min-height: 2.5rem;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-variant-numeric: tabular-nums;
   }
 
   input:disabled {

@@ -35,6 +35,8 @@
   const selected = $derived(view.name === 'device' ? devices.list.find((d) => d.key === (view as { key: string }).key) : undefined);
   /** Set when a device was opened from Home in this page, so closing can go Back instead of adding a history entry. */
   let pushed = false;
+  /** Where the Supported and Profiles pages go back to: the cover when opened from it, else the app's Home. */
+  let backTo = $state(parse(location.hash).name === 'landing' ? '#/' : '#/app');
 
   onMount(() => {
     // Dev-only design preview with fake devices; tree-shaken from production builds.
@@ -43,6 +45,11 @@
     const onHash = async () => {
       const before = view;
       view = parse(location.hash);
+      if (view.name === 'supported' || view.name === 'profiles') {
+        if (before.name !== 'supported' && before.name !== 'profiles') backTo = before.name === 'landing' ? '#/' : '#/app';
+      }
+      // A request's notice belongs to the page it was made on.
+      if (before.name !== view.name) devices.outcome = { kind: 'idle' };
       if (view.name !== 'device') pushed = false;
       // An in-page anchor (#how): show the landing, then scroll to the section.
       if (!location.hash.startsWith('#/') && location.hash.length > 1) {
@@ -109,7 +116,7 @@
 
 <div class="shell">
   <header class="top">
-    <a class="mark" href={inApp ? '#/app' : '#/'} aria-label={inApp ? 'UDB Home' : 'UDB, Universal Driver Bus: the cover'}>
+    <a class="mark" href="#/" aria-label="UDB, Universal Driver Bus: the cover">
       <img class="glyph" src="./icons/icon-192.png" alt="" width="36" height="36" />
       <strong>UDB</strong><span>Universal Driver Bus</span>
     </a>
@@ -142,6 +149,7 @@
           <p>The browser refused the request: {devices.outcome.message}</p>
         {/if}
       </Guide>
+      <button class="btn quiet dismiss" onclick={() => (devices.outcome = { kind: 'idle' })} aria-label="Dismiss this notice"><Icon name="close" /></button>
     </div>
   {/if}
 
@@ -150,9 +158,9 @@
   {:else if view.name === 'terms' || view.name === 'contact' || view.name === 'missing'}
     <InfoPage kind={view.name} />
   {:else if view.name === 'supported'}
-    <SupportedList />
+    <SupportedList back={backTo} />
   {:else if view.name === 'profiles'}
-    <ProfileLibrary />
+    <ProfileLibrary back={backTo} />
   {:else if view.name === 'device' && selected}
     {@const i = devices.list.indexOf(selected)}
     <div class="workspace">
@@ -316,6 +324,12 @@
 
   .theme {
     display: flex;
+  }
+
+  .outcome .dismiss {
+    margin-left: auto;
+    flex: none;
+    padding: 0 var(--space-3);
   }
 
   .outcome {

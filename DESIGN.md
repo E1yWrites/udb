@@ -2,34 +2,36 @@
 name: UDB · Universal Driver Bus
 description: One bus. Every device. A launcher that puts the connected device on a stage and shows only what it reported back.
 colors:
-  bg: "oklch(0.165 0.018 262)"
-  rail: "oklch(0.145 0.018 262)"
-  surface: "oklch(0.205 0.022 262)"
-  raised: "oklch(0.245 0.024 262)"
-  line: "oklch(0.31 0.022 262)"
-  line-strong: "oklch(0.44 0.024 262)"
-  text: "oklch(0.96 0.006 250)"
-  muted: "oklch(0.78 0.018 255)"
-  faint: "oklch(0.66 0.02 258)"
-  accent: "oklch(0.74 0.14 232)"
-  accent-ink: "oklch(0.17 0.04 240)"
-  signal: "oklch(0.83 0.14 78)"
-  confirmed: "oklch(0.82 0.12 162)"
-  danger: "oklch(0.74 0.15 25)"
-  stage-light: "oklch(0.6 0.13 236 / 0.34)"
-  light-bg: "oklch(0.965 0.006 255)"
-  light-surface: "oklch(0.995 0.002 255)"
-  light-text: "oklch(0.2 0.02 262)"
-  light-accent: "oklch(0.52 0.16 245)"
-  light-signal: "oklch(0.55 0.15 60)"
-  light-confirmed: "oklch(0.46 0.1 162)"
+  bg: "oklch(0.17 0.014 155)"
+  rail: "oklch(0.15 0.013 155)"
+  surface: "oklch(0.21 0.017 155)"
+  raised: "oklch(0.255 0.02 152)"
+  line: "oklch(0.32 0.018 152)"
+  line-strong: "oklch(0.45 0.02 150)"
+  text: "oklch(0.965 0.01 110)"
+  muted: "oklch(0.8 0.018 135)"
+  faint: "oklch(0.68 0.02 145)"
+  accent: "oklch(0.74 0.16 145)"
+  accent-ink: "oklch(0.18 0.04 150)"
+  yellow: "oklch(0.88 0.17 92)"
+  yellow-ink: "oklch(0.22 0.045 85)"
+  signal: "oklch(0.78 0.15 58)"
+  confirmed: "oklch(0.82 0.1 192)"
+  danger: "oklch(0.73 0.16 25)"
+  stage-light: "oklch(0.66 0.15 140 / 0.3)"
+  light-bg: "oklch(0.975 0.014 105)"
+  light-surface: "oklch(0.996 0.005 105)"
+  light-text: "oklch(0.22 0.03 150)"
+  light-accent: "oklch(0.5 0.14 148)"
+  light-signal: "oklch(0.525 0.15 50)"
+  light-confirmed: "oklch(0.48 0.09 200)"
 typography:
   display:
-    fontFamily: "'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif"
+    fontFamily: "'Fredoka', 'Segoe UI Variable Display', system-ui, sans-serif"
     fontSize: "clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem)"
-    fontWeight: 700
+    fontWeight: 600
     lineHeight: 1.04
-    letterSpacing: "-0.03em"
+    letterSpacing: "-0.01em"
   value:
     fontFamily: "'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif"
     fontSize: "1.5rem"
@@ -88,42 +90,52 @@ components:
 
 ## Overview
 
-A device launcher at night (Operate mode), in the manner of Pulsar's BBB and
-the Redragon launcher, chosen by the owner in Phase 7. The connected device
-stands lit on a stage; everything around it is what the device itself
-reported. The scene is a gamer's desk in a dim room, so the deep ink-blue
-dark theme is primary; the light theme follows the OS and gets equal care.
-Source of truth: `src/app.css`. Images: ADR 10.
+A device launcher (Operate mode) in the manner of Pulsar's BBB and the
+Redragon launcher (Phase 7), dressed in the owner's mascot colours (Phase 8):
+the grass green of the app icon and Dee's yellow. The connected device stands
+lit on a stage; everything around it is what the device itself reported.
+Dark is primary (a gamer's desk at night); light (daylight, a pale leaf and
+cream shell) gets equal care. A System/Light/Dark switch sets `data-theme` on
+`<html>`. Source of truth: `src/app.css`. Images: ADR 10. Brand assets and
+font: ADR 11.
 
 ## Colors
 
-- **Shell:** ink-blue steps `rail` < `bg` < `surface` < `raised`, with `line`
-  and `line-strong` hairlines. Text tiers `text`, `muted`, `faint`, tinted
-  blue, never pure grey.
-- **Accent** (`accent`): selection, primary actions, focus ring, caret, the
-  stage light. Nothing else.
-- **Signal amber** (`signal`): needs your attention (unverified, model not
-  confirmed, busy, the write gate). Never decorative.
-- **Confirmed green** (`confirmed`): the hardware backed it up.
+- **Shell:** green-tinted neutral steps `rail` < `bg` < `surface` < `raised`,
+  with `line` and `line-strong` hairlines. Text tiers `text`, `muted`,
+  `faint`, tinted toward the hue, never pure grey.
+- **Accent, grass green** (`accent`): selection, primary actions, focus ring,
+  caret, the wordmark, the stage light.
+- **Dee yellow** (`yellow`): the warm highlight. Dee, speech bubbles, the
+  current device tile, onboarding. Never text on a light surface; text on
+  yellow uses `yellow-ink`.
+- **Signal orange** (`signal`): needs your attention (unverified, model not
+  confirmed, busy, the write gate). Orange, so it never reads as the brand
+  yellow. Never decorative.
+- **Confirmed teal** (`confirmed`): the hardware backed it up. Teal, so it
+  never reads as the brand green.
 - **Danger** (`danger`): failures and collections UDB blocks.
 
 ### Named rules
 - **Never colour alone.** Every status is an icon, a word and a colour.
+- **Brand colours never carry status.** Green and yellow are UDB; teal and
+  orange are what the device said.
 - **Device LED colours are data.** They appear only as small chips.
-- Mix amber into surfaces in sRGB (`color-mix(in srgb, …)`); an oklch mix
-  swings the hue through blue on the light theme.
+- Mix orange and yellow into surfaces in sRGB (`color-mix(in srgb, …)`); an
+  oklch mix swings the hue on the light theme.
 
 ## Typography
 
-The system UI stack (Segoe UI Variable on Windows); no web fonts. Tracking by
-size: display `-0.03em`, values `-0.01em`, body `0`, tags `+0.08em` caps.
-Monospace only for hex identifiers and raw values; other numbers use
-`tabular-nums` (`.num`).
+Fredoka (self-hosted, ADR 11) for headings, the wordmark and Dee's bubbles;
+the system UI stack (Segoe UI Variable on Windows) for everything else. Values
+stay on Segoe UI Variable Display so digits line up. Tracking by size: display
+`-0.01em`, values `-0.01em`, body `0`, tags `+0.08em` caps. Monospace only
+for hex identifiers and raw values; other numbers use `tabular-nums` (`.num`).
 
 ## Layout
 
-A sticky translucent top bar (wordmark, "Identify another device", "Add
-device"). Below it, a device dock of 15–18rem and the device pane, capped at
+A sticky translucent top bar (app icon and wordmark, "Identify another
+device", "Add device", the theme switch). Below it, a device dock of 15–18rem and the device pane, capped at
 76rem: a hero of stage and identity side by side (stacked under 60rem), then a
 segmented tab control: Controls, What UDB knows, Interfaces & diagnostics.
 Hidden tab panels stay mounted, so a live session survives a tab switch. Under

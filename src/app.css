@@ -1,35 +1,44 @@
-/* UDB tokens (DESIGN.md). A launcher at night: deep ink-blue shell, the device
-   lit on a stage, one accent for selection and primary actions. Amber still
-   means "needs attention" and green means "the device confirmed it". */
+/* UDB tokens (DESIGN.md). Dee's colours: the grass green of the app icon is the
+   accent (selection, primary actions, focus, the stage light) and the mascot's
+   yellow is the warm highlight (Dee, the current device, onboarding). Status
+   colours sit apart from both: orange means "needs attention", teal means "the
+   device confirmed it". Dark is primary; the light theme gets equal care.
+   Theme: data-theme on <html> (src/main.ts); "system" leaves it unset. */
 :root {
   color-scheme: dark;
-  --bg: oklch(0.165 0.018 262);
-  --rail: oklch(0.145 0.018 262);
-  --surface: oklch(0.205 0.022 262);
-  --raised: oklch(0.245 0.024 262);
-  --line: oklch(0.31 0.022 262);
-  --line-strong: oklch(0.44 0.024 262);
-  --text: oklch(0.96 0.006 250);
-  --muted: oklch(0.78 0.018 255);
-  --faint: oklch(0.66 0.02 258);
-  --accent: oklch(0.74 0.14 232);
-  --accent-ink: oklch(0.17 0.04 240);
-  --accent-soft: oklch(0.74 0.14 232 / 0.16);
-  --signal: oklch(0.83 0.14 78);
-  --signal-ink: oklch(0.2 0.03 75);
-  --confirmed: oklch(0.82 0.12 162);
-  --danger: oklch(0.74 0.15 25);
+  --bg: oklch(0.17 0.014 155);
+  --rail: oklch(0.15 0.013 155);
+  --surface: oklch(0.21 0.017 155);
+  --raised: oklch(0.255 0.02 152);
+  --line: oklch(0.32 0.018 152);
+  --line-strong: oklch(0.45 0.02 150);
+  --text: oklch(0.965 0.01 110);
+  --muted: oklch(0.8 0.018 135);
+  --faint: oklch(0.68 0.02 145);
+  --accent: oklch(0.74 0.16 145);
+  --accent-ink: oklch(0.18 0.04 150);
+  --accent-soft: oklch(0.74 0.16 145 / 0.16);
+  --yellow: oklch(0.88 0.17 92);
+  --yellow-ink: oklch(0.22 0.045 85);
+  --yellow-soft: oklch(0.88 0.17 92 / 0.14);
+  --ink: oklch(0.13 0.01 150);
+  --signal: oklch(0.78 0.15 58);
+  --signal-ink: oklch(0.2 0.04 55);
+  --confirmed: oklch(0.82 0.1 192);
+  --danger: oklch(0.73 0.16 25);
   --primary-bg: var(--accent);
   --primary-fg: var(--accent-ink);
-  --selection: oklch(0.74 0.14 232 / 0.35);
-  --stage-light: oklch(0.6 0.13 236 / 0.34);
-  --stage-floor: oklch(0.1 0.02 262 / 0.9);
-  --chrome: oklch(0.165 0.018 262 / 0.72);
-  --art-line: oklch(0.62 0.04 250);
-  --art-fill: oklch(0.24 0.026 260);
+  --selection: oklch(0.74 0.16 145 / 0.32);
+  --stage-light: oklch(0.66 0.15 140 / 0.3);
+  --stage-floor: oklch(0.09 0.015 155 / 0.9);
+  --chrome: oklch(0.17 0.014 155 / 0.74);
+  --art-line: oklch(0.64 0.04 140);
+  --art-fill: oklch(0.25 0.022 152);
 
   --font-ui: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
   --font-display: 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  /* Dee's voice: headings, the wordmark, speech bubbles. Numbers stay on --font-display. */
+  --font-brand: 'Fredoka', var(--font-display);
   --font-data: ui-monospace, 'Cascadia Mono', Consolas, 'SF Mono', monospace;
 
   --step--1: 0.8125rem;
@@ -53,32 +62,77 @@
   --spring-time: 520ms;
 }
 
+/* Light: daylight on a desk, a pale leaf-and-cream shell. Written twice because
+   CSS can't share one block between a media query and an attribute selector. */
 @media (prefers-color-scheme: light) {
-  :root {
+  :root:not([data-theme='dark']) {
     color-scheme: light;
-    --bg: oklch(0.965 0.006 255);
-    --rail: oklch(0.935 0.01 255);
-    --surface: oklch(0.995 0.002 255);
-    --raised: oklch(0.93 0.012 255);
-    --line: oklch(0.87 0.012 255);
-    --line-strong: oklch(0.7 0.018 255);
-    --text: oklch(0.2 0.02 262);
-    --muted: oklch(0.42 0.022 262);
-    --faint: oklch(0.5 0.022 262);
-    --accent: oklch(0.52 0.16 245);
-    --accent-ink: oklch(0.99 0.005 250);
-    --accent-soft: oklch(0.52 0.16 245 / 0.12);
-    --signal: oklch(0.55 0.15 60);
+    --bg: oklch(0.975 0.014 105);
+    --rail: oklch(0.95 0.022 110);
+    --surface: oklch(0.996 0.005 105);
+    --raised: oklch(0.94 0.024 118);
+    --line: oklch(0.885 0.022 120);
+    --line-strong: oklch(0.7 0.03 135);
+    --text: oklch(0.22 0.03 150);
+    --muted: oklch(0.42 0.035 150);
+    --faint: oklch(0.5 0.035 148);
+    --accent: oklch(0.5 0.14 148);
+    --accent-ink: oklch(0.99 0.01 120);
+    --accent-soft: oklch(0.5 0.14 148 / 0.12);
+    --yellow: oklch(0.87 0.17 92);
+    --yellow-ink: oklch(0.24 0.05 85);
+    --yellow-soft: oklch(0.87 0.17 92 / 0.28);
+    --ink: oklch(0.18 0.02 150);
+    --signal: oklch(0.525 0.15 50);
     --signal-ink: oklch(0.99 0.01 85);
-    --confirmed: oklch(0.46 0.1 162);
+    --confirmed: oklch(0.48 0.09 200);
     --danger: oklch(0.52 0.18 27);
-    --selection: oklch(0.52 0.16 245 / 0.2);
-    --stage-light: oklch(0.82 0.08 236 / 0.55);
-    --stage-floor: oklch(0.3 0.03 262 / 0.35);
-    --chrome: oklch(0.965 0.006 255 / 0.74);
-    --art-line: oklch(0.55 0.03 255);
-    --art-fill: oklch(0.98 0.004 255);
+    --selection: oklch(0.5 0.14 148 / 0.2);
+    --stage-light: oklch(0.88 0.13 110 / 0.6);
+    --stage-floor: oklch(0.32 0.04 150 / 0.32);
+    --chrome: oklch(0.975 0.014 105 / 0.76);
+    --art-line: oklch(0.52 0.04 145);
+    --art-fill: oklch(0.985 0.012 105);
   }
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: oklch(0.975 0.014 105);
+  --rail: oklch(0.95 0.022 110);
+  --surface: oklch(0.996 0.005 105);
+  --raised: oklch(0.94 0.024 118);
+  --line: oklch(0.885 0.022 120);
+  --line-strong: oklch(0.7 0.03 135);
+  --text: oklch(0.22 0.03 150);
+  --muted: oklch(0.42 0.035 150);
+  --faint: oklch(0.5 0.035 148);
+  --accent: oklch(0.5 0.14 148);
+  --accent-ink: oklch(0.99 0.01 120);
+  --accent-soft: oklch(0.5 0.14 148 / 0.12);
+  --yellow: oklch(0.87 0.17 92);
+  --yellow-ink: oklch(0.24 0.05 85);
+  --yellow-soft: oklch(0.87 0.17 92 / 0.28);
+  --ink: oklch(0.18 0.02 150);
+  --signal: oklch(0.525 0.15 50);
+  --signal-ink: oklch(0.99 0.01 85);
+  --confirmed: oklch(0.48 0.09 200);
+  --danger: oklch(0.52 0.18 27);
+  --selection: oklch(0.5 0.14 148 / 0.2);
+  --stage-light: oklch(0.88 0.13 110 / 0.6);
+  --stage-floor: oklch(0.32 0.04 150 / 0.32);
+  --chrome: oklch(0.975 0.014 105 / 0.76);
+  --art-line: oklch(0.52 0.04 145);
+  --art-fill: oklch(0.985 0.012 105);
+}
+
+@font-face {
+  font-family: 'Fredoka';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/fredoka-latin-wght.woff2') format('woff2-variations');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @media (prefers-contrast: more) {

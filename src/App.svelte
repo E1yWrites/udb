@@ -3,6 +3,7 @@
   import Icon from './ui/Icon.svelte';
   import DevicePane from './ui/DevicePane.svelte';
   import DeviceArt from './ui/DeviceArt.svelte';
+  import ThemeSwitch from './ui/ThemeSwitch.svelte';
   import { devices, type UdbDevice } from './lib/devices.svelte.ts';
   import { CONNECTION_ICON } from './lib/labels.ts';
   import type { IconName } from './ui/Icon.svelte';
@@ -36,7 +37,7 @@
 <div class="shell">
   <header class="top">
     <p class="mark">
-      <svg class="glyph" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M7 12V6M12 12v6M17 12V6" /></svg>
+      <img class="glyph" src="./icons/icon-192.png" alt="" width="36" height="36" />
       <strong>UDB</strong><span>Universal Driver Bus</span>
     </p>
     {#if devices.hid && devices.list.length > 0}
@@ -45,6 +46,7 @@
         <button class="btn primary" onclick={() => add('supported')}><Icon name="plus" />Add device</button>
       </div>
     {/if}
+    <div class="theme"><ThemeSwitch compact /></div>
   </header>
 
   {#if devices.outcome.kind !== 'idle'}
@@ -178,17 +180,14 @@
   }
 
   .glyph {
-    width: 1.5rem;
-    height: 1.5rem;
-    fill: none;
-    stroke: var(--accent);
-    stroke-width: 2.25;
-    stroke-linecap: round;
+    width: 2.25rem;
+    height: 2.25rem;
   }
 
   .mark strong {
-    font: 750 var(--step-1) / 1 var(--font-display);
-    letter-spacing: 0.06em;
+    font: 650 var(--step-2) / 1 var(--font-brand);
+    letter-spacing: 0.02em;
+    color: var(--accent);
   }
 
   .mark span {
@@ -200,6 +199,11 @@
   .top-actions {
     display: flex;
     gap: var(--space-2);
+    margin-left: auto;
+  }
+
+  .theme {
+    display: flex;
   }
 
   .outcome {
@@ -275,8 +279,8 @@
   }
 
   .empty h1 {
-    font: 700 var(--step-4) / 1.05 var(--font-display);
-    letter-spacing: -0.03em;
+    font: 600 var(--step-4) / 1.05 var(--font-brand);
+    letter-spacing: -0.01em;
     text-wrap: balance;
     max-width: 18ch;
   }
@@ -356,8 +360,8 @@
   }
 
   .device.current {
-    background: var(--surface);
-    border-color: color-mix(in oklch, var(--accent) 55%, transparent);
+    background: color-mix(in srgb, var(--yellow) 9%, var(--surface));
+    border-color: color-mix(in srgb, var(--yellow) 70%, transparent);
     box-shadow: 0 6px 18px -10px oklch(0 0 0 / 0.6);
   }
 
@@ -427,6 +431,18 @@
 
     .top-actions .quiet {
       padding: 0 var(--space-2);
+    }
+
+    /* Wordmark and theme on the first row, the device actions under them. */
+    .theme {
+      order: 1;
+      margin-left: auto;
+    }
+
+    .top-actions {
+      order: 2;
+      flex-basis: 100%;
+      justify-content: space-between;
     }
 
     .workspace {

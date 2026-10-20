@@ -78,9 +78,16 @@
     color: var(--accent-ink);
   }
 
+  /* Writes are off (the gate above), but the device's value must stay readable:
+     no fading; the selected segment turns to an ink-on-tint marker. */
   label.off {
     cursor: not-allowed;
-    opacity: 0.55;
+  }
+
+  label.on.off {
+    background: var(--accent-soft);
+    color: var(--text);
+    box-shadow: inset 0 0 0 1.5px var(--keyline);
   }
 
   label:has(input:focus-visible) {

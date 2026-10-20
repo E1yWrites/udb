@@ -13,7 +13,6 @@
   <article class="sheet">
     {#if kind === 'terms'}
       <header>
-        <span class="page-chip">Back page</span>
         <h1 id="info-title" tabindex="-1">Terms of use</h1>
         <p class="lede">Short version: UDB is free software, it runs only in your browser, and you use it at your own risk.</p>
       </header>
@@ -64,7 +63,6 @@
       <p class="stamp">Last updated 20 October 2026</p>
     {:else if kind === 'contact'}
       <header>
-        <span class="page-chip">Back page</span>
         <h1 id="info-title" tabindex="-1">Contact</h1>
         <p class="lede">UDB is run in the open on GitHub. Every question, bug and device request goes there, so the answer helps the next person too.</p>
       </header>
@@ -98,8 +96,7 @@
       <div class="missing">
         <Dee tone="worried" size={160} />
         <div>
-          <span class="page-chip">p. 404</span>
-          <h1 id="info-title" tabindex="-1">This page isn't in the booklet</h1>
+          <h1 id="info-title" tabindex="-1"><span class="page-chip">p. 404</span> This page isn't in the booklet</h1>
           <p class="lede">The link may be old or mistyped. Nothing was sent to any device.</p>
           <div class="links">
             <a class="btn primary" href="#/app">Open UDB</a>

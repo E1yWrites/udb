@@ -52,8 +52,7 @@
     </div>
 
     <div class="intro">
-      <span class="page-chip">p. 1</span>
-      <h1 id="home-title" tabindex="-1">Start here</h1>
+      <h1 id="home-title" tabindex="-1"><span class="page-chip">p. 1</span> Start here</h1>
 
       <Guide {tone} tip={false} avatar={false}>
         {#if !devices.hid}

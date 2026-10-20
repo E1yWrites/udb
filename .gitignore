@@ -9,3 +9,4 @@ graphify-out/
 
 # Design decision comps (impeccable): local working files, never committed.
 .impeccable/mocks/
+.impeccable/review/

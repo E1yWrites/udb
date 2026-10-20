@@ -36,7 +36,16 @@
   <section class="cover">
     <p class="band"><span>Instruction booklet</span><span class="req">For mice, keyboards &amp; headsets · Chrome or Edge on a computer</span></p>
     <div class="front">
-      <h1 id="cover-title" tabindex="-1"><span class="title">UDB</span><span class="sub">Universal Driver Bus</span></h1>
+      <h1 id="cover-title" tabindex="-1"><svg class="title" viewBox="-14 -14 310 140" role="img" aria-label="UDB">
+        <defs>
+          <path id="udb-wm" d="M12 12V58A30 30 0 0 0 72 58V12M112 12V88H138A38 38 0 0 0 138 12ZM216 12V88M216 12H244A19 19 0 0 1 244 50H216M216 50H248A19 19 0 0 1 248 88H216" />
+        </defs>
+        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <use href="#udb-wm" class="wm-drop" stroke-width="40" transform="translate(0 10)" />
+          <use href="#udb-wm" class="wm-edge" stroke-width="40" />
+          <use href="#udb-wm" class="wm-fill" stroke-width="24" />
+        </g>
+      </svg><span class="sub">Universal Driver Bus</span></h1>
       <p class="promise">
         One bus. Every device. Change DPI, polling rate, lighting and keys in your browser, and believe only what the device
         sends back.
@@ -74,7 +83,7 @@
   </section>
 
   <section class="spread" id="how" aria-label="How it works">
-    <article class="page">
+    <article class="page" data-folio="2">
       <h2><span class="page-chip">p. 2</span> Controls</h2>
       <dl class="rows">
         <div><dt>Read</dt><dd>UDB asks the device for its settings. Nothing changes on it.</dd></div>
@@ -83,7 +92,7 @@
         <div><dt>Profiles</dt><dd>Save a mouse or keyboard setup in this browser and apply it to any compatible device.</dd></div>
       </dl>
     </article>
-    <article class="page">
+    <article class="page" data-folio="3">
       <h2><span class="page-chip">p. 3</span> Warnings</h2>
       <dl class="rows">
         <div><dt>No firmware</dt><dd>UDB never sends firmware, bootloader, pairing or factory-reset commands.</dd></div>
@@ -95,7 +104,7 @@
   </section>
 
   <section class="spread compat" id="compatible" aria-label="Compatible devices">
-    <article class="page">
+    <article class="page" data-folio="4">
       <h2><span class="page-chip">p. 4</span> Compatible devices</h2>
       <p class="counts">
         <span><b class="num">{byCategory('mouse')}</b> mice</span>
@@ -109,7 +118,7 @@
       </ul>
       <a class="btn" href="#/supported"><Icon name="search" />Search all {registry.length} models</a>
     </article>
-    <article class="page">
+    <article class="page" data-folio="5">
       <h2><span class="page-chip">p. 5</span> On the shelf</h2>
       <ul class="shelf">
         {#each shelf as { e, word } (e.id)}
@@ -125,7 +134,7 @@
   </section>
 
   <section class="spread" aria-label="Before you start">
-    <article class="page">
+    <article class="page" data-folio="6">
       <h2><span class="page-chip">p. 6</span> Before you start</h2>
       <dl class="rows">
         <div><dt>Browser</dt><dd>Chrome or Edge on Windows, macOS or Linux. Phones and Firefox don't have WebHID.</dd></div>
@@ -133,7 +142,7 @@
         <div><dt>Offline</dt><dd>Once loaded, UDB installs as an app and works without a connection.</dd></div>
       </dl>
     </article>
-    <article class="page last">
+    <article class="page last" data-folio="7">
       <h2><span class="page-chip">p. 7</span> Free and open</h2>
       <p>
         UDB is free software. Read the code, check the protocol notes behind every setting, or help verify a device you own.
@@ -214,13 +223,22 @@
     outline: none;
   }
 
+  /* The cover wordmark, drawn as rounded strokes in Dee's lettering: the B keeps
+     two open counters, which Fredoka's heavy B doesn't. */
   .title {
-    font: 700 clamp(6rem, 3rem + 10vw, 12rem) / 0.8 var(--font-brand);
-    letter-spacing: -0.04em;
-    color: var(--yellow);
-    -webkit-text-stroke: 0.035em var(--band);
-    paint-order: stroke fill;
-    filter: drop-shadow(0 0.05em 0 var(--band));
+    display: block;
+    width: auto;
+    height: clamp(5.5rem, 2.5rem + 9vw, 11rem);
+    overflow: visible;
+  }
+
+  .wm-drop,
+  .wm-edge {
+    stroke: var(--band);
+  }
+
+  .wm-fill {
+    stroke: var(--yellow);
   }
 
   .sub {
@@ -404,11 +422,22 @@
   }
 
   .page {
-    display: grid;
-    align-content: start;
+    display: flex;
+    flex-direction: column;
     gap: var(--space-4);
     padding: var(--space-8) clamp(var(--space-4), 3vw, var(--space-8));
     min-width: 0;
+  }
+
+  /* The folio at the foot of each printed page. */
+  .page::after {
+    content: '— ' attr(data-folio) ' —';
+    margin-top: auto;
+    padding-top: var(--space-4);
+    align-self: center;
+    font: 600 var(--step--1) / 1 var(--font-brand);
+    color: var(--page-faint);
+    letter-spacing: 0.06em;
   }
 
   .page + .page {
@@ -481,7 +510,7 @@
   }
 
   .spread .btn {
-    justify-self: start;
+    align-self: flex-start;
     border-color: var(--page-ink);
     color: var(--page-ink);
     text-decoration: none;
@@ -565,6 +594,12 @@
 
     .art {
       min-height: 26rem;
+    }
+
+    .seal {
+      left: auto;
+      right: var(--space-4);
+      top: var(--space-4);
     }
 
     .rating {

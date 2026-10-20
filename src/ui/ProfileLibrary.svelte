@@ -19,7 +19,7 @@
   } from '../lib/profiles.ts';
   import { migrateV1 } from '../lib/profile-map.ts';
 
-  let { back = '#/app' }: { back?: string } = $props();
+  let { back = '/#/app' }: { back?: string } = $props();
 
   const store = browserStore();
   let all = $state<Profile[]>(store ? loadProfiles(store, migrateV1) : []);
@@ -74,7 +74,7 @@
 
 <main class="library" aria-labelledby="profiles-title">
   <header class="head">
-    <a class="btn quiet back" href={back}><Icon name="back" />{back === '#/' ? 'Back to the cover' : 'Home'}</a>
+    <a class="btn quiet back" href={back}><Icon name="back" />{back === '/#/' ? 'Back to the cover' : 'Home'}</a>
     <h1 id="profiles-title" tabindex="-1">Profiles</h1>
     <Guide size={52}>
       <p>

@@ -14,39 +14,55 @@
   import { devices } from './lib/devices.svelte.ts';
   import { deviceState } from './lib/labels.ts';
 
-  // Views live in the URL hash so Back works. The public pages: #/ (the landing),
-  // #/terms, #/contact; the app: #/app (Home), #/device/<key>, #/supported, #/profiles.
+  // `url` is set when rendering on the server (src/prerender.ts); the browser reads location.
+  let { url }: { url?: string } = $props();
+
+  // The public pages are real paths, prerendered for search engines: / (the landing),
+  // /terms/ and /contact/. The app lives behind hashes on / so Back works:
+  // #/app (Home), #/device/<key>, #/supported, #/profiles.
   type View =
     | { name: 'landing' | 'home' | 'supported' | 'profiles' | 'terms' | 'contact' | 'missing' }
     | { name: 'device'; key: string };
-  const PAGES: Record<string, View['name']> = { '#/app': 'home', '#/supported': 'supported', '#/profiles': 'profiles', '#/terms': 'terms', '#/contact': 'contact' };
+  type Page = Exclude<View['name'], 'device'>;
+  const PATHS: Record<string, Page> = { '/terms/': 'terms', '/contact/': 'contact' };
+  const PAGES: Record<string, Page> = { '#/app': 'home', '#/supported': 'supported', '#/profiles': 'profiles', '#/terms': 'terms', '#/contact': 'contact' };
+  /** The public pages' old hash routes, replaced by their paths. */
+  const MOVED: Record<string, string> = { '#/terms': '/terms/', '#/contact': '/contact/' };
 
-  function parse(hash: string): View {
+  function parse(path: string, hash: string): View {
+    const p = path.replace(/index\.html$/, '').replace(/([^/])$/, '$1/');
+    if (p !== '/') return { name: PATHS[p] ?? 'missing' };
     if (hash.startsWith('#/device/')) return { name: 'device', key: decodeURIComponent(hash.slice(9)) };
     if (hash === '' || hash === '#' || hash === '#/') return { name: 'landing' };
     // In-page anchors on the landing (#how, #compatible) aren't routes.
     if (!hash.startsWith('#/')) return { name: 'landing' };
-    return { name: (PAGES[hash] ?? 'missing') as Exclude<View['name'], 'device'> };
+    return { name: PAGES[hash] ?? 'missing' };
   }
 
-  // A reload on a device lands on Home; someone who has used the app skips the landing.
-  if (parse(location.hash).name === 'device' || (location.hash === '' && prefs.appSeen)) history.replaceState(null, '', '#/app');
-  let view = $state<View>(parse(location.hash));
+  const here = () => parse(url ?? location.pathname, url ? '' : location.hash);
+  // svelte-ignore state_referenced_locally
+  if (!url) {
+    if (location.pathname === '/' && MOVED[location.hash]) location.replace(MOVED[location.hash]!);
+    // A reload on a device lands on Home; someone who has used the app skips the landing.
+    else if (here().name === 'device' || (location.pathname === '/' && location.hash === '' && prefs.appSeen)) history.replaceState(null, '', '#/app');
+  }
+  let view = $state<View>(here());
   const selected = $derived(view.name === 'device' ? devices.list.find((d) => d.key === (view as { key: string }).key) : undefined);
   /** Set when a device was opened from Home in this page, so closing can go Back instead of adding a history entry. */
   let pushed = false;
   /** Where the Supported and Profiles pages go back to: the cover when opened from it, else the app's Home. */
-  let backTo = $state(parse(location.hash).name === 'landing' ? '#/' : '#/app');
+  let backTo = $state(here().name === 'landing' ? '/#/' : '/#/app');
 
   onMount(() => {
     // Dev-only design preview with fake devices; tree-shaken from production builds.
     if (import.meta.env.DEV && location.search.includes('preview')) void import('./dev/preview.ts').then((m) => m.load(location.search));
     else void devices.start();
     const onHash = async () => {
+      if (location.pathname === '/' && MOVED[location.hash]) return location.replace(MOVED[location.hash]!);
       const before = view;
-      view = parse(location.hash);
+      view = here();
       if (view.name === 'supported' || view.name === 'profiles') {
-        if (before.name !== 'supported' && before.name !== 'profiles') backTo = before.name === 'landing' ? '#/' : '#/app';
+        if (before.name !== 'supported' && before.name !== 'profiles') backTo = before.name === 'landing' ? '/#/' : '/#/app';
       }
       // A request's notice belongs to the page it was made on.
       if (before.name !== view.name) devices.outcome = { kind: 'idle' };
@@ -116,16 +132,16 @@
 
 <div class="shell">
   <header class="top">
-    <a class="mark" href="#/" aria-label="UDB, Universal Driver Bus: the cover">
+    <a class="mark" href="/#/" aria-label="UDB, Universal Driver Bus: the cover">
       <img class="glyph" src="/icons/icon-192.png" alt="" width="36" height="36" />
       <strong>UDB</strong><span>Universal Driver Bus</span>
     </a>
     {#if !inApp}
       <nav class="site" aria-label="Site">
-        <a href="#how">How it works</a>
-        <a href="#/supported">Compatible devices</a>
+        <a href="/#how">How it works</a>
+        <a href="/#/supported">Compatible devices</a>
         <a href="https://github.com/E1yWrites/udb" target="_blank" rel="noreferrer">GitHub</a>
-        <a class="btn primary" href="#/app">Open UDB</a>
+        <a class="btn primary" href="/#/app">Open UDB</a>
       </nav>
     {/if}
     {#if view.name === 'device'}
@@ -216,8 +232,8 @@
     </div>
     <nav aria-label="Footer">
       <a href="https://github.com/E1yWrites/udb" target="_blank" rel="noreferrer">GitHub</a>
-      <a href="#/terms">Terms</a>
-      <a href="#/contact">Contact</a>
+      <a href="/terms/">Terms</a>
+      <a href="/contact/">Contact</a>
       <a href="https://github.com/E1yWrites/udb/blob/main/SUPPORT.md" target="_blank" rel="noreferrer">Support matrix</a>
       <a href="https://github.com/E1yWrites/udb/tree/{__COMMIT__}" target="_blank" rel="noreferrer">Source of this build (AGPL-3.0)</a>
     </nav>
@@ -559,7 +575,7 @@
     }
 
     /* The in-page anchor is the one link a phone can drop; the device list and START stay. */
-    .site a[href='#how'] {
+    .site a[href='/#how'] {
       display: none;
     }
 

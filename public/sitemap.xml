@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The public pages (src/prerender.ts PAGES); tests/prerender.test.ts keeps the two in step. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://udb.lorenzmalabanan.com/</loc></url>
+  <url><loc>https://udb.lorenzmalabanan.com/terms/</loc></url>
+  <url><loc>https://udb.lorenzmalabanan.com/contact/</loc></url>
+</urlset>

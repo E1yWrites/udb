@@ -149,7 +149,7 @@
       </p>
       <div class="links">
         <a class="btn" href="https://github.com/E1yWrites/udb" target="_blank" rel="noreferrer"><Icon name="external" />GitHub</a>
-        <a class="btn quiet" href="#/contact">Contact</a>
+        <a class="btn quiet" href="/contact/">Contact</a>
         <a class="btn primary" href="#/app">Open UDB</a>
       </div>
     </article>

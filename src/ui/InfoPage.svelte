@@ -99,9 +99,9 @@
           <h1 id="info-title" tabindex="-1"><span class="page-chip">p. 404</span> This page isn't in the booklet</h1>
           <p class="lede">The link may be old or mistyped. Nothing was sent to any device.</p>
           <div class="links">
-            <a class="btn primary" href="#/app">Open UDB</a>
-            <a class="btn" href="#/">Back to the cover</a>
-            <a class="btn quiet" href="#/supported">Compatible devices</a>
+            <a class="btn primary" href="/#/app">Open UDB</a>
+            <a class="btn" href="/#/">Back to the cover</a>
+            <a class="btn quiet" href="/#/supported">Compatible devices</a>
           </div>
         </div>
       </div>

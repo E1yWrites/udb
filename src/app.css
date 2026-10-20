@@ -575,3 +575,8 @@ button {
     }
   }
 }
+
+/* Headings take focus when a view changes (App.svelte); only keyboard users see it. */
+h1[tabindex='-1']:focus:not(:focus-visible) {
+  outline: none;
+}

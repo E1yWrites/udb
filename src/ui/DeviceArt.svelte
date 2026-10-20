@@ -53,6 +53,7 @@
     {alt}
     width={image.width}
     height={image.height}
+    loading="lazy"
     decoding="async"
     draggable="false"
     onerror={() => (failed = true)}

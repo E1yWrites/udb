@@ -369,3 +369,13 @@ Keyboard) you can edit. Four stacked branches.
   `src/ui/ThemeSwitch.svelte`)
 - [x] Dee, logo and app icons from the owner's art; Fredoka self-hosted (ADR 11)
 
+
+### Home and Dee: branch `phase-8-home` (stacked on brand)
+- [x] Home is where UDB lands (`src/ui/Home.svelte`); a device opens from its
+  card and closes with Close, Esc or Back, with focus returned to its card
+- [x] Onboarding in Dee's bubble: three steps that tick off as you do them
+  (browser, add a device, the first value a device returns); skip and replay
+- [x] Dee on recovery notices and tips beside Controls and diagnostics; a Guide
+  switch for the tips (`src/ui/Dee.svelte`, `src/ui/Guide.svelte`)
+- [x] Supported devices: every registry entry, searchable by name, brand,
+  protocol or USB ID, with per-feature status (`src/ui/SupportedList.svelte`)

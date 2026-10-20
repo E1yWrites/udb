@@ -1,46 +1,86 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import Icon from './ui/Icon.svelte';
   import DevicePane from './ui/DevicePane.svelte';
   import DeviceArt from './ui/DeviceArt.svelte';
   import ThemeSwitch from './ui/ThemeSwitch.svelte';
-  import { devices, type UdbDevice } from './lib/devices.svelte.ts';
-  import { CONNECTION_ICON } from './lib/labels.ts';
-  import type { IconName } from './ui/Icon.svelte';
+  import Home from './ui/Home.svelte';
+  import Guide from './ui/Guide.svelte';
+  import SupportedList from './ui/SupportedList.svelte';
+  import { devices } from './lib/devices.svelte.ts';
+  import { deviceState } from './lib/labels.ts';
 
-  let selectedKey = $state<string | null>(null);
-  const selected = $derived(devices.list.find((d) => d.key === selectedKey) ?? devices.list[0]);
+  // Views live in the URL hash so Back works: #/ (Home), #/device/<key>, #/supported.
+  type View = { name: 'home' } | { name: 'device'; key: string } | { name: 'supported' };
+
+  function parse(hash: string): View {
+    if (hash.startsWith('#/device/')) return { name: 'device', key: decodeURIComponent(hash.slice(9)) };
+    if (hash === '#/supported') return { name: 'supported' };
+    return { name: 'home' };
+  }
+
+  // UDB always lands on Home, even when reloaded on a device.
+  if (parse(location.hash).name === 'device') history.replaceState(null, '', '#/');
+  let view = $state<View>(parse(location.hash));
+  const selected = $derived(view.name === 'device' ? devices.list.find((d) => d.key === (view as { key: string }).key) : undefined);
+  /** Set when a device was opened from Home in this page, so closing can go Back instead of adding a history entry. */
+  let pushed = false;
 
   onMount(() => {
     // Dev-only design preview with fake devices; tree-shaken from production builds.
     if (import.meta.env.DEV && location.search.includes('preview')) void import('./dev/preview.ts').then((m) => m.load(location.search));
     else void devices.start();
+    const onHash = async () => {
+      const before = view;
+      view = parse(location.hash);
+      if (view.name !== 'device') pushed = false;
+      await tick();
+      // Focus follows the view: the device's heading when it opens, its card when it closes.
+      if (view.name === 'device') document.getElementById('device-title')?.focus();
+      else if (view.name === 'home' && before.name === 'device') document.querySelector<HTMLElement>(`.home [data-key="${CSS.escape(before.key)}"]`)?.focus();
+      else document.querySelector<HTMLElement>('main h1')?.focus();
+      if (before.name !== view.name) scrollTo({ top: 0 });
+    };
+    addEventListener('hashchange', onHash);
+    return () => removeEventListener('hashchange', onHash);
   });
+
+  const deviceHash = (key: string) => `#/device/${encodeURIComponent(key)}`;
+
+  function open(key: string) {
+    if (view.name === 'device') return location.replace(deviceHash(key));
+    pushed = true;
+    location.hash = deviceHash(key);
+  }
+
+  function close() {
+    if (pushed) history.back();
+    else location.hash = '#/';
+  }
 
   async function add(mode: 'supported' | 'any') {
     const before = devices.list.length;
     await devices.request(mode);
-    if (devices.list.length > before) selectedKey = devices.list[devices.list.length - 1]!.key;
+    if (devices.list.length > before) open(devices.list[devices.list.length - 1]!.key);
   }
 
-  function railState(d: UdbDevice): { word: string; icon: IconName; tone: string } {
-    if (d.presence === 'disconnected') return { word: 'Disconnected', icon: 'unplug', tone: 'muted' };
-    if (d.presence === 'busy') return { word: 'In use by another app', icon: 'busy', tone: 'signal' };
-    if (!d.match) return { word: 'Unsupported', icon: 'blocked', tone: 'muted' };
-    const icon = CONNECTION_ICON[d.match.identity.connection];
-    if (d.match.identity.byCollection) return { word: 'Protocol not checked', icon, tone: 'signal' };
-    if (!d.match.modelConfirmed) return { word: 'Model not confirmed', icon, tone: 'signal' };
-    return { word: 'Detected', icon, tone: 'confirmed' };
+  function onkey(e: KeyboardEvent) {
+    if (e.key !== 'Escape' || view.name !== 'device' || e.defaultPrevented) return;
+    const t = e.target as HTMLElement | null;
+    if (t?.closest('input, select, textarea, [contenteditable], dialog')) return;
+    close();
   }
 </script>
 
+<svelte:window onkeydown={onkey} />
+
 <div class="shell">
   <header class="top">
-    <p class="mark">
+    <a class="mark" href="#/" aria-label="UDB, Universal Driver Bus: Home">
       <img class="glyph" src="./icons/icon-192.png" alt="" width="36" height="36" />
       <strong>UDB</strong><span>Universal Driver Bus</span>
-    </p>
-    {#if devices.hid && devices.list.length > 0}
+    </a>
+    {#if view.name === 'device' && devices.hid}
       <div class="top-actions">
         <button class="btn quiet" onclick={() => add('any')}>Identify another device</button>
         <button class="btn primary" onclick={() => add('supported')}><Icon name="plus" />Add device</button>
@@ -51,66 +91,34 @@
 
   {#if devices.outcome.kind !== 'idle'}
     <div class="outcome" role="status">
-      <Icon name="alert" size={18} />
-      {#if devices.outcome.kind === 'cancelled'}
-        <p>
-          No device was selected. UDB only sees devices you pick in the browser's list. Check the device is plugged in
-          and awake, then try again.
-        </p>
-      {:else}
-        <p>The browser refused the request: {devices.outcome.message}</p>
-      {/if}
+      <Guide tone="worried" tip={false} size={44}>
+        {#if devices.outcome.kind === 'cancelled'}
+          <p>
+            No device was picked. UDB only sees devices you choose in the browser's list. Check the device is plugged in
+            and awake, then try again.
+          </p>
+        {:else}
+          <p>The browser refused the request: {devices.outcome.message}</p>
+        {/if}
+      </Guide>
     </div>
   {/if}
 
-  {#if !devices.hid || devices.list.length === 0}
-    <main class="empty">
-      <div class="empty-stage" aria-hidden="true">
-        <span class="piece keyboard"><DeviceArt kind="keyboard" alt="" /></span>
-        <span class="piece mouse"><DeviceArt kind="mouse" alt="" /></span>
-        <span class="piece headset"><DeviceArt kind="headset" alt="" /></span>
-      </div>
-      {#if !devices.hid}
-        <h1>UDB can't reach devices from this browser</h1>
-        {#if !devices.secure}
-          <p>
-            WebHID only works on secure pages. Open UDB over <span class="data">https://</span> or from
-            <span class="data">localhost</span>.
-          </p>
-        {:else}
-          <p>
-            UDB uses WebHID, which only Chromium browsers on desktop provide. Open this page in Chrome or Edge on Windows,
-            macOS or Linux.
-          </p>
-        {/if}
-      {:else}
-        <h1>Add your first device</h1>
-        <p>
-          Your browser shows a list of matching mice, keyboards and headsets. Pick one to give UDB access to it. Granting
-          access changes nothing on the device, and UDB remembers it for next time.
-        </p>
-        <div class="empty-actions">
-          <button class="btn primary big" onclick={() => add('supported')}><Icon name="plus" />Add device</button>
-          <button class="btn quiet" onclick={() => add('any')}>My device isn't listed</button>
-        </div>
-        <p class="hint">
-          A vendor app that's running can hide or hold a device. If yours is missing, close it and try again.
-        </p>
-      {/if}
-    </main>
-  {:else}
+  {#if view.name === 'supported'}
+    <SupportedList />
+  {:else if view.name === 'device' && selected}
     <div class="workspace">
       <nav class="dock" aria-label="Devices">
         <ul>
           {#each devices.list as d (d.key)}
-            {@const s = railState(d)}
+            {@const s = deviceState(d)}
             <li>
               <button
                 class="device"
-                class:current={d.key === selected?.key}
+                class:current={d.key === selected.key}
                 class:away={d.presence === 'disconnected'}
-                aria-current={d.key === selected?.key ? 'true' : undefined}
-                onclick={() => (selectedKey = d.key)}
+                aria-current={d.key === selected.key ? 'true' : undefined}
+                onclick={() => open(d.key)}
               >
                 <span class="thumb"><DeviceArt entryId={d.match?.entry.id} kind={d.match?.entry.category} alt="" /></span>
                 <span class="device-text">
@@ -123,11 +131,14 @@
         </ul>
       </nav>
       <main class="detail">
-        {#if selected}
-          {#key selected.key}<DevicePane device={selected} />{/key}
-        {/if}
+        <button class="btn quiet close" onclick={close} title="Close (Esc)" aria-label="Close {devices.label(selected)} and go to Home">
+          <Icon name="close" />Close
+        </button>
+        {#key selected.key}<DevicePane device={selected} />{/key}
       </main>
     </div>
+  {:else}
+    <Home onopen={open} onadd={add} />
   {/if}
 
   <footer class="foot">
@@ -177,6 +188,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    text-decoration: none;
+    border-radius: var(--radius);
   }
 
   .glyph {
@@ -211,103 +224,10 @@
     gap: var(--space-3);
     align-items: flex-start;
     padding: var(--space-3) clamp(var(--space-4), 3vw, var(--space-8));
-    background: color-mix(in srgb, var(--signal) 10%, var(--bg));
-    border-bottom: 1px solid color-mix(in oklch, var(--signal) 30%, transparent);
+    border-bottom: 1px solid var(--line);
   }
 
-  .outcome :global(svg) {
-    color: var(--signal);
-    margin-top: 0.15em;
-  }
 
-  .outcome p {
-    max-width: 75ch;
-  }
-
-  /* Empty state: the stage waits for a device. */
-  .empty {
-    flex: 1;
-    display: grid;
-    justify-items: center;
-    align-content: center;
-    gap: var(--space-4);
-    padding: var(--space-8) var(--space-4) var(--space-12);
-    text-align: center;
-    background: radial-gradient(60rem 28rem at 50% 30%, var(--stage-light), transparent 70%);
-  }
-
-  .empty-stage {
-    position: relative;
-    width: min(34rem, 100%);
-    aspect-ratio: 2 / 1;
-    margin-bottom: var(--space-4);
-  }
-
-  .piece {
-    position: absolute;
-    animation: rise 900ms var(--ease-out) both;
-  }
-
-  .piece.keyboard {
-    left: 4%;
-    top: 22%;
-    width: 58%;
-    aspect-ratio: 1;
-  }
-
-  .piece.mouse {
-    left: 60%;
-    top: 34%;
-    width: 22%;
-    aspect-ratio: 1;
-    animation-delay: 90ms;
-  }
-
-  .piece.headset {
-    left: 74%;
-    top: -2%;
-    width: 26%;
-    aspect-ratio: 1;
-    animation-delay: 180ms;
-  }
-
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(14px);
-    }
-  }
-
-  .empty h1 {
-    font: 600 var(--step-4) / 1.05 var(--font-brand);
-    letter-spacing: -0.01em;
-    text-wrap: balance;
-    max-width: 18ch;
-  }
-
-  .empty p {
-    color: var(--muted);
-    max-width: 58ch;
-  }
-
-  .empty-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-2);
-    margin-top: var(--space-2);
-  }
-
-  .btn.big {
-    min-height: 3rem;
-    padding: 0 var(--space-6);
-    font-size: var(--step-1);
-  }
-
-  .hint {
-    font-size: var(--step--1);
-    margin-top: var(--space-4);
-  }
 
   .workspace {
     flex: 1;
@@ -410,8 +330,17 @@
   }
 
   .detail {
+    position: relative;
     min-width: 0;
   }
+
+  .close {
+    position: absolute;
+    top: var(--space-4);
+    right: clamp(var(--space-4), 4vw, var(--space-12));
+    z-index: 1;
+  }
+
 
   .foot {
     display: flex;

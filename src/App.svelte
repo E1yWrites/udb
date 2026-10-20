@@ -128,10 +128,17 @@
         <a class="btn primary" href="#/app">Open UDB</a>
       </nav>
     {/if}
-    {#if view.name === 'device' && devices.hid}
+    {#if view.name === 'device'}
       <div class="top-actions">
-        <button class="btn quiet" onclick={() => add('any')}>Identify another device</button>
-        <button class="btn primary" onclick={() => add('supported')}><Icon name="plus" />Add device</button>
+        {#if devices.hid}
+          <button class="btn quiet" onclick={() => add('any')}>Identify another device</button>
+          <button class="btn primary" onclick={() => add('supported')}><Icon name="plus" />Add device</button>
+        {/if}
+        {#if selected}
+          <button class="btn close" onclick={close} title="Close (Esc)" aria-label="Close {devices.label(selected)} and go to Home">
+            <Icon name="close" /><span class="close-word">Close</span>
+          </button>
+        {/if}
       </div>
     {/if}
     <div class="theme"><ThemeSwitch compact /></div>
@@ -165,9 +172,6 @@
     {@const i = devices.list.indexOf(selected)}
     <div class="workspace">
       <main class="detail">
-        <button class="btn quiet close" onclick={close} title="Close (Esc)" aria-label="Close {devices.label(selected)} and go to Home">
-          <Icon name="close" />Close
-        </button>
         {#key selected.key}
           <DevicePane
             device={selected}
@@ -178,7 +182,7 @@
           />
         {/key}
       </main>
-      <!-- The device dock: every granted device as a pill; the open one is yellow. -->
+      <!-- The device dock: the band again, every granted device as a pill; the open one is yellow. -->
       <nav class="dock" aria-label="Devices">
         <ul>
           {#each devices.list as d (d.key)}
@@ -367,21 +371,29 @@
     grid-template-rows: 1fr auto;
   }
 
-  /* The dock sits on the bottom edge, a row of pills; the open device is yellow. */
+  /* The dock sits on the bottom edge: the band, a row of pills; the open device is yellow. */
   .dock {
     position: sticky;
     bottom: 0;
     z-index: 5;
     min-width: 0;
-    background: color-mix(in srgb, var(--rail) 88%, transparent);
+    color-scheme: dark;
+    --text: var(--paper);
+    --muted: var(--band-muted);
+    --surface: #1c3a22;
+    --signal: #ffa04d;
+    --confirmed: #7fd6d0;
+    --art-line: #7fa785;
+    --art-fill: #1c3a22;
+    background: rgb(13 26 16 / 0.94);
     backdrop-filter: blur(16px);
-    border-top: 1px solid var(--line);
+    border-top: 3px solid var(--cover);
     padding: var(--space-2) clamp(var(--space-4), 3vw, var(--space-8));
   }
 
   @media (prefers-reduced-transparency: reduce) {
     .dock {
-      background: var(--rail);
+      background: var(--band);
       backdrop-filter: none;
     }
   }
@@ -434,9 +446,18 @@
   }
 
   .device.current {
-    color: var(--text);
-    background: color-mix(in srgb, var(--yellow) 9%, var(--surface));
-    border-color: color-mix(in srgb, var(--yellow) 75%, transparent);
+    color: var(--yellow-ink);
+    background: var(--yellow);
+    border-color: var(--ink);
+  }
+
+  .device.current .device-state {
+    color: inherit;
+  }
+
+  /* AA on the yellow pill. */
+  .device.current .signal {
+    color: #8a3d00;
   }
 
   .thumb {
@@ -477,12 +498,6 @@
     min-width: 0;
   }
 
-  .close {
-    position: absolute;
-    top: var(--space-4);
-    right: clamp(var(--space-4), 4vw, var(--space-12));
-    z-index: 1;
-  }
 
 
   /* The back cover: the band again, with every way out. */
@@ -532,7 +547,7 @@
     }
 
     .top-actions .quiet {
-      padding: 0 var(--space-2);
+      padding: 0 var(--space-1);
     }
 
     .site {
@@ -562,6 +577,15 @@
       order: 2;
       flex-basis: 100%;
       justify-content: space-between;
+    }
+
+    /* The × and its accessible name are enough on a phone. */
+    .close-word {
+      display: none;
+    }
+
+    .top-actions .close {
+      padding: 0 var(--space-3);
     }
 
   }

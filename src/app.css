@@ -82,7 +82,8 @@
 }
 
 /* Light: daylight on a desk, a pale leaf-and-cream shell. Written twice because
-   CSS can't share one block between a media query and an attribute selector. */
+   CSS can't share one block between a media query and an attribute selector.
+   `.paper` is a printed page: light tokens whatever the theme (the device view's Controls page). */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) {
     color-scheme: light;
@@ -116,7 +117,8 @@
   }
 }
 
-:root[data-theme='light'] {
+:root[data-theme='light'],
+.paper {
   color-scheme: light;
   --bg: #f6f2df;
   --rail: #ece6cb;
@@ -432,45 +434,36 @@ button {
   accent-color: var(--signal);
 }
 
-/* Setting tiles (SettingLine.svelte): closed tiles show what the device returned;
-   the one you're editing lifts and opens to its control. Only the chrome of a
-   closed tile dims; its value keeps full contrast. */
+/* Setting rows (SettingLine.svelte): a closed row is a dotted rule reading
+   name · the device's value · the last outcome; the one you're editing gets a
+   yellow wash and its control inline. Rows bleed to the page edge (--bleed). */
 .live .lines {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: var(--space-3);
+  display: grid;
+  margin-inline: calc(-1 * var(--bleed, 0px));
+  border-top: 2px dotted var(--page-dot);
 }
 
 .live .line {
-  flex: 1 1 12.5rem;
-  min-width: 0;
   display: grid;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4) var(--space-4);
-  border-radius: var(--radius-lg);
-  background: var(--surface);
-  border: 1.5px solid var(--line-strong);
-  transition:
-    transform 200ms var(--ease-out),
-    box-shadow 200ms var(--ease-out),
-    border-color 200ms var(--ease-out),
-    background-color 200ms var(--ease-out);
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'head head' 'body outcome';
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+  padding: var(--space-3) max(var(--bleed, 0px), var(--space-3));
+  border-bottom: 2px dotted var(--page-dot);
+  transition: background-color 200ms var(--ease-out);
 }
 
 .live .line.open {
-  flex: 2 1 28rem;
-  background: color-mix(in srgb, var(--yellow) 9%, var(--surface));
-  border: 2px solid var(--keyline);
-  box-shadow: 0 22px 36px -24px oklch(0 0 0 / 0.75);
-  transform: translateY(-4px);
+  background: color-mix(in srgb, var(--yellow) 22%, var(--surface));
 }
 
 .live .line .head {
+  grid-area: head;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas: 'name mini' 'tag tag' 'value value';
-  gap: 0.125rem var(--space-2);
+  grid-template-columns: minmax(7rem, 13rem) minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
   padding: 0;
   border: 0;
   background: none;
@@ -486,43 +479,85 @@ button {
 }
 
 .live .line:not(.open):hover {
-  border-color: var(--line-strong);
-  background: var(--surface);
+  background: var(--raised);
 }
 
 .live .line .name {
-  grid-area: name;
-  font-size: var(--step--1);
-  font-weight: 600;
-  color: var(--muted);
+  font: 600 var(--step-0) / 1.3 var(--font-brand);
+  overflow-wrap: anywhere;
+}
+
+.live .line .reads {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--space-2);
+  min-width: 0;
 }
 
 .live .line .head .tag {
-  grid-area: tag;
   color: var(--faint);
 }
 
-.live .line .head .value {
-  grid-area: value;
+.live .line:not(.open) .value {
+  font-size: var(--step-1);
 }
 
 .live .line .mini {
-  grid-area: mini;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: var(--step--1);
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .live .line .body {
-  display: grid;
-  gap: var(--space-2);
+  grid-area: body;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  min-width: 0;
 }
 
 .live .line .body[hidden] {
   display: none;
 }
 
+.live .line .outcome {
+  grid-area: outcome;
+  justify-self: end;
+  max-width: 36ch;
+  font-size: var(--step--1);
+}
+
+@media (max-width: 40rem) {
+  .live .line {
+    grid-template-areas: 'head head' 'body body' 'outcome outcome';
+  }
+
+  .live .line .outcome {
+    justify-self: start;
+  }
+
+  .live .line .head {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .live .line .reads {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
 .live .line .ask {
   display: flex;
+  flex: 1 1 18rem;
   flex-wrap: wrap;
+  align-items: center;
   gap: var(--space-2);
+  min-width: 0;
 }
 
 .live select,
@@ -615,10 +650,6 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .live .line.open {
-    transform: none;
-  }
-
   *,
   *::before,
   *::after {

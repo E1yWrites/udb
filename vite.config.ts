@@ -52,8 +52,9 @@ const sw: Plugin = {
     await prerender(outDir);
     const files = readdirSync(outDir, { recursive: true, encoding: 'utf8' })
       .map((f) => f.replaceAll('\\', '/'))
-      // Device photos (ADR 10) load when shown instead of in every install; 404.html is for GitHub Pages only.
-      .filter((f) => !f.endsWith('/') && f !== 'sw.js' && f !== '404.html' && !f.startsWith('devices/') && /\.[a-z0-9]+$/i.test(f))
+      // Device photos (ADR 10) load when shown instead of in every install; 404.html is for GitHub Pages
+      // only; og.png, robots.txt and sitemap.xml are for crawlers and link previews.
+      .filter((f) => !f.endsWith('/') && !['sw.js', '404.html', 'og.png', 'robots.txt', 'sitemap.xml'].includes(f) && !f.startsWith('devices/') && /\.[a-z0-9]+$/i.test(f))
       // Pages are fetched by their clean URLs: terms/index.html is cached as terms/.
       .map((f) => f.replace(/(^|\/)index\.html$/, '$1'))
       .filter((f) => f !== '');

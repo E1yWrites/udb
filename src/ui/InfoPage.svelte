@@ -139,6 +139,10 @@
   }
 
   h1 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
     margin: 0;
     font: 700 clamp(2.25rem, 1.6rem + 2.2vw, 3.25rem) / 1.02 var(--font-brand);
     letter-spacing: -0.01em;

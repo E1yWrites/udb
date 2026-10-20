@@ -230,6 +230,10 @@
   }
 
   h1 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
     margin: 0;
     font: 700 var(--step-4) / 1 var(--font-brand);
     letter-spacing: -0.01em;

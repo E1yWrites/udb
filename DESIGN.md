@@ -131,8 +131,9 @@ ADR 10. Brand assets and font: ADR 11.
 ## Typography
 
 Fredoka (self-hosted, ADR 11) for headings, the wordmark, buttons, page chips
-and Dee's bubbles; the cover title is Fredoka 700 in yellow with a band-colour
-stroke and a solid drop, the booklet's printed relief;
+and Dee's bubbles. The cover title is an authored SVG wordmark (rounded
+strokes, yellow fill, a band-colour edge and solid drop, the booklet's printed
+relief), because Fredoka's heavy B closes its counters;
 the system UI stack (Segoe UI Variable on Windows) for everything else. Values
 stay on Segoe UI Variable Display so digits line up. Tracking by size: display
 `-0.01em`, values `-0.01em`, body `0`, tags `+0.08em` caps. Monospace only

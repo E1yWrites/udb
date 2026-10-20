@@ -419,3 +419,29 @@ Keyboard) you can edit. Four stacked branches.
 - [x] Booklet tokens across the app in both themes (DESIGN.md)
 - [ ] Owner review of the Terms text before deploying; turn on private
   vulnerability reporting on GitHub so the Contact page's security link works
+
+### Device view: branch `phase-8-cartridge` (stacked on booklet)
+- [x] Device-view comps (roll e95cb58a); owner picked A, the cartridge
+- [x] The open device as a cartridge in a console, neighbours in the rack,
+  ←/→ and the dock to swap; notices, Dee and facts in a right column
+- [x] Controls as a printed page: index tabs, paper in both themes, setting
+  rows on dotted rules with the open one washed yellow
+- [x] Close in the top bar; the dock on the band
+
+## Phase 9: Deployment, branch `phase-9-deploy` (stacked on the cartridge)
+
+Exit criteria: the public pages are real, prerendered paths with their own
+heads; the site builds for the domain root; README and deployment docs are
+complete; check, test and build pass.
+
+- [x] Served from the domain root (`base: '/'`, root-absolute assets, service
+  worker at `/sw.js` caching each page by URL)
+- [x] `/`, `/terms/`, `/contact/` server-rendered and hydrated; the app stays at
+  `/#/…`; old `#/terms` and `#/contact` redirect (ADR 12)
+- [x] Per-page title, description, canonical, Open Graph and Twitter tags;
+  JSON-LD on the landing; `robots.txt`, `sitemap.xml`, `CNAME`, `og.png`
+- [x] `tests/prerender.test.ts`: headings, heads, no app markup, sitemap
+- [x] README rewrite, `docs/deploy.md`, ADR 12, THREAT_MODEL T15
+- [ ] Owner: DNS `CNAME udb → e1ywrites.github.io`, verify the domain, set the
+  custom domain and Enforce HTTPS (`docs/deploy.md`)
+- [ ] Owner: private vulnerability reporting, Terms review, Search Console

@@ -1,6 +1,6 @@
 # 6. Hosting on GitHub Pages, deployed from main
 
-Status: accepted, 2026-10-15
+Status: accepted, 2026-10-15. Amended by ADR 12 (custom domain, prerendered public pages).
 
 ## Decision
 GitHub Actions builds `main` and deploys it to GitHub Pages. That gives the

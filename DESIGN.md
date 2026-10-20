@@ -76,14 +76,13 @@ components:
     height: "40px"
     padding: "0 16px"
   dock-item-current:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.text}"
-    rounded: "{rounded.tile}"
-    padding: "8px"
-  setting-tile:
-    backgroundColor: "{colors.surface}"
-    rounded: "{rounded.tile}"
-    padding: "16px"
+    backgroundColor: "{colors.yellow}"
+    textColor: "{colors.yellow-ink}"
+    rounded: "{rounded.pill}"
+    padding: "4px 16px 4px 4px"
+  setting-row:
+    backgroundColor: "transparent"
+    padding: "12px 24px"
 ---
 
 # Design System: UDB
@@ -97,8 +96,9 @@ START button that is the real WebHID request. Below it sit printed spreads
 (Controls, Warnings, Compatible devices) on booklet paper with dotted rules
 and "p. N" page chips. The app wears the same world in Operate mode: the
 band is the top bar and the footer, light is the printed page, dark is the
-same booklet at night. The device focus view, setting tiles and read-back
-settle are unchanged in behaviour. Source of truth: `src/app.css`. Images:
+same booklet at night. The device view is a console with the open device as a
+cartridge (comp A, 2026-10-20) over a printed Controls page; setting rows and
+the read-back settle keep their behaviour. Source of truth: `src/app.css`. Images:
 ADR 10. Brand assets and font: ADR 11.
 
 ## Colors
@@ -116,7 +116,7 @@ ADR 10. Brand assets and font: ADR 11.
 - **Accent green** (`accent`): selection, focus, links: #1e6b34 on paper,
   #5cc46a at night.
 - **Dee yellow** (`yellow` #ffd52e): START and every primary button (ink
-  outlined, ink text), seals, the open tile's wash, the current dock pill.
+  outlined, ink text), seals, the cartridge label, the open row's wash, the current dock pill.
 - **Signal orange** (`signal`) means needs attention; **confirmed teal**
   (`confirmed`) means the hardware backed it up; **danger** is failure.
 
@@ -141,9 +141,9 @@ for hex identifiers and raw values; other numbers use `tabular-nums` (`.num`).
 
 ## Layout
 
-A sticky translucent top bar: the app icon and wordmark (a link to Home),
-"Identify another device" and "Add device" in a device view, and the theme
-switch. Public pages: the landing at `#/` (cover, then spreads p. 2 to p. 7), Terms
+A sticky translucent top bar: the app icon and wordmark (a link to the cover),
+"Identify another device", "Add device" and Close in a device view, and the
+theme switch. Public pages: the landing at `#/` (cover, then spreads p. 2 to p. 7), Terms
 (`#/terms`), Contact (`#/contact`, GitHub only), an in-app missing page for
 unknown routes and a self-contained `404.html` for GitHub Pages. A visitor
 who has opened the app before goes straight to `#/app`. The footer is the
@@ -155,16 +155,21 @@ build's source. App views, kept in the URL hash so Back works:
   with Add device. Then "Your devices" as cards, the way into Supported
   devices, and Settings (Dee's tips, Replay the tour). Under 52rem the hero
   stacks and cards go two across.
-- **Device** (`#/device/<key>`), the focus view (Phase 8, comp E): one device
-  in focus. The identity column (category and position, the display-size name,
-  chips, status, Dee's tip) sits beside the stage, where the device stands
-  large with its previous and next neighbours dimmed at the edges as buttons;
-  ← and → step between devices (never while a control, the tab list or a
-  radio group owns the keys), Close or Esc returns Home. Then a segmented tab
-  control (Controls, What UDB knows, Interfaces & diagnostics) and the setting
-  tiles. A sticky dock of device pills runs along the bottom edge; the open
-  device's pill is yellow. Under 60rem the stage comes first; under 40rem the
-  neighbours shrink to ‹ › buttons. Hidden tab panels stay mounted; switching
+- **Device** (`#/device/<key>`), the cartridge view (Phase 8, comp A · Cartridge,
+  roll e95cb58a): a spread on the booklet ground. Top left, the **console**: a
+  cover-green plate with a band keyline; the open device is a cartridge pushed
+  into the slot, its yellow label carrying the product image or drawing, the
+  position chip ("Mouse · 1 of 3"), the name, identity pills and the status
+  word. Its previous and next neighbours wait dimmed in the rack on either side
+  as buttons. Under it, the **printed page**: index tabs (Controls, What UDB
+  knows, Interfaces & diagnostics) over one paper sheet with an ink keyline and
+  a "p. 2" chip heading, paper in both themes. The right column holds the
+  status or recovery notice, Dee's tip and the facts card. ← and → swap the
+  cartridge (never while a control, the tab list or a radio group owns the
+  keys); Close (in the top bar) or Esc returns Home. The dock is the band along
+  the bottom edge, one pill per device; the open device's pill is yellow. Under
+  60rem the right column follows the console; under 40rem the label stacks and
+  the rack shrinks to ‹ › buttons. Hidden tab panels stay mounted; switching
   devices ends the live session.
 - **Supported devices** (`#/supported`): search (name, brand, protocol, USB ID),
   a category switch, and one row per registry entry that opens to its
@@ -175,28 +180,33 @@ closes, the heading otherwise.
 
 ## Elevation & depth
 
-Surface steps and hairlines first. Shadows carry an offset and a blur: the
-current dock tile, the selected tab, and the product image's drop shadow on
-the stage. The top bar is a material: `backdrop-filter: blur(20px)` over
+Surface steps, keylines and dotted rules first. Shadows are rare: the product
+image's hard drop shadow on the cartridge label, and the open index tab, which
+paints over the sheet's top edge. The top bar is a material: `backdrop-filter: blur(20px)` over
 `--chrome`, solid under `prefers-reduced-transparency`.
 
 ## Components
 
-- **Stage:** a `figure` with a radial stage light and a floor shadow. It shows
-  the product image (ADR 10) or an authored category drawing
-  (`DeviceArt.svelte`). Captions say when the image is representative of a
-  line, or when the model isn't confirmed.
-- **Dock tile:** thumbnail, label, state word with icon. Disconnected devices
-  show a grey thumbnail.
+- **Cartridge** (`DevicePane.svelte`): the console plate, the cartridge with
+  its grip, the yellow label and the slot. Fixed booklet colours in both
+  themes; status words on the label are darkened for AA on yellow. It shows the
+  product image (ADR 10) or an authored category drawing (`DeviceArt.svelte`),
+  with a caption when the image is representative of a line or the model isn't
+  confirmed.
+- **Dock pill:** thumbnail, label, state word with icon, on the band.
+  Disconnected devices show a grey thumbnail.
 - **Notice:** a tile with an icon heading and the recovery ("Close Pulsar
   Fusion, then try again"); amber-tinted when it needs attention.
-- **Setting tile (signature):** a tile per setting, one open at a time. Closed,
-  it shows the setting and the value the device returned (tag DEVICE, `value`
-  type) at full contrast, plus an icon for the last write's result; only its
-  chrome dims. Open, it lifts with a yellow edge and shows the read time, the
-  control and the outcome. The device's value **settles** into place when it
-  changes: blur, lift and opacity on the `--spring` curve (critically damped,
-  no overshoot); a short cross-fade under reduced motion.
+- **Printed page** (`.paper`): a block that takes the light tokens whatever the
+  theme, so panels inside it read as print at night too.
+- **Setting row (signature):** one dotted-rule row per setting, one open at a
+  time. Closed, it reads name · the value the device returned (tag DEVICE,
+  `value` type) · the last write's word with an icon (confirmed, needs a look,
+  failed, writing…) or the read time. Open, it gets a yellow wash with the
+  control, the read time and the outcome inline. The device's value
+  **settles** into place when it changes: blur, lift and opacity on the
+  `--spring` curve (critically damped, no overshoot); a short cross-fade under
+  reduced motion.
 - **Dee** (`Dee.svelte`, `Guide.svelte`): the mascot beside a speech bubble
   with an ink-and-yellow outline. Recovery notices (busy, disconnected,
   unsupported, a refused or cancelled request) always show Dee, worried (tilted,
@@ -213,8 +223,8 @@ the stage. The top bar is a material: `backdrop-filter: blur(20px)` over
 
 ## Motion
 
-Feedback on press. Two authored moments: the device materialising on the
-stage (scale, blur, opacity) and the read-back settle. Around them, quiet
+Feedback on press. Two authored moments: the cartridge sliding up into the
+slot (spring, 520ms) and the read-back settle. Around them, quiet
 bridges for things that would otherwise teleport, all on `--ease-out` or the
 critically damped `--spring`: the theme switch cross-fades the page (view
 transition, 240ms); a finished onboarding step's tick lands on the spring; the

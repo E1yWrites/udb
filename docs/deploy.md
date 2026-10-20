@@ -102,3 +102,18 @@ npx -y playwright@1.62.1 screenshot --viewport-size "1200, 630" --wait-for-timeo
 
 Link previews are cached by the sites that show them, so a new image can take
 days to appear everywhere.
+
+### README banners
+
+`docs/images/banner.png` (the cover) and `docs/images/banner-back.png` (the
+back cover) are screenshots of `docs/og/banner.html` at 2×, made on 2026-10-20
+the same way as the link preview image, from the same committed art and font.
+`docs/images/landing.png` and `docs/images/device-view.png` are screenshots of
+the app; the device view comes from the design preview, so its devices and
+values are simulated.
+
+```bash
+npx -y playwright@1.62.1 screenshot --device-scale-factor 2 --viewport-size "1280, 400" "file://$PWD/docs/og/banner.html" docs/images/banner.png
+```
+
+The back cover is the same file opened with `#back`, cropped to its 1280×160 strip.

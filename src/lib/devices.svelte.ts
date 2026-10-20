@@ -34,7 +34,8 @@ function usesCollection(match: Match | null, hid: HIDDevice): boolean {
 
 export class Devices {
   readonly hid: HID | undefined;
-  readonly secure = typeof isSecureContext === 'undefined' ? false : isSecureContext;
+  /** False only in a browser on an insecure page; a server render (src/prerender.ts) counts as secure. */
+  readonly secure = typeof isSecureContext === 'undefined' ? true : isSecureContext;
 
   constructor(hid: HID | undefined = typeof navigator === 'undefined' ? undefined : navigator.hid) {
     this.hid = hid;

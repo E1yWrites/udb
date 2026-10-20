@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { serviceWorkerSource } from './scripts/service-worker.ts';
+import { prerender } from './scripts/prerender.ts';
 
 // ADR 5: strict CSP. Build only, because the dev server injects inline styles.
 // GitHub Pages can't send headers, so it ships as a meta tag (no frame-ancestors).
@@ -19,9 +20,12 @@ const CSP = [
   "form-action 'none'",
 ].join('; ');
 
+// Client build only: the server bundle for prerendering (scripts/prerender.ts) skips these.
+const clientBuild = (_: unknown, env: { command: string; isSsrBuild?: boolean }) => env.command === 'build' && !env.isSsrBuild;
+
 const csp: Plugin = {
   name: 'udb-csp',
-  apply: 'build',
+  apply: clientBuild,
   transformIndexHtml: () => [
     { tag: 'meta', attrs: { 'http-equiv': 'Content-Security-Policy', content: CSP }, injectTo: 'head-prepend' },
   ],
@@ -37,23 +41,29 @@ function commit(): string {
   }
 }
 
-// ADR 9: after the build, list dist/ and write sw.js with a per-commit cache name.
+// ADR 12, then ADR 9: after the build, prerender the public pages, then list
+// dist/ and write sw.js with a per-commit cache name. One hook, so the order holds.
 let outDir = 'dist';
 const sw: Plugin = {
-  name: 'udb-service-worker',
-  apply: 'build',
+  name: 'udb-prerender-and-service-worker',
+  apply: clientBuild,
   configResolved: (config) => void (outDir = config.build.outDir),
-  closeBundle() {
+  async closeBundle() {
+    await prerender(outDir);
     const files = readdirSync(outDir, { recursive: true, encoding: 'utf8' })
       .map((f) => f.replaceAll('\\', '/'))
-      // Device photos (ADR 10) load when shown instead of in every install.
-      .filter((f) => !f.endsWith('/') && f !== 'sw.js' && !f.startsWith('devices/') && /\.[a-z0-9]+$/i.test(f));
+      // Device photos (ADR 10) load when shown instead of in every install; 404.html is for GitHub Pages
+      // only; og.png, robots.txt and sitemap.xml are for crawlers and link previews.
+      .filter((f) => !f.endsWith('/') && !['sw.js', '404.html', 'og.png', 'robots.txt', 'sitemap.xml'].includes(f) && !f.startsWith('devices/') && /\.[a-z0-9]+$/i.test(f))
+      // Pages are fetched by their clean URLs: terms/index.html is cached as terms/.
+      .map((f) => f.replace(/(^|\/)index\.html$/, '$1'))
+      .filter((f) => f !== '');
     writeFileSync(join(outDir, 'sw.js'), serviceWorkerSource(commit().slice(0, 12), ['./', ...files]));
   },
 };
 
 export default defineConfig({
-  base: './',
+  base: '/',
   define: { __COMMIT__: JSON.stringify(commit()) },
   plugins: [svelte(), csp, sw],
   build: { assetsInlineLimit: 0 },

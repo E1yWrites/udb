@@ -1,24 +1,31 @@
 <script lang="ts">
-  // Browser profiles for a live panel: save the values the device last returned,
-  // apply them back through the panel's write procedure (every value read back),
-  // export and import as a file. Stored in this browser only (src/lib/profiles.ts).
+  // Mouse and Keyboard profiles inside a live panel: save what the device
+  // returned, edit, apply (each value through the panel's write procedure, read
+  // back), export and import. Stored in this browser only (src/lib/profiles.ts);
+  // src/lib/profile-map.ts turns a profile into this panel's row writes.
   import Icon from './Icon.svelte';
+  import Guide from './Guide.svelte';
+  import ProfileEditor from './ProfileEditor.svelte';
   import {
     MAX_FILE_BYTES,
+    browserStore,
     deleteProfile,
+    downloadProfile,
     loadProfiles,
     parseProfile,
     saveProfile,
-    serializeProfile,
+    summary,
+    type Body,
     type Profile,
-    type Store,
   } from '../lib/profiles.ts';
+  import { mappingFor, migrateV1, type MouseMap, type KeyboardMap } from '../lib/profile-map.ts';
   import type { WriteResult } from '../lib/write.ts';
 
-  type Outcome = { row: string; text: string; tone: 'confirmed' | 'signal' | 'muted' };
+  type Outcome = { key: string; text: string; tone: 'confirmed' | 'signal' | 'muted' };
 
   let {
-    entryId,
+    family,
+    category,
     current,
     label,
     show,
@@ -26,8 +33,9 @@
     busy,
     apply,
   }: {
-    /** Profiles list only under the registry entry they were saved from. */
-    entryId: string;
+    /** The protocol family and category pick the mapping (src/lib/profile-map.ts). */
+    family: string;
+    category: string;
     /** Row key to the value the device last returned; null where it couldn't be read. */
     current: Record<string, number | null | undefined>;
     label: (row: string) => string;
@@ -39,56 +47,60 @@
     apply: (row: string, value: number) => Promise<(WriteResult<number> & { at: string }) | undefined>;
   } = $props();
 
-  const store: Store | null = (() => {
-    try {
-      return localStorage;
-    } catch {
-      return null;
-    }
-  })();
+  const store = browserStore();
+  const map = $derived(mappingFor(family, category));
+  const kind = $derived(map?.category === 'mouse' ? 'Mouse' : 'Keyboard');
 
-  let all = $state<Profile[]>(store ? loadProfiles(store) : []);
-  const mine = $derived(all.filter((p) => p.registryId === entryId));
+  let all = $state<Profile[]>(store ? loadProfiles(store, migrateV1) : []);
+  const mine = $derived(all.filter((p) => p.category === map?.category));
   let name = $state('');
   let notice = $state('');
+  let editing = $state<string | null>(null);
   let applying = $state<string | null>(null);
   let outcome = $state<{ name: string; lines: Outcome[] } | null>(null);
 
-  const readable = $derived(Object.entries(current).flatMap(([row, v]): [string, number][] => (typeof v === 'number' && Number.isSafeInteger(v) ? [[row, v]] : [])));
-  const reload = () => (all = store ? loadProfiles(store) : []);
+  const fromDevice = $derived(map ? map.toProfile(current) : {});
+  const reload = () => (all = store ? loadProfiles(store, migrateV1) : []);
 
   function say(text: string) {
     notice = text;
-    setTimeout(() => (notice = ''), 4000);
+    setTimeout(() => (notice = ''), 5000);
   }
 
-  function save() {
-    if (!store || !name.trim() || readable.length === 0) return;
+  function put(p: Profile): boolean {
     try {
-      saveProfile(store, { id: crypto.randomUUID(), name: name.trim().slice(0, 60), registryId: entryId, savedAt: new Date().toISOString(), settings: Object.fromEntries(readable) });
+      saveProfile(store!, p, migrateV1);
     } catch {
       say('The browser would not store the profile (storage may be full or blocked).');
-      return;
+      return false;
     }
     reload();
-    say(`Saved “${name.trim()}”.`);
-    name = '';
+    return true;
+  }
+
+  function saveCurrent() {
+    if (!store || !map || !name.trim() || !Object.keys(fromDevice).length) return;
+    const body = map.category === 'mouse' ? { mouse: fromDevice } : { keyboard: fromDevice };
+    const parsed = parseProfile(JSON.stringify({ udbProfile: 2, name, category: map.category, ...body }), migrateV1);
+    if (!parsed.ok) return say(parsed.error);
+    if (put({ id: crypto.randomUUID(), savedAt: new Date().toISOString(), ...parsed.profile })) {
+      say(`Saved “${parsed.profile.name}” from what the ${category} returned.`);
+      name = '';
+    }
+  }
+
+  function saveEdit(p: Profile, body: Body) {
+    if (put({ ...body, id: p.id, savedAt: new Date().toISOString() })) {
+      editing = null;
+      say(`Saved “${body.name}”.`);
+    }
   }
 
   function remove(p: Profile) {
     if (!store) return;
-    deleteProfile(store, p.id);
+    deleteProfile(store, p.id, migrateV1);
     reload();
     say(`Deleted “${p.name}” from this browser.`);
-  }
-
-  function download(p: Profile) {
-    const url = URL.createObjectURL(new Blob([serializeProfile(p)], { type: 'application/json' }));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `udb-profile-${p.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'profile'}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   async function importFile(event: Event) {
@@ -97,71 +109,66 @@
     input.value = '';
     if (!file || !store) return;
     if (file.size > MAX_FILE_BYTES) return say('The file is too large to be a UDB profile.');
-    const parsed = parseProfile(await file.text());
+    const parsed = parseProfile(await file.text(), migrateV1);
     if (!parsed.ok) return say(parsed.error);
-    try {
-      saveProfile(store, { id: crypto.randomUUID(), savedAt: new Date().toISOString(), ...parsed.profile });
-    } catch {
-      return say('The browser would not store the profile (storage may be full or blocked).');
-    }
-    reload();
+    if (!put({ id: crypto.randomUUID(), savedAt: new Date().toISOString(), ...parsed.profile })) return;
     say(
-      parsed.profile.registryId === entryId
+      parsed.profile.category === map?.category
         ? `Imported “${parsed.profile.name}”.`
-        : `Imported “${parsed.profile.name}”. It is for ${parsed.profile.registryId}, so it lists only under that device.`,
+        : `Imported “${parsed.profile.name}”. It isn't a ${kind.toLowerCase()} profile, so it's listed under Profiles on Home.`,
     );
   }
 
   async function applyProfile(p: Profile) {
+    if (!map) return;
     applying = p.id;
     outcome = null;
+    const plan = (map as MouseMap | KeyboardMap).plan((p.mouse ?? p.keyboard)!, current);
     const lines: Outcome[] = [];
-    // The panel's own row order, so dependent settings go in the order its rows are shown.
-    for (const row of Object.keys(current)) {
-      const wanted = p.settings[row];
-      if (wanted === undefined) continue;
-      if (current[row] === wanted) {
-        lines.push({ row, tone: 'muted', text: `${label(row)}: already ${show(row, wanted)}` });
+    for (const { row, value } of plan.writes) {
+      if (current[row] === value) {
+        lines.push({ key: row, tone: 'muted', text: `${label(row)}: already ${show(row, value)}` });
         continue;
       }
-      if (current[row] == null) {
-        lines.push({ row, tone: 'signal', text: `${label(row)}: skipped, its current value could not be read` });
-        continue;
-      }
-      const r = await apply(row, wanted);
-      if (r?.kind === 'confirmed') lines.push({ row, tone: 'confirmed', text: `${label(row)}: confirmed by the device at ${show(row, r.value)}` });
-      else if (r?.kind === 'mismatch') lines.push({ row, tone: 'signal', text: `${label(row)}: the device returned ${show(row, r.actual)} instead of ${show(row, r.requested)}; it reads ${show(row, r.restored)} now` });
-      else if (r?.kind === 'failed') lines.push({ row, tone: 'signal', text: `${label(row)}: failed (${r.error})` });
-      else if (r?.kind === 'invalid') lines.push({ row, tone: 'signal', text: `${label(row)}: not written. ${r.reason}` });
-      else lines.push({ row, tone: 'signal', text: `${label(row)}: not written` });
+      const r = await apply(row, value);
+      if (r?.kind === 'confirmed') lines.push({ key: row, tone: 'confirmed', text: `${label(row)}: confirmed by the device at ${show(row, r.value)}` });
+      else if (r?.kind === 'mismatch') lines.push({ key: row, tone: 'signal', text: `${label(row)}: the device returned ${show(row, r.actual)} instead of ${show(row, r.requested)}; it reads ${show(row, r.restored)} now` });
+      else if (r?.kind === 'failed') lines.push({ key: row, tone: 'signal', text: `${label(row)}: failed (${r.error})` });
+      else if (r?.kind === 'invalid') lines.push({ key: row, tone: 'signal', text: `${label(row)}: not written. ${r.reason}` });
+      else lines.push({ key: row, tone: 'signal', text: `${label(row)}: not written` });
     }
-    const saved = Object.keys(p.settings).filter((k) => !(k in current));
-    for (const row of saved) lines.push({ row, tone: 'muted', text: `${row}: this device has no such setting right now` });
+    for (const row of plan.unreadable) lines.push({ key: row, tone: 'signal', text: `${label(row)}: skipped, its current value could not be read` });
+    plan.notes.forEach((text, i) => lines.push({ key: `note${i}`, tone: 'muted', text }));
     outcome = { name: p.name, lines };
     applying = null;
   }
 </script>
 
-<section class="profiles" aria-labelledby="profiles-h-{entryId}">
-  <h3 id="profiles-h-{entryId}"><span class="tag">Browser</span> Profiles</h3>
-  <p class="muted">
-    A profile is a set of values the device returned, stored in this browser only. Applying one writes each value to
-    the device and reads it back; nothing is sent anywhere.
-  </p>
+<section class="profiles" aria-labelledby="profiles-h-{family}">
+  <h3 id="profiles-h-{family}"><span class="tag">Browser</span> {map ? `${kind} profiles` : 'Profiles'}</h3>
 
-  {#if !store}
+  {#if !map}
+    <p class="muted">Profiles cover mice and keyboards. This {category} keeps its settings on the device; nothing is saved here.</p>
+  {:else if !store}
     <p class="muted">This browser blocks storage, so profiles can't be kept here.</p>
   {:else}
+    <Guide size={44}>
+      <p>
+        A {kind.toLowerCase()} profile works on any {category} UDB can write: DPI stages, polling rate{map.category === 'keyboard' ? ', colour, brightness' : ''}.
+        Applying one writes each value and reads it back, and I'll tell you anything this {category} can't take.
+      </p>
+    </Guide>
+
     <form
       class="save"
       onsubmit={(e) => {
         e.preventDefault();
-        save();
+        saveCurrent();
       }}
     >
-      <label class="visually-hidden" for="profile-name-{entryId}">Profile name</label>
-      <input id="profile-name-{entryId}" type="text" maxlength="60" placeholder="Name this profile" bind:value={name} />
-      <button class="btn" type="submit" disabled={!name.trim() || readable.length === 0}>Save current settings</button>
+      <label class="visually-hidden" for="profile-name-{family}">Profile name</label>
+      <input id="profile-name-{family}" type="text" maxlength="60" placeholder="Name this profile" bind:value={name} />
+      <button class="btn" type="submit" disabled={!name.trim() || !Object.keys(fromDevice).length}>Save current settings</button>
       <label class="btn file">
         Import file
         <input type="file" accept=".json,application/json" onchange={importFile} />
@@ -169,22 +176,28 @@
     </form>
 
     {#if mine.length === 0}
-      <p class="muted">No profiles for this device yet.</p>
+      <p class="muted">No {kind.toLowerCase()} profiles yet. Save this {category}'s settings, or make one under Profiles on Home.</p>
     {:else}
       <ul class="list">
         {#each mine as p (p.id)}
           <li>
-            <div class="what">
-              <strong>{p.name}</strong>
-              <span class="muted">{Object.keys(p.settings).length} settings · saved {new Date(p.savedAt).toLocaleDateString()}</span>
+            <div class="row">
+              <div class="what">
+                <strong>{p.name}</strong>
+                <span class="muted">{summary(p)}</span>
+              </div>
+              <div class="row-actions">
+                <button class="btn" onclick={() => applyProfile(p)} disabled={!canWrite || busy || applying !== null}>
+                  {applying === p.id ? 'Applying…' : 'Apply'}
+                </button>
+                <button class="btn quiet" onclick={() => (editing = editing === p.id ? null : p.id)} aria-expanded={editing === p.id}>Edit</button>
+                <button class="btn quiet" onclick={() => downloadProfile(p)}>Export</button>
+                <button class="btn quiet" onclick={() => remove(p)} aria-label="Delete {p.name}">Delete</button>
+              </div>
             </div>
-            <div class="row-actions">
-              <button class="btn" onclick={() => applyProfile(p)} disabled={!canWrite || busy || applying !== null}>
-                {applying === p.id ? 'Applying…' : 'Apply'}
-              </button>
-              <button class="btn quiet" onclick={() => download(p)}>Export</button>
-              <button class="btn quiet" onclick={() => remove(p)} aria-label="Delete {p.name}">Delete</button>
-            </div>
+            {#if editing === p.id}
+              <ProfileEditor initial={p} onsave={(body) => saveEdit(p, body)} oncancel={() => (editing = null)} />
+            {/if}
           </li>
         {/each}
       </ul>
@@ -197,13 +210,14 @@
       <div class="outcome" role="status">
         <h4>Applied “{outcome.name}”</h4>
         <ul>
-          {#each outcome.lines as line (line.row)}
+          {#each outcome.lines as line (line.key)}
             <li class={line.tone}><Icon name={line.tone === 'confirmed' ? 'check' : line.tone === 'signal' ? 'alert' : 'unverified'} size={14} />{line.text}</li>
           {/each}
         </ul>
       </div>
     {/if}
     <p class="muted" aria-live="polite">{notice}</p>
+    <a class="all" href="#/profiles">All profiles</a>
   {/if}
 </section>
 
@@ -220,8 +234,7 @@
     display: flex;
     align-items: baseline;
     gap: var(--space-3);
-    font-size: var(--step-1);
-    font-weight: 600;
+    font: 600 var(--step-1) / 1.2 var(--font-brand);
   }
 
   h4 {
@@ -243,7 +256,7 @@
   .save input[type='text'] {
     flex: 1 1 14rem;
     min-width: 0;
-    min-height: 2.25rem;
+    min-height: 2.5rem;
     padding: 0 var(--space-3);
     border: 1px solid var(--line-strong);
     border-radius: var(--radius);
@@ -258,18 +271,24 @@
     padding: 0;
   }
 
-  .list li {
+  .list > li {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-2) 0 var(--space-3);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: var(--space-3);
-    padding: var(--space-2) 0;
-    border-bottom: 1px solid var(--line);
   }
 
   .what {
     display: grid;
+    min-width: 0;
   }
 
   .row-actions {
@@ -281,6 +300,27 @@
   .btn.quiet {
     border-color: transparent;
     color: var(--muted);
+  }
+
+  /* The result of several seconds of writes arrives as one block, not line by line. */
+  .outcome {
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 200ms var(--ease-out);
+  }
+
+  @starting-style {
+    .outcome {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .outcome {
+      transform: none;
+      transition: opacity 150ms ease-out !important;
+    }
   }
 
   .outcome ul {
@@ -303,5 +343,11 @@
 
   .signal {
     color: var(--signal);
+  }
+
+  .all {
+    justify-self: start;
+    font-size: var(--step--1);
+    color: var(--muted);
   }
 </style>

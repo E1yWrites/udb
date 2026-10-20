@@ -10,7 +10,8 @@ cached keeps running until something replaces it.
 
 ## Decision
 - A web manifest and icons make the site installable. `display: standalone`,
-  scope and start URL relative to where it is hosted.
+  scope and start URL relative to where it is hosted (the domain root since
+  ADR 12).
 - `vite build` writes `sw.js` from the files in `dist/`, with a cache name that
   changes every commit (`scripts/service-worker.ts`).
 - **Install** precaches every build file, so one visit is enough for offline use.

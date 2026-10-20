@@ -12,6 +12,11 @@
   import ViaKeymap from './ViaKeymap.svelte';
   import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
+  import RangeField from './controls/RangeField.svelte';
+  import Segments from './controls/Segments.svelte';
+  import ColorPick from './controls/ColorPick.svelte';
+  import { rowWriter } from '../lib/commit.ts';
+  import { hexToHueSat, hueSatToHex } from '../lib/color.ts';
   import { ViaSession } from '../adapters/qmk-via-session.ts';
   import { VALUES, hasChannels, knownVersion, maxOf, type Channel } from '../adapters/qmk-via.ts';
   import type { UdbDevice } from '../lib/devices.svelte.ts';
@@ -70,12 +75,25 @@
     return `${v} of 255`;
   }
 
-  /** The colour the keyboard reported, for a swatch (QMK hue and saturation are 0-255). */
+  /** The colour the keyboard reported, as #rrggbb (QMK hue and saturation are 0-255). */
   function swatch(ch: Channel): string | null {
     const h = readings[`${ch}.hue`]?.value;
     const s = readings[`${ch}.sat`]?.value;
-    return h == null || s == null ? null : `hsl(${Math.round((h * 360) / 255)} ${Math.round((s * 100) / 255)}% 50%)`;
+    return h == null || s == null ? null : hueSatToHex(h, s);
   }
+
+  /** A swatch or the picker: two writes (hue, then saturation), each read back. */
+  function pickColor(ch: Channel, hex: string) {
+    const hs = hexToHueSat(hex);
+    if (!hs) return;
+    requested[`${ch}.hue`] = hs.hue;
+    requested[`${ch}.sat`] = hs.sat;
+    writer.commit(`${ch}.hue`);
+    writer.commit(`${ch}.sat`);
+  }
+
+  const HUE_TRACK = 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)';
+  const satTrack = (ch: Channel) => `linear-gradient(to right, #fff, ${hueSatToHex(requested[`${ch}.hue`] ?? 0, 255)})`;
 
   async function read() {
     phase = 'reading';
@@ -118,10 +136,14 @@
     }
   }
 
-  async function apply(row: Row) {
+  // All writes go through one queue: one at a time, and a control ends on its newest value (src/lib/commit.ts).
+  const writer = rowWriter<Row>(applyNow);
+  const apply = writer.apply;
+
+  async function applyNow(row: Row) {
     const previous = readings[row]?.value;
     const value = requested[row];
-    if (previous == null || value == null) return;
+    if (previous == null || value == null || value === previous) return;
     busy = row;
     const result = await applySetting(setting(row), value, previous);
     const at = now();
@@ -136,6 +158,8 @@
     } else if (result.kind === 'failed') {
       readings[row] = { value: result.actual, at };
     }
+    // The control shows what the device returned, unless a newer value is already queued.
+    if (!writer.queued(row)) requested[row] = readings[row]?.value ?? requested[row];
     busy = null;
   }
 
@@ -258,6 +282,12 @@
           {CHANNEL_NAME[ch]}
           {#if color}<span class="chip" style:background-color={color} aria-hidden="true"></span>{/if}
         </h3>
+        {#if partsOf(ch).includes('hue')}
+          <div class="colorline">
+            <label class="name" for="via-{ch}-color">Colour</label>
+            <ColorPick id="via-{ch}-color" value={color} disabled={!allowUnverified} onpick={(hex) => pickColor(ch, hex)} />
+          </div>
+        {/if}
         <div class="lines">
           {#each partsOf(ch) as part (part)}
             {@const row = `${ch}.${part}` as Row}
@@ -271,10 +301,25 @@
               show={(v) => show(row, v)}
             >
               {#if part === 'effect' && maxOf(ch, 'effect') === 1}
-                <select id="via-{ch}-{part}" bind:value={requested[row]} disabled={!allowUnverified || busy !== null}>
-                  <option value={0}>Steady</option>
-                  <option value={1}>Breathing</option>
-                </select>
+                <Segments
+                  id="via-{ch}-{part}"
+                  label={PART_NAME[part]}
+                  options={[{ value: 0, label: 'Steady' }, { value: 1, label: 'Breathing' }]}
+                  bind:value={requested[row]}
+                  disabled={!allowUnverified}
+                  oncommit={() => writer.commit(row)}
+                />
+              {:else if part !== 'effect'}
+                <RangeField
+                  id="via-{ch}-{part}"
+                  label={PART_NAME[part]}
+                  min={0}
+                  max={255}
+                  track={part === 'hue' ? HUE_TRACK : part === 'sat' ? satTrack(ch) : undefined}
+                  bind:value={requested[row]}
+                  disabled={!allowUnverified}
+                  oncommit={() => writer.commit(row)}
+                />
               {:else}
                 <input
                   id="via-{ch}-{part}"
@@ -286,14 +331,14 @@
                   bind:value={requested[row]}
                   disabled={!allowUnverified || busy !== null}
                 />
+                <button
+                  class="btn"
+                  onclick={() => apply(row)}
+                  disabled={!allowUnverified || busy !== null || requested[row] == null || requested[row] === readings[row]?.value}
+                >
+                  {busy === row ? 'Writing…' : 'Apply'}
+                </button>
               {/if}
-              <button
-                class="btn"
-                onclick={() => apply(row)}
-                disabled={!allowUnverified || busy !== null || requested[row] == null || requested[row] === readings[row]?.value}
-              >
-                {busy === row ? 'Writing…' : 'Apply'}
-              </button>
             </SettingLine>
           {/each}
         </div>
@@ -311,7 +356,8 @@
     {/if}
 
     <ProfileBar
-      entryId={entry.id}
+      family={entry.protocol.family}
+      category={entry.category}
       current={Object.fromEntries(Object.entries(readings).map(([r, x]) => [r, x?.value]))}
       label={(r) => `${CHANNEL_NAME[r.split('.')[0] as Channel]}: ${PART_NAME[r.split('.')[1] as Part]}`}
       show={(r, v) => show(r as Row, v)}
@@ -336,6 +382,21 @@
     margin-top: var(--space-2);
     font-size: var(--step-0);
     font-weight: 600;
+  }
+
+  .colorline {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    border: 1px solid var(--line);
+  }
+
+  .colorline .name {
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--muted);
   }
 
   .chip {

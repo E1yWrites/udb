@@ -43,12 +43,12 @@ function boot(version: string, files: string[], seed: Record<string, Map<string,
 }
 
 describe('service worker (ADR 9)', () => {
-  const files = ['./', 'index.html', 'assets/a.js'];
+  const files = ['./', 'terms/', 'assets/a.js'];
 
   it('precaches every build file on install', async () => {
     const sw = boot('abc', files);
     await sw.run('install');
-    expect([...sw.stores.get('udb-abc')!.keys()]).toEqual(['https://udb.test/', 'https://udb.test/index.html', 'https://udb.test/assets/a.js']);
+    expect([...sw.stores.get('udb-abc')!.keys()]).toEqual(['https://udb.test/', 'https://udb.test/terms/', 'https://udb.test/assets/a.js']);
   });
 
   it('on activate deletes older UDB caches and nothing else', async () => {
@@ -70,6 +70,17 @@ describe('service worker (ADR 9)', () => {
     expect((await sw.run('fetch', { request: sw.request('/', { mode: 'navigate' }) })).body).toBe('html-new');
     sw.go(false);
     expect((await sw.run('fetch', { request: sw.request('/', { mode: 'navigate' }) })).body).toBe('html-new');
+  });
+
+  it('keeps each page under its own URL, and falls back to the cover for an unknown one offline', async () => {
+    const sw = boot('abc', files);
+    await sw.run('install');
+    await sw.run('fetch', { request: sw.request('/', { mode: 'navigate' }) });
+    await sw.run('fetch', { request: sw.request('/terms/', { mode: 'navigate' }) });
+    sw.go(false);
+    expect((await sw.run('fetch', { request: sw.request('/', { mode: 'navigate' }) })).body).toBe('html-new');
+    expect((await sw.run('fetch', { request: sw.request('/terms/', { mode: 'navigate' }) })).body).toBe('net');
+    expect((await sw.run('fetch', { request: sw.request('/nowhere/', { mode: 'navigate' }) })).body).toBe('html-new');
   });
 
   it('leaves cross-origin requests and non-GETs alone', async () => {

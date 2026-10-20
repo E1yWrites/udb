@@ -1,0 +1,61 @@
+<!doctype html>
+<!-- README banners: docs/images/banner.png (1280×400, the cover) and
+     docs/images/banner-back.png (1280×160, the back cover; open with #back).
+     Rendered with Playwright at 2× like docs/og/card.html; see docs/deploy.md. -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>UDB README banners</title>
+<style>
+  @font-face { font-family: 'Fredoka'; font-weight: 300 700; src: url('../../public/fonts/fredoka-latin-wght.woff2') format('woff2-variations'); }
+  :root { --cover: #49aa57; --band: #0d1a10; --yellow: #ffd52e; --ink: #13200f; --paper: #f6f2df; --muted: #c9d8b6; }
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1280px; font-family: 'Fredoka', sans-serif; color: var(--ink); background: transparent; }
+  .front { position: relative; height: 400px; overflow: hidden; border-radius: 28px; background: var(--cover); border: 5px solid var(--band); }
+  .band { height: 52px; background: var(--band); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; color: var(--yellow); font: 600 17px/1 'Fredoka'; letter-spacing: 0.2em; text-transform: uppercase; }
+  .band span:last-child { color: var(--paper); letter-spacing: 0.08em; font-size: 15px; }
+  .text { position: absolute; left: 44px; top: 86px; }
+  svg { width: 330px; display: block; }
+  .wm-drop, .wm-edge { stroke: var(--band); }
+  .wm-fill { stroke: var(--yellow); }
+  h1 { margin-top: 12px; font: 650 40px/1 'Fredoka'; }
+  p { margin-top: 12px; font: 500 22px/1.3 'Fredoka'; max-width: 640px; }
+  .dee { position: absolute; right: 120px; bottom: -40px; height: 380px; filter: drop-shadow(12px 12px 0 rgb(13 26 16 / 0.35)); }
+  .seal { position: absolute; right: 360px; top: 92px; width: 120px; height: 120px; border-radius: 50%; background: var(--yellow); border: 4px solid var(--band); display: grid; place-items: center; text-align: center; font: 650 19px/1.05 'Fredoka'; rotate: -12deg; }
+  .back { display: none; height: 160px; border-radius: 28px; background: var(--band); border-top: 6px solid var(--cover); color: var(--muted); align-items: center; gap: 22px; padding: 0 44px; }
+  .back img { width: 72px; height: 72px; }
+  .back b { display: block; color: var(--yellow); font: 650 34px/1 'Fredoka'; }
+  .back span { font: 500 19px/1.4 'Fredoka'; }
+  .back .sp { flex: 1; }
+  .back .dee-s { height: 128px; align-self: flex-end; }
+  body.is-back .front { display: none; }
+  body.is-back .back { display: flex; }
+</style>
+</head>
+<body>
+  <div class="front">
+    <div class="band"><span>Instruction booklet</span><span>For mice, keyboards &amp; headsets</span></div>
+    <div class="text">
+      <svg viewBox="-14 -14 310 140" aria-label="UDB">
+        <defs><path id="w" d="M12 12V58A30 30 0 0 0 72 58V12M112 12V88H138A38 38 0 0 0 138 12ZM216 12V88M216 12H244A19 19 0 0 1 244 50H216M216 50H248A19 19 0 0 1 248 88H216" /></defs>
+        <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <use href="#w" class="wm-drop" stroke-width="40" transform="translate(0 10)" />
+          <use href="#w" class="wm-edge" stroke-width="40" />
+          <use href="#w" class="wm-fill" stroke-width="24" />
+        </g>
+      </svg>
+      <h1>Universal Driver Bus</h1>
+      <p>One bus. Every device. Mouse, keyboard and headset settings in your browser, and only what the device sends back.</p>
+    </div>
+    <span class="seal">Read<br />it<br />back</span>
+    <img class="dee" src="../../public/brand/dee.webp" alt="" />
+  </div>
+  <div class="back">
+    <img src="../../public/icons/icon-512.png" alt="" />
+    <div><b>UDB</b><span>One bus. Every device. Nothing is uploaded; it all runs in your browser.</span></div>
+    <span class="sp"></span>
+    <img class="dee-s" src="../../public/brand/dee.webp" alt="" />
+  </div>
+  <script>if (location.hash === '#back') document.body.classList.add('is-back');</script>
+</body>
+</html>

@@ -70,6 +70,9 @@ needing a companion app.
   night. Still a launcher (Phase 7): the connected device stands lit on a
   stage, and requested vs. confirmed-by-device stays the central idea. No neon,
   glow or angular "gamer" chrome.
+- The public site is UDB's own instruction booklet (owner pick, 2026-10-20):
+  a game-manual cover with START, then printed spreads. Contact goes through
+  GitHub only; no personal address is published.
 - **Dee**, the mascot (a USB stick in a green UDB cap), is the guide: the
   onboarding, recovery notices and tips. Dee speaks plainly and never claims
   support, a result or a value the device didn't return. Tips can be switched off.

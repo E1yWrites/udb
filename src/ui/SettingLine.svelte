@@ -1,10 +1,13 @@
 <script lang="ts" generics="T">
   // One setting in a live panel: the control (passed in), the last value the
-  // device returned, and the outcome of the last write. Styles: app.css (.live).
+  // device returned, and the outcome of the last write, as a dotted-rule row that
+  // opens to its control. Styles: app.css (.live).
   import type { Snippet } from 'svelte';
   import Icon from './Icon.svelte';
   import type { WriteResult } from '../lib/write.ts';
   import { noteReadBack } from '../lib/prefs.svelte.ts';
+  import { getContext } from 'svelte';
+  import { LINE_GROUP } from '../lib/labels.ts';
 
   let {
     id,
@@ -33,17 +36,37 @@
   $effect(() => {
     if (value != null) noteReadBack();
   });
+
+  // Rows in one device view open one at a time (DevicePane sets the group); the first one mounted starts open.
+  const group = getContext<{ open: string | null } | undefined>(LINE_GROUP);
+  // svelte-ignore state_referenced_locally
+  if (group && group.open === null) group.open = id;
+  const open = $derived(!group || group.open === id);
+  /** The closed row's word for the last write; the open row spells the outcome out. */
+  const WORD = { confirmed: 'confirmed', muted: 'writing…', signal: 'needs a look', danger: 'failed' } as const;
+  const tone = $derived(
+    busy ? 'muted' : result?.kind === 'confirmed' ? 'confirmed' : result?.kind === 'failed' ? 'danger' : result ? ('signal' as const) : null,
+  );
 </script>
 
-<div class="line">
-  <label class="name" for={id}>{label}</label>
-  <div class="ask">{@render children()}</div>
-  <div class="told">
-    <span class="tag">Device</span>
-    {#key value}<span class="value num settle">{show(value)}</span>{/key}
+<div class="line" class:open>
+  <button type="button" class="head" aria-expanded={open} aria-controls="{id}-body" onclick={() => group && (group.open = id)}>
+    <span class="name">{label}</span>
+    <span class="reads"><span class="tag">Device</span>{#key value}<span class="value num settle">{show(value)}</span>{/key}</span>
+    {#if !open}
+      {#if tone}
+        <span class="mini {tone}"><Icon name={tone === 'confirmed' ? 'check' : tone === 'muted' ? 'busy' : 'alert'} size={14} />{WORD[tone]}</span>
+      {:else}
+        <span class="mini when">read {readAt ? clock(readAt) : '–'}</span>
+      {/if}
+    {/if}
+  </button>
+  <div id="{id}-body" class="body" hidden={!open}>
+    <label class="visually-hidden" for={id}>{label}</label>
+    <div class="ask">{@render children()}</div>
     <span class="when">read {readAt ? clock(readAt) : '–'}</span>
   </div>
-  <p class="outcome" aria-live="polite">
+  <p class="outcome" class:visually-hidden={!open} aria-live="polite">
     {#if busy}
       <span class="status muted">Writing, then reading back…</span>
     {:else if result?.kind === 'confirmed'}

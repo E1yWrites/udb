@@ -10,6 +10,8 @@
   import { deviceState } from '../lib/labels.ts';
   import { registry } from '../lib/registry.ts';
   import { prefs, setGuide, setOnboarded } from '../lib/prefs.svelte.ts';
+  import { browserStore, loadProfiles } from '../lib/profiles.ts';
+  import { migrateV1 } from '../lib/profile-map.ts';
 
   let {
     onopen,
@@ -33,6 +35,9 @@
     headset: registry.filter((e) => e.category === 'headset').length,
   };
   const verified = registry.filter((e) => e.features.some((f) => f.status === 'write-verified')).length;
+  const store = browserStore();
+  const saved = store ? loadProfiles(store, migrateV1) : [];
+  const savedCount = { mouse: saved.filter((p) => p.category === 'mouse').length, keyboard: saved.filter((p) => p.category === 'keyboard').length };
 
   function replay() {
     setOnboarded(false);
@@ -47,8 +52,7 @@
     </div>
 
     <div class="intro">
-      <h1 id="home-title" tabindex="-1"><img src="./brand/logo.webp" alt="UDB, Universal Driver Bus" width="900" height="327" /></h1>
-      <p class="tagline">One bus. Every device.</p>
+      <h1 id="home-title" tabindex="-1"><span class="page-chip">p. 1</span> Start here</h1>
 
       <Guide {tone} tip={false} avatar={false}>
         {#if !devices.hid}
@@ -147,6 +151,21 @@
         </span>
         <Icon name="chevron" size={18} />
       </a>
+      <a class="tile" href="#/profiles">
+        <span class="tile-art swatches" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="tile-text">
+          <strong>Profiles</strong>
+          <span>
+            {#if saved.length}
+              <span class="num">{savedCount.mouse}</span> mouse and <span class="num">{savedCount.keyboard}</span> keyboard
+              {saved.length === 1 ? 'profile' : 'profiles'} in this browser. Make, edit, import and export them here.
+            {:else}
+              DPI stages, polling rate, colour and brightness, saved once and applied to any mouse or keyboard UDB can write.
+            {/if}
+          </span>
+        </span>
+        <Icon name="chevron" size={18} />
+      </a>
     </div>
   </section>
 
@@ -211,18 +230,13 @@
   }
 
   h1 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
     margin: 0;
-    line-height: 0;
-  }
-
-  h1 img {
-    width: min(26rem, 100%);
-    height: auto;
-  }
-
-  .tagline {
-    font: 600 var(--step-2) / 1.2 var(--font-brand);
-    color: var(--muted);
+    font: 700 var(--step-4) / 1 var(--font-brand);
+    letter-spacing: -0.01em;
   }
 
   .steps {
@@ -274,6 +288,25 @@
 
   .step > span {
     color: var(--muted);
+    transition: opacity 200ms var(--ease-out);
+  }
+
+  /* A finished step's tick lands on the spring; the next step's text fades in. */
+  .steps .done .mark :global(svg) {
+    transition:
+      transform var(--spring-time) var(--spring),
+      opacity 200ms var(--ease-out);
+  }
+
+  @starting-style {
+    .steps .done .mark :global(svg) {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+
+    .step > span {
+      opacity: 0;
+    }
   }
 
   .done .step strong {
@@ -423,6 +456,36 @@
     aspect-ratio: 1;
   }
 
+  .more {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  /* Profiles: three overlapping colour dots, brand first. */
+  .swatches {
+    grid-template-columns: repeat(3, 1.75rem);
+    gap: 0;
+    padding-right: 1.25rem;
+  }
+
+  .swatches > span {
+    width: 2.6rem;
+    border-radius: 50%;
+    border: 2px solid var(--surface);
+  }
+
+  .swatches > span:nth-child(1) {
+    background: var(--accent);
+  }
+
+  .swatches > span:nth-child(2) {
+    background: var(--yellow);
+  }
+
+  .swatches > span:nth-child(3) {
+    background: color-mix(in srgb, var(--accent) 55%, var(--ink));
+  }
+
   .tile-text {
     display: grid;
     gap: var(--space-1);
@@ -537,6 +600,15 @@
   @media (prefers-reduced-motion: reduce) {
     .stage {
       animation: fade 200ms ease-out both !important;
+    }
+
+    .steps .done .mark :global(svg) {
+      transform: none;
+      transition: opacity 150ms ease-out !important;
+    }
+
+    .step > span {
+      transition: opacity 150ms ease-out !important;
     }
 
     @keyframes fade {

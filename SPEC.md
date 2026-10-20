@@ -152,22 +152,40 @@ See `THREAT_MODEL.md`. In short:
 
 ## Profiles
 
-**Browser profiles** (`src/lib/profiles.ts`, `src/ui/ProfileBar.svelte`) are
-available on the panels whose settings are read back one by one: `compx`,
-`corsair-nxp`, `logitech-hidpp`, `razer` and `qmk-via`.
-- A profile is a name, the registry entry it was saved from, and the values the
-  device last returned, by the panel's own setting id. UDB never saves a value
-  it only requested.
+**Browser profiles** (v2, Phase 8: `src/lib/profiles.ts`,
+`src/lib/profile-map.ts`, `src/ui/ProfileBar.svelte`,
+`src/ui/ProfileLibrary.svelte`) are **Mouse** or **Keyboard** profiles that
+apply to any device of that category whose panel reads its settings back one
+by one: `compx`, `corsair-nxp`, `logitech-hidpp`, `razer` (mice) and `qmk-via`
+(keyboards).
+- A Mouse profile holds DPI stages (1 to 8), the active stage, the polling
+  rate and a colour. A Keyboard profile holds a colour, a brightness (percent)
+  and an effect tagged with its protocol family. Every field is optional; at
+  least one is set.
+- It is saved from what the device returned ("Save current settings") or made
+  and edited in the library (Home, Profiles) without a device. UDB never saves
+  a value it only requested from a device.
 - It lives in this browser's `localStorage` (label: Browser). Nothing is sent
-  anywhere. A profile lists only under its registry entry.
-- Applying one writes each value through the panel's write procedure, in the
-  panel's row order, behind the same "allow unverified writes" gate. Each value
-  is read back; the result per setting (confirmed, mismatch, failed, not
-  written, already set, skipped) is shown.
-- Export and import use a JSON file: `{ "udbProfile": 1, "name", "registryId",
-  "settings": { "<setting id>": <integer> } }`. An import is untrusted input:
-  size, shape, name, registry id and every key and value are checked, and the
-  values still go through each setting's range check when applied.
+  anywhere.
+- Applying one, inside a device and behind the same "allow unverified writes"
+  gate, plans the panel's row writes (`profile-map.ts`) and writes each through
+  the panel's write procedure, in the panel's row order, one at a time. Each
+  value is read back; the result per setting (confirmed, mismatch, failed, not
+  written with the device's reason, already set, unreadable) is shown, and so
+  is everything the device couldn't take: extra or missing DPI stages, a
+  one-DPI mouse getting the active stage, a rate the mouse refuses (its own
+  range check), a colour on a mouse (no mouse adapter writes lighting), an
+  effect from another protocol family.
+- Export and import use a JSON file: `{ "udbProfile": 2, "name", "category":
+  "mouse" | "keyboard", "mouse" | "keyboard": { … } }`. An import is untrusted
+  input: size, shape, name and every field are checked against fixed bounds,
+  unknown fields are dropped, and the values still go through each setting's
+  range check when applied.
+- v1 profiles (one device's own rows) are converted on first load through
+  their registry entry's mapping; the v1 storage key is left untouched. A v1
+  profile no mapping covers (a headset's sidetone) is kept as it was, listed
+  under "Kept from an older version", exportable in v1 format, never applied.
+  v1 files can still be imported.
 
 **On-device profiles.** No adapter implements profile switching yet: the
 stored-profile and onboard-mode commands of Corsair and Logitech are on the

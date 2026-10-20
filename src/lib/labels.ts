@@ -60,3 +60,6 @@ export function deviceState(d: UdbDevice): { word: string; icon: IconName; tone:
   if (!d.match.modelConfirmed) return { word: 'Model not confirmed', icon, tone: 'signal' };
   return { word: 'Detected', icon, tone: 'confirmed' };
 }
+
+/** Context key for the group of setting tiles in one device view, so only one is open (SettingLine, DevicePane). */
+export const LINE_GROUP = Symbol('setting tiles');

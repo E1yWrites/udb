@@ -15,6 +15,8 @@
   ];
   const ORDER: FeatureStatus[] = ['write-verified', 'read-verified', 'experimental', 'detected', 'unsupported'];
 
+  let { back = '/#/app' }: { back?: string } = $props();
+
   let query = $state('');
   let category = $state<Category | 'all'>('all');
 
@@ -40,7 +42,7 @@
 
 <main class="supported" aria-labelledby="supported-title">
   <header class="head">
-    <a class="btn quiet back" href="#/"><Icon name="back" />Home</a>
+    <a class="btn quiet back" href={back}><Icon name="back" />{back === '/#/' ? 'Back to the cover' : 'Home'}</a>
     <h1 id="supported-title" tabindex="-1">Supported devices</h1>
     <p class="lede">
       Every model UDB recognises and what it knows about each setting. <strong>Unverified</strong> means the protocol was
@@ -236,6 +238,7 @@
   }
 
   .list {
+    interpolate-size: allow-keywords;
     list-style: none;
     margin: 0;
     padding: 0;
@@ -244,6 +247,25 @@
 
   .list > li {
     border-bottom: 1px solid var(--line);
+  }
+
+  /* Rows open to their height instead of snapping (Chromium, which WebHID needs anyway). */
+  details::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 220ms var(--ease-out),
+      content-visibility 220ms allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    details::details-content {
+      transition: none;
+    }
   }
 
   summary {

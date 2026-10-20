@@ -3,7 +3,8 @@
 //
 // - Install: precache every build file, so the app opens offline after one visit.
 // - Navigation: network first, so a reload picks up a new deploy; the cached
-//   page only answers when the network doesn't.
+//   copy of that page (the cover for an unknown one) only answers when the
+//   network doesn't. Each prerendered page is cached under its own URL.
 // - Other same-origin GETs: cache first (build files are content-hashed).
 // - Cross-origin requests and non-GETs are never touched.
 // - No skipWaiting: a new worker takes over when the old one's tabs are closed,
@@ -33,11 +34,11 @@ self.addEventListener('fetch', (event) => {
         (response) => {
           if (response.ok) {
             const copy = response.clone();
-            caches.open(CACHE).then((cache) => cache.put('./index.html', copy));
+            caches.open(CACHE).then((cache) => cache.put(request, copy));
           }
           return response;
         },
-        () => caches.match('./index.html'),
+        () => caches.match(request).then((hit) => hit || caches.match('./')),
       ),
     );
     return;

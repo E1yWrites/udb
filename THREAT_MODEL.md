@@ -1,6 +1,6 @@
 # UDB threat model (v1, browser-only)
 
-Scope: the static web app on GitHub Pages, the registry, and the protocol
+Scope: the static web app on GitHub Pages at `udb.lorenzmalabanan.com`, the registry, and the protocol
 adapters. Not in scope: malware on the user's PC, physical attackers, and
 browser vulnerabilities themselves. Last reviewed 2026-10-18 (Phase 6; see
 `docs/security-review.md`).
@@ -43,14 +43,15 @@ flowchart LR
 | T10 | **Embedding / clickjacking** | Tricking a user into a grant | WebHID in a cross-origin iframe needs a `hid` permissions-policy grant that UDB never gives. GitHub Pages can't send `frame-ancestors` (a `<meta>` CSP can't set it). | Low |
 | T11 | **Malicious registry data** (misleading `write-verified` claims) | Users trust an unverified control | The schema requires hardware evidence for `read-verified`/`write-verified` and read-back for `write-verified` (`scripts/check-registry.sh`); reviewers check the evidence | Reviewer error |
 | T12 | **Cached stale or tampered code** (the service worker keeps a bundle after the deploy is fixed or rolled back) | A bad bundle keeps running | Navigations go to the network first, so a reload gets the current page; no `skipWaiting`, so a new worker never takes over mid-session; the cache name changes every commit and old caches are deleted; users can clear site data or uninstall (ADR 9) | Low; an offline user runs the last version they loaded |
-| T13 | **Hostile or careless profile file** (imported by the user) | Extreme values written to a device; a parser or storage bug | The file is size-capped and parsed as JSON only; name, registry id and every key and value are validated, and unknown fields are dropped; applying goes through each setting's range check, then the write procedure with read-back; nothing is executed | Low |
+| T13 | **Hostile or careless profile file** (imported by the user) | Extreme values written to a device; a parser or storage bug | The file is size-capped and parsed as JSON only. v2: category, name and every field are checked against fixed bounds (1–8 DPI stages of 1–100,000, a listed polling rate, `#rrggbb`, brightness 0–100, an effect family name and 0–255), and unknown fields are dropped; v1 files are checked as before, then converted. Applying plans writes only to rows the connected panel already has, and each goes through that setting's own range check and the write procedure with read-back, one at a time; nothing is executed | Low |
 | T14 | **Hostile or careless VIA definition file** (loaded by the user) or a keymap write that bricks input | A keyboard left without a usable key, or with a reset or bootloader key assigned; a parser bug | The file is size-capped and parsed as JSON only; matrix size, key count, coordinates and layout options are bounded; it must name the connected VID/PID; the matrix bounds every keymap command in the allowlist, and the layer count comes from the keyboard. Only basic keys (`<= FF`) can be assigned; other keycodes can be written only if the keyboard returned that exact value for that key. Writes are read back and restored on mismatch, one key at a time, behind their own gate. Any key can be set back with "Restore original" or with another keyboard's VIA | Medium for `experimental` keymap writes, by design |
+| T15 | **Subdomain takeover** (the `udb` DNS record keeps pointing at GitHub Pages after the site or its domain setting is removed, so someone else's Pages site claims it) | A lookalike UDB on the real domain, holding new grants | The owner verifies `lorenzmalabanan.com` on their GitHub account, so no other account can use it; no wildcard DNS record; remove the `CNAME` record before removing the site (`docs/deploy.md`, ADR 12) | Low once verified |
 
 ## Decisions this threat model depends on
 
 - ADR 1 (browser-only): no daemon means no localhost attack surface.
 - ADR 5 (no telemetry, supply chain).
-- ADR 6 (deploy from `main` only).
+- ADR 6 (deploy from `main` only), amended by ADR 12 (custom domain, verified).
 - ADR 9 (service worker: network-first navigation, no early takeover).
 
 ## Actions for the owner
@@ -59,3 +60,5 @@ flowchart LR
    Phase 0 needed one force push to remove commit attribution; that's done
    now.
 2. Make sure 2FA is on for the GitHub account that owns `E1yWrites/udb`.
+3. Verify `lorenzmalabanan.com` on GitHub before setting the custom domain
+   (T15, `docs/deploy.md`).

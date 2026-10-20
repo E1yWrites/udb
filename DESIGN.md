@@ -76,57 +76,64 @@ components:
     height: "40px"
     padding: "0 16px"
   dock-item-current:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.text}"
-    rounded: "{rounded.tile}"
-    padding: "8px"
-  setting-tile:
-    backgroundColor: "{colors.surface}"
-    rounded: "{rounded.tile}"
-    padding: "16px"
+    backgroundColor: "{colors.yellow}"
+    textColor: "{colors.yellow-ink}"
+    rounded: "{rounded.pill}"
+    padding: "4px 16px 4px 4px"
+  setting-row:
+    backgroundColor: "transparent"
+    padding: "12px 24px"
 ---
 
 # Design System: UDB
 
 ## Overview
 
-A device launcher (Operate mode) in the manner of Pulsar's BBB and the
-Redragon launcher (Phase 7), dressed in the owner's mascot colours (Phase 8):
-the grass green of the app icon and Dee's yellow. The connected device stands
-lit on a stage; everything around it is what the device itself reported.
-Dark is primary (a gamer's desk at night); light (daylight, a pale leaf and
-cream shell) gets equal care. A System/Light/Dark switch sets `data-theme` on
-`<html>`. Source of truth: `src/app.css`. Images: ADR 10. Brand assets and
-font: ADR 11.
+UDB is its own instruction booklet (Phase 8, owner pick 2026-10-20, replacing
+the plain dark launcher look). The public landing is the booklet's cover:
+cover green with a deep band, the yellow ink-stroked UDB title, Dee, and a
+START button that is the real WebHID request. Below it sit printed spreads
+(Controls, Warnings, Compatible devices) on booklet paper with dotted rules
+and "p. N" page chips. The app wears the same world in Operate mode: the
+band is the top bar and the footer, light is the printed page, dark is the
+same booklet at night. The device view is a console with the open device as a
+cartridge (comp A, 2026-10-20) over a printed Controls page; setting rows and
+the read-back settle keep their behaviour. Source of truth: `src/app.css`. Images:
+ADR 10. Brand assets and font: ADR 11.
 
 ## Colors
 
-- **Shell:** green-tinted neutral steps `rail` < `bg` < `surface` < `raised`,
-  with `line` and `line-strong` hairlines. Text tiers `text`, `muted`,
-  `faint`, tinted toward the hue, never pure grey.
-- **Accent, grass green** (`accent`): selection, primary actions, focus ring,
-  caret, the wordmark, the stage light.
-- **Dee yellow** (`yellow`): the warm highlight. Dee, speech bubbles, the
-  current device tile, onboarding. Never text on a light surface; text on
-  yellow uses `yellow-ink`.
-- **Signal orange** (`signal`): needs your attention (unverified, model not
-  confirmed, busy, the write gate). Orange, so it never reads as the brand
-  yellow. Never decorative.
-- **Confirmed teal** (`confirmed`): the hardware backed it up. Teal, so it
-  never reads as the brand green.
-- **Danger** (`danger`): failures and collections UDB blocks.
+- **Booklet frame** (same in both themes): `cover` #49aa57 (the cover board),
+  `band` #0d1a10 (top bar, footer, cover band, page chips), `paper` #f6f2df.
+  The band carries its own dark tokens, so it reads the same on light pages.
+- **Shell:** light is paper (`bg` #f6f2df < `surface` #fffcef, `raised`
+  #e9e2c4, ink text #13200f); dark is night green (`bg` #0d1a10, `surface`
+  #142a19, `raised` #1c3a22, paper text #f6f2df). `keyline` is the ink of
+  outlines: #13200f on paper, #4e7354 at night.
+- **Printed page** (`--page-*`): spreads, terms and contact are always paper
+  with ink #13200f, headings #1e4d2b, body #3f4d35, rules #d9d2b4 and dotted
+  rules #b7ae8a, whatever the theme.
+- **Accent green** (`accent`): selection, focus, links: #1e6b34 on paper,
+  #5cc46a at night.
+- **Dee yellow** (`yellow` #ffd52e): START and every primary button (ink
+  outlined, ink text), seals, the cartridge label, the open row's wash, the current dock pill.
+- **Signal orange** (`signal`) means needs attention; **confirmed teal**
+  (`confirmed`) means the hardware backed it up; **danger** is failure.
 
 ### Named rules
 - **Never colour alone.** Every status is an icon, a word and a colour.
 - **Brand colours never carry status.** Green and yellow are UDB; teal and
   orange are what the device said.
+- **One yellow button per view.** Yellow is START; secondary actions are
+  outlined in the keyline.
 - **Device LED colours are data.** They appear only as small chips.
-- Mix orange and yellow into surfaces in sRGB (`color-mix(in srgb, …)`); an
-  oklch mix swings the hue on the light theme.
 
 ## Typography
 
-Fredoka (self-hosted, ADR 11) for headings, the wordmark and Dee's bubbles;
+Fredoka (self-hosted, ADR 11) for headings, the wordmark, buttons, page chips
+and Dee's bubbles. The cover title is an authored SVG wordmark (rounded
+strokes, yellow fill, a band-colour edge and solid drop, the booklet's printed
+relief), because Fredoka's heavy B closes its counters;
 the system UI stack (Segoe UI Variable on Windows) for everything else. Values
 stay on Segoe UI Variable Display so digits line up. Tracking by size: display
 `-0.01em`, values `-0.01em`, body `0`, tags `+0.08em` caps. Monospace only
@@ -134,22 +141,38 @@ for hex identifiers and raw values; other numbers use `tabular-nums` (`.num`).
 
 ## Layout
 
-A sticky translucent top bar: the app icon and wordmark (a link to Home),
-"Identify another device" and "Add device" in a device view, and the theme
-switch. Three views, kept in the URL hash so Back works:
+A sticky translucent top bar: the app icon and wordmark (a link to the cover),
+"Identify another device", "Add device" and Close in a device view, and the
+theme switch. Public pages are real, prerendered paths (ADR 12): the landing
+at `/` (cover, then spreads p. 2 to p. 7), Terms (`/terms/`), Legal
+(`/legal/`: who runs UDB, licences, third-party work, names and images),
+Contact (`/contact/`, GitHub only), an in-app missing page for unknown routes and a
+self-contained `404.html` for GitHub Pages. A visitor who has opened the app
+before goes straight to `/#/app`. The footer is the
+back cover on every page: GitHub, Terms, Contact, the support matrix and the
+build's source. App views, kept in the URL hash so Back works:
 
-- **Home** (`#/`, where UDB always lands): a hero of Dee on a lit stage beside
+- **Home** (`#/app`, "Start here", p. 1): a hero of Dee on a lit stage beside
   the logo, the tagline and Dee's bubble (the onboarding, then a greeting),
   with Add device. Then "Your devices" as cards, the way into Supported
   devices, and Settings (Dee's tips, Replay the tour). Under 52rem the hero
   stacks and cards go two across.
-- **Device** (`#/device/<key>`): the device dock of 15–18rem and the device
-  pane, capped at 76rem, with Close at the top right (Esc too). A hero of stage
-  and identity side by side (stacked under 60rem), then a segmented tab control:
-  Controls, What UDB knows, Interfaces & diagnostics. Hidden tab panels stay
-  mounted, so a live session survives a tab switch; closing the device or
-  switching to another ends it. Under 48rem the dock becomes a horizontal
-  snap strip.
+- **Device** (`#/device/<key>`), the cartridge view (Phase 8, comp A · Cartridge,
+  roll e95cb58a): a spread on the booklet ground. Top left, the **console**: a
+  cover-green plate with a band keyline; the open device is a cartridge pushed
+  into the slot, its yellow label carrying the product image or drawing, the
+  position chip ("Mouse · 1 of 3"), the name, identity pills and the status
+  word. Its previous and next neighbours wait dimmed in the rack on either side
+  as buttons. Under it, the **printed page**: index tabs (Controls, What UDB
+  knows, Interfaces & diagnostics) over one paper sheet with an ink keyline and
+  a "p. 2" chip heading, paper in both themes. The right column holds the
+  status or recovery notice, Dee's tip and the facts card. ← and → swap the
+  cartridge (never while a control, the tab list or a radio group owns the
+  keys); Close (in the top bar) or Esc returns Home. The dock is the band along
+  the bottom edge, one pill per device; the open device's pill is yellow. Under
+  60rem the right column follows the console; under 40rem the label stacks and
+  the rack shrinks to ‹ › buttons. Hidden tab panels stay mounted; switching
+  devices ends the live session.
 - **Supported devices** (`#/supported`): search (name, brand, protocol, USB ID),
   a category switch, and one row per registry entry that opens to its
   features, where each lives, and status.
@@ -159,41 +182,60 @@ closes, the heading otherwise.
 
 ## Elevation & depth
 
-Surface steps and hairlines first. Shadows carry an offset and a blur: the
-current dock tile, the selected tab, and the product image's drop shadow on
-the stage. The top bar is a material: `backdrop-filter: blur(20px)` over
+Surface steps, keylines and dotted rules first. Shadows are rare: the product
+image's hard drop shadow on the cartridge label, and the open index tab, which
+paints over the sheet's top edge. The top bar is a material: `backdrop-filter: blur(20px)` over
 `--chrome`, solid under `prefers-reduced-transparency`.
 
 ## Components
 
-- **Stage:** a `figure` with a radial stage light and a floor shadow. It shows
-  the product image (ADR 10) or an authored category drawing
-  (`DeviceArt.svelte`). Captions say when the image is representative of a
-  line, or when the model isn't confirmed.
-- **Dock tile:** thumbnail, label, state word with icon. Disconnected devices
-  show a grey thumbnail.
+- **Cartridge** (`DevicePane.svelte`): the console plate, the cartridge with
+  its grip, the yellow label and the slot. Fixed booklet colours in both
+  themes; status words on the label are darkened for AA on yellow. It shows the
+  product image (ADR 10) or an authored category drawing (`DeviceArt.svelte`),
+  with a caption when the image is representative of a line or the model isn't
+  confirmed.
+- **Dock pill:** thumbnail, label, state word with icon, on the band.
+  Disconnected devices show a grey thumbnail.
 - **Notice:** a tile with an icon heading and the recovery ("Close Pulsar
   Fusion, then try again"); amber-tinted when it needs attention.
-- **Setting tile (signature):** the setting, then the value the device
-  returned (tag DEVICE, `value` type, read time), then the request and Apply,
-  then the outcome. The device's value **settles** into place when it
-  changes: blur, lift and opacity on the `--spring` curve (critically damped,
-  no overshoot); a short cross-fade under reduced motion.
+- **Printed page** (`.paper`): a block that takes the light tokens whatever the
+  theme, so panels inside it read as print at night too.
+- **Setting row (signature):** one dotted-rule row per setting, one open at a
+  time. Closed, it reads name · the value the device returned (tag DEVICE,
+  `value` type) · the last write's word with an icon (confirmed, needs a look,
+  failed, writing…) or the read time. Open, it gets a yellow wash with the
+  control, the read time and the outcome inline. The device's value
+  **settles** into place when it changes: blur, lift and opacity on the
+  `--spring` curve (critically damped, no overshoot); a short cross-fade under
+  reduced motion.
 - **Dee** (`Dee.svelte`, `Guide.svelte`): the mascot beside a speech bubble
   with an ink-and-yellow outline. Recovery notices (busy, disconnected,
   unsupported, a refused or cancelled request) always show Dee, worried (tilted,
   desaturated). Tips beside Controls and diagnostics follow the Guide switch.
   Happy is one small hop when the onboarding completes. The image is
   decorative; everything Dee says is text.
+- **Controls** (`src/ui/controls/`): a slider and exact field for ranges (DPI on
+  a power curve so 400–3,200 gets most of the track; arrow keys move one real
+  step), a segmented row for short lists, swatches plus the system picker for
+  colour. They commit on click or release, never while dragging, and then show
+  the value the device returned.
 - **Buttons:** pills, 40px high, scale 0.97 on press.
 - **Icons:** authored SVG on a 20px grid, 1.5px round stroke, `currentColor`.
 
 ## Motion
 
-Feedback on press. Two authored moments only: the device materialising on the
-stage (scale, blur, opacity) and the read-back settle. `prefers-reduced-motion`
-swaps both for cross-fades; `prefers-contrast: more` strengthens lines and
-makes the chrome solid.
+Feedback on press. Two authored moments: the cartridge sliding up into the
+slot (spring, 520ms) and the read-back settle. Around them, quiet
+bridges for things that would otherwise teleport, all on `--ease-out` or the
+critically damped `--spring`: the theme switch cross-fades the page (view
+transition, 240ms); a finished onboarding step's tick lands on the spring; the
+request notice drops in from under the top bar (240ms) as worried Dee tilts;
+the profile editor and the "Applied" result fade up (200ms); supported-device
+rows open to their height (220ms). Home, device switching, tabs and the
+segmented controls never animate their navigation: they are used too often.
+`prefers-reduced-motion` keeps short opacity fades (120–200ms) and drops every
+movement; `prefers-contrast: more` strengthens lines and makes the chrome solid.
 
 ## Do's and don'ts
 

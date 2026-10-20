@@ -13,6 +13,9 @@
   import ProfileBar from './ProfileBar.svelte';
   import { logFor } from '../lib/history.svelte.ts';
   import SettingLine from './SettingLine.svelte';
+  import RangeField from './controls/RangeField.svelte';
+  import Segments from './controls/Segments.svelte';
+  import { rowWriter } from '../lib/commit.ts';
   import { CompxSession } from '../adapters/compx-session.ts';
   import { POLLING_RATES, type Info } from '../adapters/compx.ts';
   import { DPI_SENSORS, type DpiSensor } from '../adapters/compx-dpi.ts';
@@ -157,10 +160,17 @@
     }
   }
 
-  async function apply(row: Row) {
+  /** The slider step for this sensor; the device's read-back has the final say. */
+  const dpiStep = $derived(sensor?.family === 'stepped' ? (sensor.xStep ?? 100) : sensor?.family === 'ultra' ? 10 : 50);
+
+  // All writes go through one queue: one at a time, and a control ends on its newest value (src/lib/commit.ts).
+  const writer = rowWriter<Row>(applyNow);
+  const apply = writer.apply;
+
+  async function applyNow(row: Row) {
     const previous = readings[row]?.value;
     const value = requested[row];
-    if (previous == null || value == null) return;
+    if (previous == null || value == null || value === previous) return;
     busy = row;
     const result = await applySetting(setting(row), value, previous);
     const at = now();
@@ -177,6 +187,8 @@
     } else if (result.kind === 'failed') {
       readings[row] = { value: result.actual, at };
     }
+    // The control shows what the device returned, unless a newer value is already queued.
+    if (!writer.queued(row)) requested[row] = readings[row]?.value ?? requested[row];
     busy = null;
   }
 
@@ -303,28 +315,41 @@
             show={(v) => show(row, v)}
           >
             {#if isDpi(row) && sensor}
-              <input
+              <RangeField
                 id="ctl-{row}"
-                type="number"
-                inputmode="numeric"
+                label={label(row)}
                 min={sensor.minDpi}
                 max={sensor.maxDpi}
-                step="10"
+                step={dpiStep}
+                unit="DPI"
+                curve
                 bind:value={requested[row]}
-                disabled={!allowUnverified || busy !== null}
+                disabled={!allowUnverified}
+                oncommit={() => writer.commit(row)}
+              />
+            {:else if row === 'pollingRate' || row === 'activeStage'}
+              <Segments
+                id="ctl-{row}"
+                label={label(row)}
+                options={row === 'activeStage'
+                  ? options(row).map((o) => ({ ...o, label: readings[`dpi${o.value}`]?.value ? `${o.value + 1} · ${readings[`dpi${o.value}`]!.value!.toLocaleString()}` : `${o.value + 1}` }))
+                  : options(row)}
+                bind:value={requested[row]}
+                disabled={!allowUnverified}
+                oncommit={() => writer.commit(row)}
               />
             {:else}
               <select id="ctl-{row}" bind:value={requested[row]} disabled={!allowUnverified || busy !== null}>
                 {#each options(row) as o (o.value)}<option value={o.value}>{o.label}</option>{/each}
               </select>
+              <button
+                class="btn"
+                onclick={() => apply(row)}
+                disabled={!allowUnverified || busy !== null || requested[row] === readings[row]?.value}
+              >
+                {busy === row ? 'Writing…' : 'Apply'}
+              </button>
             {/if}
-            <button
-              class="btn"
-              onclick={() => apply(row)}
-              disabled={!allowUnverified || busy !== null || requested[row] === readings[row]?.value}
-            >
-              {busy === row ? 'Writing…' : 'Apply'}
-            </button>
           </SettingLine>
         {/if}
       {/each}
@@ -335,7 +360,8 @@
     {/if}
 
     <ProfileBar
-      entryId={(model ?? entry).id}
+      family={entry.protocol.family}
+      category={entry.category}
       current={Object.fromEntries(Object.entries(readings).map(([r, x]) => [r, x?.value]))}
       label={(r) => label(r as Row)}
       show={(r, v) => show(r as Row, v)}

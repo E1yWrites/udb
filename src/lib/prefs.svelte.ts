@@ -30,6 +30,8 @@ export const prefs = $state({
   onboarded: read('udb-onboarded') === '1',
   /** A device has returned a value in a live panel at least once (onboarding step 3). */
   sawReadBack: read('udb-saw-read') === '1',
+  /** The app (not just the landing) has been opened here, so a bare visit goes straight to it. */
+  appSeen: read('udb-app-seen') === '1',
 });
 
 /** Sets data-theme on <html>; "system" removes it so the OS preference applies (app.css). */
@@ -58,4 +60,10 @@ export function noteReadBack(): void {
   if (prefs.sawReadBack) return;
   prefs.sawReadBack = true;
   write('udb-saw-read', '1');
+}
+
+export function noteAppSeen(): void {
+  if (prefs.appSeen) return;
+  prefs.appSeen = true;
+  write('udb-app-seen', '1');
 }

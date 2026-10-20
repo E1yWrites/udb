@@ -379,3 +379,71 @@ Keyboard) you can edit. Four stacked branches.
   switch for the tips (`src/ui/Dee.svelte`, `src/ui/Guide.svelte`)
 - [x] Supported devices: every registry entry, searchable by name, brand,
   protocol or USB ID, with per-feature status (`src/ui/SupportedList.svelte`)
+
+### Controls: branch `phase-8-controls` (stacked on Home)
+- [x] Shared controls (`src/ui/controls/`): a DPI slider on a power curve with
+  an exact field, segmented choices for polling rate, active stage and other
+  short lists, colour swatches and the system picker, hue and saturation tracks
+- [x] Each click, release or arrow key writes once through the panel's write
+  procedure and reads back; one write at a time per device, newest value wins
+  (`src/lib/commit.ts`, `tests/commit.test.ts`)
+- [x] compx, Razer, Logitech HID++, Corsair and VIA panels; long lists (debounce,
+  sleep, VIA effect numbers) keep a select or field with Apply
+- [x] No colour control on any mouse: no mouse adapter writes lighting yet
+
+### Profiles: branch `phase-8-profiles` (stacked on controls)
+- [x] v2 profiles: Mouse (DPI stages, active stage, polling rate, colour) and
+  Keyboard (colour, brightness, effect within its family), applied to any
+  device of the category (`src/lib/profiles.ts`, `src/lib/profile-map.ts`)
+- [x] Applying says what the device couldn't take; every value is written
+  through the panel's write procedure and read back
+- [x] The library on Home: make, edit, import and export without a device
+  (`src/ui/ProfileLibrary.svelte`, `src/ui/ProfileEditor.svelte`)
+- [x] v1 profiles converted once; unconvertible ones kept and exportable
+  (`tests/profiles.test.ts`, THREAT_MODEL T13)
+- [ ] Mouse colour: no mouse adapter writes lighting, so it's stored and
+  skipped. Needs a protocol with a lighting read-back first
+- [ ] Headset profiles (sidetone) are not covered; v1 ones are kept
+
+### Motion and focus view: branches `phase-8-motion`, `phase-8-focus` (stacked on profiles)
+- [x] The animation survey's six quiet entrances and the theme cross-fade
+- [x] Redesign comps (two rolls, six structures); owner picked E, the focus view
+- [x] One device in focus with dimmed neighbours, ←/→ between devices, setting
+  tiles that open one at a time, a bottom dock of device pills
+
+### Booklet overhaul: branch `phase-8-booklet` (stacked on focus)
+- [x] Landing comps (direction roll, three cards); owner picked the instruction booklet
+- [x] Landing at `#/` with START as the real device request; the app moves to `#/app`
+- [x] Terms, Contact (GitHub issues only), an in-app missing page and a
+  self-contained `404.html` for GitHub Pages; a back-cover footer on every page
+- [x] Booklet tokens across the app in both themes (DESIGN.md)
+- [ ] Owner review of the Terms text before deploying; turn on private
+  vulnerability reporting on GitHub so the Contact page's security link works
+
+### Device view: branch `phase-8-cartridge` (stacked on booklet)
+- [x] Device-view comps (roll e95cb58a); owner picked A, the cartridge
+- [x] The open device as a cartridge in a console, neighbours in the rack,
+  ←/→ and the dock to swap; notices, Dee and facts in a right column
+- [x] Controls as a printed page: index tabs, paper in both themes, setting
+  rows on dotted rules with the open one washed yellow
+- [x] Close in the top bar; the dock on the band
+
+## Phase 9: Deployment, branch `phase-9-deploy` (stacked on the cartridge)
+
+Exit criteria: the public pages are real, prerendered paths with their own
+heads; the site builds for the domain root; README and deployment docs are
+complete; check, test and build pass.
+
+- [x] Served from the domain root (`base: '/'`, root-absolute assets, service
+  worker at `/sw.js` caching each page by URL)
+- [x] `/`, `/terms/`, `/legal/`, `/contact/` server-rendered and hydrated; the app stays at
+  `/#/…`; old `#/terms` and `#/contact` redirect (ADR 12)
+- [x] Per-page title, description, canonical, Open Graph and Twitter tags;
+  JSON-LD on the landing; `robots.txt`, `sitemap.xml`, `CNAME`, `og.png`
+- [x] `tests/prerender.test.ts`: headings, heads, no app markup, sitemap
+- [x] README rewrite, `docs/deploy.md`, ADR 12, THREAT_MODEL T15
+- [x] Legal page: who runs UDB (linking the owner's portfolio), licences,
+  third-party work, names and images
+- [ ] Owner: DNS `CNAME udb → e1ywrites.github.io`, verify the domain, set the
+  custom domain and Enforce HTTPS (`docs/deploy.md`)
+- [ ] Owner: private vulnerability reporting, Terms review, Search Console

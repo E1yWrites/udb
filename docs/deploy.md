@@ -112,8 +112,7 @@ the same way as the link preview image, from the same committed art and font.
 the app; the device view comes from the design preview, so its devices and
 values are simulated.
 
-```bash
-npx -y playwright@1.62.1 screenshot --device-scale-factor 2 --viewport-size "1280, 400" "file://$PWD/docs/og/banner.html" docs/images/banner.png
-```
-
-The back cover is the same file opened with `#back`, cropped to its 1280×160 strip.
+To regenerate them, open the file in Playwright (Chromium) with a 1280px-wide
+viewport and `deviceScaleFactor: 2`, wait for `document.fonts.ready`, and take
+an element screenshot of `.front` with a transparent background. For the back
+cover, open `banner.html#back` and screenshot `.back`.

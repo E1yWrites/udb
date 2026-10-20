@@ -143,10 +143,11 @@ for hex identifiers and raw values; other numbers use `tabular-nums` (`.num`).
 
 A sticky translucent top bar: the app icon and wordmark (a link to the cover),
 "Identify another device", "Add device" and Close in a device view, and the
-theme switch. Public pages: the landing at `#/` (cover, then spreads p. 2 to p. 7), Terms
-(`#/terms`), Contact (`#/contact`, GitHub only), an in-app missing page for
-unknown routes and a self-contained `404.html` for GitHub Pages. A visitor
-who has opened the app before goes straight to `#/app`. The footer is the
+theme switch. Public pages are real, prerendered paths (ADR 12): the landing
+at `/` (cover, then spreads p. 2 to p. 7), Terms (`/terms/`), Contact
+(`/contact/`, GitHub only), an in-app missing page for unknown routes and a
+self-contained `404.html` for GitHub Pages. A visitor who has opened the app
+before goes straight to `/#/app`. The footer is the
 back cover on every page: GitHub, Terms, Contact, the support matrix and the
 build's source. App views, kept in the URL hash so Back works:
 

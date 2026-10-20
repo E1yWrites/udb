@@ -10,7 +10,7 @@
 </script>
 
 <span class="dee {tone}" style:--size="{size}px" aria-hidden="true">
-  <img src="./brand/dee.webp" alt="" width={Math.round(size * (2 / 3))} height={size} decoding="async" />
+  <img src="/brand/dee.webp" alt="" width={Math.round(size * (2 / 3))} height={size} decoding="async" />
 </span>
 
 <style>

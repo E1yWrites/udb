@@ -71,7 +71,7 @@
       {/if}
     </div>
     <div class="art" aria-hidden="true">
-      <img class="dee" src="./brand/dee.webp" alt="" width="480" height="720" />
+      <img class="dee" src="/brand/dee.webp" alt="" width="480" height="720" />
       <span class="seal"><b class="num">{registry.length}</b>compatible<br />models</span>
     </div>
     <dl class="rating">

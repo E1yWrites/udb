@@ -53,7 +53,7 @@ const sw: Plugin = {
 };
 
 export default defineConfig({
-  base: './',
+  base: '/',
   define: { __COMMIT__: JSON.stringify(commit()) },
   plugins: [svelte(), csp, sw],
   build: { assetsInlineLimit: 0 },

@@ -117,7 +117,7 @@
 <div class="shell">
   <header class="top">
     <a class="mark" href="#/" aria-label="UDB, Universal Driver Bus: the cover">
-      <img class="glyph" src="./icons/icon-192.png" alt="" width="36" height="36" />
+      <img class="glyph" src="/icons/icon-192.png" alt="" width="36" height="36" />
       <strong>UDB</strong><span>Universal Driver Bus</span>
     </a>
     {#if !inApp}
@@ -211,7 +211,7 @@
   <!-- The booklet's back cover: every page ends here. -->
   <footer class="foot">
     <div class="foot-mark">
-      <img src="./icons/icon-192.png" alt="" width="32" height="32" />
+      <img src="/icons/icon-192.png" alt="" width="32" height="32" />
       <p><strong>UDB</strong> · One bus. Every device.<br />Nothing is uploaded. UDB runs entirely in this browser.</p>
     </div>
     <nav aria-label="Footer">

@@ -46,8 +46,8 @@ const sw: Plugin = {
   closeBundle() {
     const files = readdirSync(outDir, { recursive: true, encoding: 'utf8' })
       .map((f) => f.replaceAll('\\', '/'))
-      // Device photos (ADR 10) load when shown instead of in every install.
-      .filter((f) => !f.endsWith('/') && f !== 'sw.js' && !f.startsWith('devices/') && /\.[a-z0-9]+$/i.test(f));
+      // Device photos (ADR 10) load when shown instead of in every install; 404.html is for GitHub Pages only.
+      .filter((f) => !f.endsWith('/') && f !== 'sw.js' && f !== '404.html' && !f.startsWith('devices/') && /\.[a-z0-9]+$/i.test(f));
     writeFileSync(join(outDir, 'sw.js'), serviceWorkerSource(commit().slice(0, 12), ['./', ...files]));
   },
 };

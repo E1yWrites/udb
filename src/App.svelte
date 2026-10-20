@@ -8,21 +8,29 @@
   import Guide from './ui/Guide.svelte';
   import SupportedList from './ui/SupportedList.svelte';
   import ProfileLibrary from './ui/ProfileLibrary.svelte';
+  import Landing from './ui/Landing.svelte';
+  import InfoPage from './ui/InfoPage.svelte';
+  import { prefs, noteAppSeen } from './lib/prefs.svelte.ts';
   import { devices } from './lib/devices.svelte.ts';
   import { deviceState } from './lib/labels.ts';
 
-  // Views live in the URL hash so Back works: #/ (Home), #/device/<key>, #/supported, #/profiles.
-  type View = { name: 'home' } | { name: 'device'; key: string } | { name: 'supported' } | { name: 'profiles' };
+  // Views live in the URL hash so Back works. The public pages: #/ (the landing),
+  // #/terms, #/contact; the app: #/app (Home), #/device/<key>, #/supported, #/profiles.
+  type View =
+    | { name: 'landing' | 'home' | 'supported' | 'profiles' | 'terms' | 'contact' | 'missing' }
+    | { name: 'device'; key: string };
+  const PAGES: Record<string, View['name']> = { '#/app': 'home', '#/supported': 'supported', '#/profiles': 'profiles', '#/terms': 'terms', '#/contact': 'contact' };
 
   function parse(hash: string): View {
     if (hash.startsWith('#/device/')) return { name: 'device', key: decodeURIComponent(hash.slice(9)) };
-    if (hash === '#/supported') return { name: 'supported' };
-    if (hash === '#/profiles') return { name: 'profiles' };
-    return { name: 'home' };
+    if (hash === '' || hash === '#' || hash === '#/') return { name: 'landing' };
+    // In-page anchors on the landing (#how, #compatible) aren't routes.
+    if (!hash.startsWith('#/')) return { name: 'landing' };
+    return { name: (PAGES[hash] ?? 'missing') as Exclude<View['name'], 'device'> };
   }
 
-  // UDB always lands on Home, even when reloaded on a device.
-  if (parse(location.hash).name === 'device') history.replaceState(null, '', '#/');
+  // A reload on a device lands on Home; someone who has used the app skips the landing.
+  if (parse(location.hash).name === 'device' || (location.hash === '' && prefs.appSeen)) history.replaceState(null, '', '#/app');
   let view = $state<View>(parse(location.hash));
   const selected = $derived(view.name === 'device' ? devices.list.find((d) => d.key === (view as { key: string }).key) : undefined);
   /** Set when a device was opened from Home in this page, so closing can go Back instead of adding a history entry. */
@@ -36,6 +44,12 @@
       const before = view;
       view = parse(location.hash);
       if (view.name !== 'device') pushed = false;
+      // An in-page anchor (#how): show the landing, then scroll to the section.
+      if (!location.hash.startsWith('#/') && location.hash.length > 1) {
+        await tick();
+        document.getElementById(location.hash.slice(1))?.scrollIntoView({ block: 'start' });
+        return;
+      }
       await tick();
       // Focus follows the view: the device's heading when it opens, its card when it closes.
       if (view.name === 'device') document.getElementById('device-title')?.focus();
@@ -57,8 +71,14 @@
 
   function close() {
     if (pushed) history.back();
-    else location.hash = '#/';
+    else location.hash = '#/app';
   }
+
+  const APP = new Set(['home', 'device', 'supported', 'profiles']);
+  const inApp = $derived(APP.has(view.name));
+  $effect(() => {
+    if (view.name === 'home' || view.name === 'device') noteAppSeen();
+  });
 
   async function add(mode: 'supported' | 'any') {
     const before = devices.list.length;
@@ -89,10 +109,18 @@
 
 <div class="shell">
   <header class="top">
-    <a class="mark" href="#/" aria-label="UDB, Universal Driver Bus: Home">
+    <a class="mark" href={inApp ? '#/app' : '#/'} aria-label={inApp ? 'UDB Home' : 'UDB, Universal Driver Bus: the cover'}>
       <img class="glyph" src="./icons/icon-192.png" alt="" width="36" height="36" />
       <strong>UDB</strong><span>Universal Driver Bus</span>
     </a>
+    {#if !inApp}
+      <nav class="site" aria-label="Site">
+        <a href="#how">How it works</a>
+        <a href="#/supported">Compatible devices</a>
+        <a href="https://github.com/E1yWrites/udb" target="_blank" rel="noreferrer">GitHub</a>
+        <a class="btn primary" href="#/app">Open UDB</a>
+      </nav>
+    {/if}
     {#if view.name === 'device' && devices.hid}
       <div class="top-actions">
         <button class="btn quiet" onclick={() => add('any')}>Identify another device</button>
@@ -117,7 +145,11 @@
     </div>
   {/if}
 
-  {#if view.name === 'supported'}
+  {#if view.name === 'landing'}
+    <Landing onadd={add} />
+  {:else if view.name === 'terms' || view.name === 'contact' || view.name === 'missing'}
+    <InfoPage kind={view.name} />
+  {:else if view.name === 'supported'}
     <SupportedList />
   {:else if view.name === 'profiles'}
     <ProfileLibrary />
@@ -164,13 +196,20 @@
     <Home onopen={open} onadd={add} />
   {/if}
 
+  <!-- The booklet's back cover: every page ends here. -->
   <footer class="foot">
-    <p>Nothing is uploaded. UDB runs entirely in this browser.</p>
-    <p>
+    <div class="foot-mark">
+      <img src="./icons/icon-192.png" alt="" width="32" height="32" />
+      <p><strong>UDB</strong> · One bus. Every device.<br />Nothing is uploaded. UDB runs entirely in this browser.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="https://github.com/E1yWrites/udb" target="_blank" rel="noreferrer">GitHub</a>
+      <a href="#/terms">Terms</a>
+      <a href="#/contact">Contact</a>
       <a href="https://github.com/E1yWrites/udb/blob/main/SUPPORT.md" target="_blank" rel="noreferrer">Support matrix</a>
-      · <a href="https://github.com/E1yWrites/udb/tree/{__COMMIT__}" target="_blank" rel="noreferrer">Source of this build (AGPL-3.0)</a>
-      · Product images belong to their makers
-    </p>
+      <a href="https://github.com/E1yWrites/udb/tree/{__COMMIT__}" target="_blank" rel="noreferrer">Source of this build (AGPL-3.0)</a>
+    </nav>
+    <p class="foot-fine">Product names and images belong to their makers. UDB isn't affiliated with any of them.</p>
   </footer>
 
   <p class="visually-hidden" aria-live="polite">{devices.announcement}</p>
@@ -195,9 +234,46 @@
     gap: var(--space-4);
     min-height: 3.75rem;
     padding: var(--space-2) clamp(var(--space-4), 3vw, var(--space-8));
-    background: var(--chrome);
+    /* The booklet's band: deep green in both themes, so the bar carries its own dark tokens. */
+    color-scheme: dark;
+    --text: var(--paper);
+    --muted: var(--band-muted);
+    --rail: #091309;
+    --surface: #1c3a22;
+    --raised: #24462b;
+    --line: #2b4a31;
+    --line-strong: #4e7354;
+    --keyline: #4e7354;
+    --accent: #5cc46a;
+    color: var(--text);
+    background: rgb(13 26 16 / 0.94);
     backdrop-filter: blur(20px) saturate(160%);
-    border-bottom: 1px solid color-mix(in oklch, var(--line) 70%, transparent);
+    border-bottom: 3px solid var(--cover);
+  }
+
+  .site {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-6);
+    margin-left: auto;
+    margin-right: var(--space-4);
+  }
+
+  .site a:not(.btn) {
+    color: var(--muted);
+    font-weight: 600;
+    font-size: var(--step--1);
+    text-decoration: none;
+  }
+
+  .site a:not(.btn):hover {
+    color: var(--text);
+  }
+
+  .site .btn {
+    min-height: 2.25rem;
+    text-decoration: none;
   }
 
   @media (prefers-reduced-transparency: reduce) {
@@ -395,15 +471,45 @@
   }
 
 
+  /* The back cover: the band again, with every way out. */
   .foot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-4) var(--space-8);
+    align-items: center;
+    padding: var(--space-6) clamp(var(--space-4), 3vw, var(--space-8));
+    background: var(--band);
+    color: var(--band-muted);
+    border-top: 3px solid var(--cover);
+    font-size: var(--step--1);
+  }
+
+  .foot-mark {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .foot-mark strong {
+    font: 650 1.0625rem / 1 var(--font-brand);
+    color: var(--yellow);
+  }
+
+  .foot nav {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
     gap: var(--space-2) var(--space-6);
-    padding: var(--space-4) clamp(var(--space-4), 3vw, var(--space-8));
-    border-top: 1px solid var(--line);
-    font-size: var(--step--1);
-    color: var(--faint);
+  }
+
+  .foot a {
+    color: var(--paper);
+    font-weight: 600;
+    text-decoration-color: #4e7354;
+  }
+
+  .foot-fine {
+    grid-column: 1 / -1;
+    color: var(--band-faint);
   }
 
   @media (max-width: 48rem) {
@@ -413,6 +519,23 @@
 
     .top-actions .quiet {
       padding: 0 var(--space-2);
+    }
+
+    .site {
+      order: 2;
+      flex-basis: 100%;
+      margin: 0;
+      justify-content: space-between;
+      gap: var(--space-1) var(--space-3);
+    }
+
+    /* The in-page anchor is the one link a phone can drop; the device list and START stay. */
+    .site a[href='#how'] {
+      display: none;
+    }
+
+    .foot {
+      grid-template-columns: minmax(0, 1fr);
     }
 
     /* Wordmark and theme on the first row, the device actions under them. */

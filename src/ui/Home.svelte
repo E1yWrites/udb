@@ -52,8 +52,8 @@
     </div>
 
     <div class="intro">
-      <h1 id="home-title" tabindex="-1"><img src="./brand/logo.webp" alt="UDB, Universal Driver Bus" width="900" height="327" /></h1>
-      <p class="tagline">One bus. Every device.</p>
+      <span class="page-chip">p. 1</span>
+      <h1 id="home-title" tabindex="-1">Start here</h1>
 
       <Guide {tone} tip={false} avatar={false}>
         {#if !devices.hid}
@@ -232,17 +232,8 @@
 
   h1 {
     margin: 0;
-    line-height: 0;
-  }
-
-  h1 img {
-    width: min(26rem, 100%);
-    height: auto;
-  }
-
-  .tagline {
-    font: 600 var(--step-2) / 1.2 var(--font-brand);
-    color: var(--muted);
+    font: 700 var(--step-4) / 1 var(--font-brand);
+    letter-spacing: -0.01em;
   }
 
   .steps {

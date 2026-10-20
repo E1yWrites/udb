@@ -410,3 +410,12 @@ Keyboard) you can edit. Four stacked branches.
 - [x] Redesign comps (two rolls, six structures); owner picked E, the focus view
 - [x] One device in focus with dimmed neighbours, ←/→ between devices, setting
   tiles that open one at a time, a bottom dock of device pills
+
+### Booklet overhaul: branch `phase-8-booklet` (stacked on focus)
+- [x] Landing comps (direction roll, three cards); owner picked the instruction booklet
+- [x] Landing at `#/` with START as the real device request; the app moves to `#/app`
+- [x] Terms, Contact (GitHub issues only), an in-app missing page and a
+  self-contained `404.html` for GitHub Pages; a back-cover footer on every page
+- [x] Booklet tokens across the app in both themes (DESIGN.md)
+- [ ] Owner review of the Terms text before deploying; turn on private
+  vulnerability reporting on GitHub so the Contact page's security link works

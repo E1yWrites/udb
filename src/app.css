@@ -1,39 +1,58 @@
-/* UDB tokens (DESIGN.md). Dee's colours: the grass green of the app icon is the
-   accent (selection, primary actions, focus, the stage light) and the mascot's
-   yellow is the warm highlight (Dee, the current device, onboarding). Status
-   colours sit apart from both: orange means "needs attention", teal means "the
-   device confirmed it". Dark is primary; the light theme gets equal care.
+/* UDB tokens (DESIGN.md). The booklet world: UDB is its own instruction booklet.
+   Light is the printed page (booklet paper, ink keylines); dark is the same
+   booklet read at night on the desk. The cover green and its deep band frame
+   every page; Dee's yellow marks START, seals and the thing in hand. Status
+   colours sit apart from the brand: orange means "needs attention", teal means
+   "the device confirmed it".
    Theme: data-theme on <html> (src/main.ts); "system" leaves it unset. */
 :root {
   color-scheme: dark;
-  --bg: oklch(0.17 0.014 155);
-  --rail: oklch(0.15 0.013 155);
-  --surface: oklch(0.21 0.017 155);
-  --raised: oklch(0.255 0.02 152);
-  --line: oklch(0.32 0.018 152);
-  --line-strong: oklch(0.45 0.02 150);
-  --text: oklch(0.965 0.01 110);
-  --muted: oklch(0.8 0.018 135);
-  --faint: oklch(0.68 0.02 145);
-  --accent: oklch(0.74 0.16 145);
-  --accent-ink: oklch(0.18 0.04 150);
-  --accent-soft: oklch(0.74 0.16 145 / 0.16);
-  --yellow: oklch(0.88 0.17 92);
-  --yellow-ink: oklch(0.22 0.045 85);
-  --yellow-soft: oklch(0.88 0.17 92 / 0.14);
-  --ink: oklch(0.13 0.01 150);
-  --signal: oklch(0.78 0.15 58);
-  --signal-ink: oklch(0.2 0.04 55);
-  --confirmed: oklch(0.82 0.1 192);
-  --danger: oklch(0.73 0.16 25);
+  --bg: #0d1a10;
+  --rail: #091309;
+  --surface: #142a19;
+  --raised: #1c3a22;
+  --line: #2b4a31;
+  --line-strong: #4e7354;
+  --text: #f6f2df;
+  --muted: #c9d8b6;
+  --faint: #9fb49a;
+  --accent: #5cc46a;
+  --accent-ink: #0d1a10;
+  --accent-soft: rgb(92 196 106 / 0.16);
+  --yellow: #ffd52e;
+  --yellow-ink: #1d1a05;
+  --yellow-soft: rgb(255 213 46 / 0.14);
+  --ink: #050b06;
+  --signal: #ffa04d;
+  --signal-ink: #2a1400;
+  --confirmed: #7fd6d0;
+  --danger: #ff7a6b;
   --primary-bg: var(--accent);
   --primary-fg: var(--accent-ink);
-  --selection: oklch(0.74 0.16 145 / 0.32);
-  --stage-light: oklch(0.66 0.15 140 / 0.3);
-  --stage-floor: oklch(0.09 0.015 155 / 0.9);
-  --chrome: oklch(0.17 0.014 155 / 0.74);
-  --art-line: oklch(0.64 0.04 140);
-  --art-fill: oklch(0.25 0.022 152);
+  --selection: rgb(92 196 106 / 0.32);
+  --stage-light: rgb(73 170 87 / 0.3);
+  --stage-floor: rgb(3 8 4 / 0.9);
+  --chrome: rgb(13 26 16 / 0.86);
+  --art-line: #7fa785;
+  --art-fill: #1c3a22;
+  /* Booklet world (Phase 8, DESIGN.md): the cover, its band, the page paper, and the keyline ink. */
+  --cover: #49aa57;
+  --band: #0d1a10;
+  --paper: #f6f2df;
+  --keyline: #4e7354;
+  /* The printed page (spreads, terms, contact): always paper, whatever the theme. */
+  --page-ink: #13200f;
+  --page-muted: #3f4d35;
+  --page-faint: #5b6650;
+  --page-head: #1e4d2b;
+  --page-card: #fffcef;
+  --page-hover: #ece6cb;
+  --page-rule: #d9d2b4;
+  --page-dot: #b7ae8a;
+  --page-confirmed: #0c6a70;
+  --page-signal: #a64b00;
+  --band-muted: #c9d8b6;
+  --band-faint: #9fb49a;
 
   --font-ui: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
   --font-display: 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
@@ -67,63 +86,65 @@
 @media (prefers-color-scheme: light) {
   :root:not([data-theme='dark']) {
     color-scheme: light;
-    --bg: oklch(0.975 0.014 105);
-    --rail: oklch(0.95 0.022 110);
-    --surface: oklch(0.996 0.005 105);
-    --raised: oklch(0.94 0.024 118);
-    --line: oklch(0.885 0.022 120);
-    --line-strong: oklch(0.7 0.03 135);
-    --text: oklch(0.22 0.03 150);
-    --muted: oklch(0.42 0.035 150);
-    --faint: oklch(0.5 0.035 148);
-    --accent: oklch(0.5 0.14 148);
-    --accent-ink: oklch(0.99 0.01 120);
-    --accent-soft: oklch(0.5 0.14 148 / 0.12);
-    --yellow: oklch(0.87 0.17 92);
-    --yellow-ink: oklch(0.24 0.05 85);
-    --yellow-soft: oklch(0.87 0.17 92 / 0.28);
-    --ink: oklch(0.18 0.02 150);
-    --signal: oklch(0.525 0.15 50);
-    --signal-ink: oklch(0.99 0.01 85);
-    --confirmed: oklch(0.48 0.09 200);
-    --danger: oklch(0.52 0.18 27);
-    --selection: oklch(0.5 0.14 148 / 0.2);
-    --stage-light: oklch(0.88 0.13 110 / 0.6);
-    --stage-floor: oklch(0.32 0.04 150 / 0.32);
-    --chrome: oklch(0.975 0.014 105 / 0.76);
-    --art-line: oklch(0.52 0.04 145);
-    --art-fill: oklch(0.985 0.012 105);
+    --bg: #f6f2df;
+    --rail: #ece6cb;
+    --surface: #fffcef;
+    --raised: #e9e2c4;
+    --line: #d9d2b4;
+    --line-strong: #8c8466;
+    --text: #13200f;
+    --muted: #3f4d35;
+    --faint: #5b6650;
+    --accent: #1e6b34;
+    --accent-ink: #fffcef;
+    --accent-soft: rgb(30 107 52 / 0.12);
+    --yellow: #ffd52e;
+    --yellow-ink: #1d1a05;
+    --yellow-soft: rgb(255 213 46 / 0.3);
+    --ink: #13200f;
+    --signal: #a64b00;
+    --signal-ink: #fffcef;
+    --confirmed: #0c6a70;
+    --danger: #b3261e;
+    --selection: rgb(30 107 52 / 0.2);
+    --stage-light: rgb(255 213 46 / 0.5);
+    --stage-floor: rgb(19 32 15 / 0.28);
+    --chrome: rgb(246 242 223 / 0.9);
+    --art-line: #5b6650;
+    --art-fill: #fffcef;
+    --keyline: #13200f;
   }
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: oklch(0.975 0.014 105);
-  --rail: oklch(0.95 0.022 110);
-  --surface: oklch(0.996 0.005 105);
-  --raised: oklch(0.94 0.024 118);
-  --line: oklch(0.885 0.022 120);
-  --line-strong: oklch(0.7 0.03 135);
-  --text: oklch(0.22 0.03 150);
-  --muted: oklch(0.42 0.035 150);
-  --faint: oklch(0.5 0.035 148);
-  --accent: oklch(0.5 0.14 148);
-  --accent-ink: oklch(0.99 0.01 120);
-  --accent-soft: oklch(0.5 0.14 148 / 0.12);
-  --yellow: oklch(0.87 0.17 92);
-  --yellow-ink: oklch(0.24 0.05 85);
-  --yellow-soft: oklch(0.87 0.17 92 / 0.28);
-  --ink: oklch(0.18 0.02 150);
-  --signal: oklch(0.525 0.15 50);
-  --signal-ink: oklch(0.99 0.01 85);
-  --confirmed: oklch(0.48 0.09 200);
-  --danger: oklch(0.52 0.18 27);
-  --selection: oklch(0.5 0.14 148 / 0.2);
-  --stage-light: oklch(0.88 0.13 110 / 0.6);
-  --stage-floor: oklch(0.32 0.04 150 / 0.32);
-  --chrome: oklch(0.975 0.014 105 / 0.76);
-  --art-line: oklch(0.52 0.04 145);
-  --art-fill: oklch(0.985 0.012 105);
+  --bg: #f6f2df;
+  --rail: #ece6cb;
+  --surface: #fffcef;
+  --raised: #e9e2c4;
+  --line: #d9d2b4;
+  --line-strong: #8c8466;
+  --text: #13200f;
+  --muted: #3f4d35;
+  --faint: #5b6650;
+  --accent: #1e6b34;
+  --accent-ink: #fffcef;
+  --accent-soft: rgb(30 107 52 / 0.12);
+  --yellow: #ffd52e;
+  --yellow-ink: #1d1a05;
+  --yellow-soft: rgb(255 213 46 / 0.3);
+  --ink: #13200f;
+  --signal: #a64b00;
+  --signal-ink: #fffcef;
+  --confirmed: #0c6a70;
+  --danger: #b3261e;
+  --selection: rgb(30 107 52 / 0.2);
+  --stage-light: rgb(255 213 46 / 0.5);
+  --stage-floor: rgb(19 32 15 / 0.28);
+  --chrome: rgb(246 242 223 / 0.9);
+  --art-line: #5b6650;
+  --art-fill: #fffcef;
+  --keyline: #13200f;
 }
 
 @font-face {
@@ -209,12 +230,13 @@ button {
   gap: var(--space-2);
   min-height: 2.5rem;
   padding: 0 var(--space-4);
-  border: 1px solid var(--line-strong);
+  border: 2px solid var(--keyline);
   border-radius: 999px;
   white-space: nowrap;
   background: transparent;
+  font-family: var(--font-brand);
   font-weight: 600;
-  letter-spacing: 0.005em;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition:
     background-color 160ms var(--ease-out),
@@ -232,14 +254,16 @@ button {
   transform: scale(0.97);
 }
 
+/* START: the booklet's one yellow button, ink-outlined in both themes. */
 .btn.primary {
-  background: var(--primary-bg);
-  color: var(--primary-fg);
-  border-color: var(--primary-bg);
+  background: var(--yellow);
+  color: var(--yellow-ink);
+  border-color: var(--ink);
 }
 
 .btn.primary:hover {
-  background: color-mix(in oklch, var(--primary-bg) 86%, var(--text));
+  background: color-mix(in srgb, var(--yellow) 88%, var(--ink));
+  border-color: var(--ink);
 }
 
 .btn.quiet {
@@ -425,8 +449,8 @@ button {
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4) var(--space-4);
   border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface) 70%, var(--bg));
-  border: 1px solid var(--line);
+  background: var(--surface);
+  border: 1.5px solid var(--line-strong);
   transition:
     transform 200ms var(--ease-out),
     box-shadow 200ms var(--ease-out),
@@ -436,8 +460,8 @@ button {
 
 .live .line.open {
   flex: 2 1 28rem;
-  background: color-mix(in srgb, var(--yellow) 5%, var(--surface));
-  border-color: color-mix(in srgb, var(--yellow) 70%, transparent);
+  background: color-mix(in srgb, var(--yellow) 9%, var(--surface));
+  border: 2px solid var(--keyline);
   box-shadow: 0 22px 36px -24px oklch(0 0 0 / 0.75);
   transform: translateY(-4px);
 }
@@ -632,3 +656,19 @@ button {
 h1[tabindex='-1']:focus:not(:focus-visible) {
   outline: none;
 }
+
+/* A booklet page number ("p. 2"), set before section headings. */
+.page-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.6rem;
+  padding: 0 0.6rem;
+  border-radius: 999px;
+  background: var(--band);
+  color: var(--yellow);
+  font: 600 0.8125rem / 1 var(--font-brand);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  vertical-align: 0.2em;
+}
+

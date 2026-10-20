@@ -90,43 +90,49 @@ components:
 
 ## Overview
 
-A device launcher (Operate mode) in the manner of Pulsar's BBB and the
-Redragon launcher (Phase 7), dressed in the owner's mascot colours (Phase 8):
-the grass green of the app icon and Dee's yellow. The connected device stands
-lit on a stage; everything around it is what the device itself reported.
-Dark is primary (a gamer's desk at night); light (daylight, a pale leaf and
-cream shell) gets equal care. A System/Light/Dark switch sets `data-theme` on
-`<html>`. Source of truth: `src/app.css`. Images: ADR 10. Brand assets and
-font: ADR 11.
+UDB is its own instruction booklet (Phase 8, owner pick 2026-10-20, replacing
+the plain dark launcher look). The public landing is the booklet's cover:
+cover green with a deep band, the yellow ink-stroked UDB title, Dee, and a
+START button that is the real WebHID request. Below it sit printed spreads
+(Controls, Warnings, Compatible devices) on booklet paper with dotted rules
+and "p. N" page chips. The app wears the same world in Operate mode: the
+band is the top bar and the footer, light is the printed page, dark is the
+same booklet at night. The device focus view, setting tiles and read-back
+settle are unchanged in behaviour. Source of truth: `src/app.css`. Images:
+ADR 10. Brand assets and font: ADR 11.
 
 ## Colors
 
-- **Shell:** green-tinted neutral steps `rail` < `bg` < `surface` < `raised`,
-  with `line` and `line-strong` hairlines. Text tiers `text`, `muted`,
-  `faint`, tinted toward the hue, never pure grey.
-- **Accent, grass green** (`accent`): selection, primary actions, focus ring,
-  caret, the wordmark, the stage light.
-- **Dee yellow** (`yellow`): the warm highlight. Dee, speech bubbles, the
-  current device tile, onboarding. Never text on a light surface; text on
-  yellow uses `yellow-ink`.
-- **Signal orange** (`signal`): needs your attention (unverified, model not
-  confirmed, busy, the write gate). Orange, so it never reads as the brand
-  yellow. Never decorative.
-- **Confirmed teal** (`confirmed`): the hardware backed it up. Teal, so it
-  never reads as the brand green.
-- **Danger** (`danger`): failures and collections UDB blocks.
+- **Booklet frame** (same in both themes): `cover` #49aa57 (the cover board),
+  `band` #0d1a10 (top bar, footer, cover band, page chips), `paper` #f6f2df.
+  The band carries its own dark tokens, so it reads the same on light pages.
+- **Shell:** light is paper (`bg` #f6f2df < `surface` #fffcef, `raised`
+  #e9e2c4, ink text #13200f); dark is night green (`bg` #0d1a10, `surface`
+  #142a19, `raised` #1c3a22, paper text #f6f2df). `keyline` is the ink of
+  outlines: #13200f on paper, #4e7354 at night.
+- **Printed page** (`--page-*`): spreads, terms and contact are always paper
+  with ink #13200f, headings #1e4d2b, body #3f4d35, rules #d9d2b4 and dotted
+  rules #b7ae8a, whatever the theme.
+- **Accent green** (`accent`): selection, focus, links: #1e6b34 on paper,
+  #5cc46a at night.
+- **Dee yellow** (`yellow` #ffd52e): START and every primary button (ink
+  outlined, ink text), seals, the open tile's wash, the current dock pill.
+- **Signal orange** (`signal`) means needs attention; **confirmed teal**
+  (`confirmed`) means the hardware backed it up; **danger** is failure.
 
 ### Named rules
 - **Never colour alone.** Every status is an icon, a word and a colour.
 - **Brand colours never carry status.** Green and yellow are UDB; teal and
   orange are what the device said.
+- **One yellow button per view.** Yellow is START; secondary actions are
+  outlined in the keyline.
 - **Device LED colours are data.** They appear only as small chips.
-- Mix orange and yellow into surfaces in sRGB (`color-mix(in srgb, …)`); an
-  oklch mix swings the hue on the light theme.
 
 ## Typography
 
-Fredoka (self-hosted, ADR 11) for headings, the wordmark and Dee's bubbles;
+Fredoka (self-hosted, ADR 11) for headings, the wordmark, buttons, page chips
+and Dee's bubbles; the cover title is Fredoka 700 in yellow with a band-colour
+stroke and a solid drop, the booklet's printed relief;
 the system UI stack (Segoe UI Variable on Windows) for everything else. Values
 stay on Segoe UI Variable Display so digits line up. Tracking by size: display
 `-0.01em`, values `-0.01em`, body `0`, tags `+0.08em` caps. Monospace only
@@ -136,9 +142,14 @@ for hex identifiers and raw values; other numbers use `tabular-nums` (`.num`).
 
 A sticky translucent top bar: the app icon and wordmark (a link to Home),
 "Identify another device" and "Add device" in a device view, and the theme
-switch. Three views, kept in the URL hash so Back works:
+switch. Public pages: the landing at `#/` (cover, then spreads p. 2 to p. 7), Terms
+(`#/terms`), Contact (`#/contact`, GitHub only), an in-app missing page for
+unknown routes and a self-contained `404.html` for GitHub Pages. A visitor
+who has opened the app before goes straight to `#/app`. The footer is the
+back cover on every page: GitHub, Terms, Contact, the support matrix and the
+build's source. App views, kept in the URL hash so Back works:
 
-- **Home** (`#/`, where UDB always lands): a hero of Dee on a lit stage beside
+- **Home** (`#/app`, "Start here", p. 1): a hero of Dee on a lit stage beside
   the logo, the tagline and Dee's bubble (the onboarding, then a greeting),
   with Add device. Then "Your devices" as cards, the way into Supported
   devices, and Settings (Dee's tips, Replay the tour). Under 52rem the hero

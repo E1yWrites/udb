@@ -11,6 +11,7 @@ describe('prerendered public pages (ADR 12)', () => {
   it.each([
     ['/', 'cover-title', 'Universal Driver Bus'],
     ['/terms/', 'info-title', 'Terms of use'],
+    ['/legal/', 'info-title', 'Legal'],
     ['/contact/', 'info-title', 'Contact'],
   ])('%s renders its own heading, title and canonical', (path, id, heading) => {
     const page = html[path]!;
@@ -36,6 +37,11 @@ describe('prerendered public pages (ADR 12)', () => {
   it('shows the cover without WebHID as the browser hint, never the insecure-page warning', () => {
     expect(html['/']).toContain('only Chrome and Edge on a computer have');
     expect(html['/']).not.toContain('Devices only connect on a secure page');
+  });
+
+  it('names who runs UDB on the legal page and links to their portfolio', () => {
+    expect(html['/legal/']).toContain('Lorenz “Lanz” Malabanan');
+    expect(html['/legal/']).toContain('href="https://lorenzmalabanan.com/projects/udb"');
   });
 
   it('describes the app with JSON-LD on the landing only', () => {

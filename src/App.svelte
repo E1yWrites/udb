@@ -18,13 +18,13 @@
   let { url }: { url?: string } = $props();
 
   // The public pages are real paths, prerendered for search engines: / (the landing),
-  // /terms/ and /contact/. The app lives behind hashes on / so Back works:
+  // /terms/, /legal/ and /contact/. The app lives behind hashes on / so Back works:
   // #/app (Home), #/device/<key>, #/supported, #/profiles.
   type View =
-    | { name: 'landing' | 'home' | 'supported' | 'profiles' | 'terms' | 'contact' | 'missing' }
+    | { name: 'landing' | 'home' | 'supported' | 'profiles' | 'terms' | 'legal' | 'contact' | 'missing' }
     | { name: 'device'; key: string };
   type Page = Exclude<View['name'], 'device'>;
-  const PATHS: Record<string, Page> = { '/terms/': 'terms', '/contact/': 'contact' };
+  const PATHS: Record<string, Page> = { '/terms/': 'terms', '/legal/': 'legal', '/contact/': 'contact' };
   const PAGES: Record<string, Page> = { '#/app': 'home', '#/supported': 'supported', '#/profiles': 'profiles', '#/terms': 'terms', '#/contact': 'contact' };
   /** The public pages' old hash routes, replaced by their paths. */
   const MOVED: Record<string, string> = { '#/terms': '/terms/', '#/contact': '/contact/' };
@@ -178,7 +178,7 @@
 
   {#if view.name === 'landing'}
     <Landing onadd={add} />
-  {:else if view.name === 'terms' || view.name === 'contact' || view.name === 'missing'}
+  {:else if view.name === 'terms' || view.name === 'legal' || view.name === 'contact' || view.name === 'missing'}
     <InfoPage kind={view.name} />
   {:else if view.name === 'supported'}
     <SupportedList back={backTo} />
@@ -233,6 +233,7 @@
     <nav aria-label="Footer">
       <a href="https://github.com/E1yWrites/udb" target="_blank" rel="noreferrer">GitHub</a>
       <a href="/terms/">Terms</a>
+      <a href="/legal/">Legal</a>
       <a href="/contact/">Contact</a>
       <a href="https://github.com/E1yWrites/udb/blob/main/SUPPORT.md" target="_blank" rel="noreferrer">Support matrix</a>
       <a href="https://github.com/E1yWrites/udb/tree/{__COMMIT__}" target="_blank" rel="noreferrer">Source of this build (AGPL-3.0)</a>

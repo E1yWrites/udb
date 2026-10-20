@@ -436,12 +436,14 @@ complete; check, test and build pass.
 
 - [x] Served from the domain root (`base: '/'`, root-absolute assets, service
   worker at `/sw.js` caching each page by URL)
-- [x] `/`, `/terms/`, `/contact/` server-rendered and hydrated; the app stays at
+- [x] `/`, `/terms/`, `/legal/`, `/contact/` server-rendered and hydrated; the app stays at
   `/#/…`; old `#/terms` and `#/contact` redirect (ADR 12)
 - [x] Per-page title, description, canonical, Open Graph and Twitter tags;
   JSON-LD on the landing; `robots.txt`, `sitemap.xml`, `CNAME`, `og.png`
 - [x] `tests/prerender.test.ts`: headings, heads, no app markup, sitemap
 - [x] README rewrite, `docs/deploy.md`, ADR 12, THREAT_MODEL T15
+- [x] Legal page: who runs UDB (linking the owner's portfolio), licences,
+  third-party work, names and images
 - [ ] Owner: DNS `CNAME udb → e1ywrites.github.io`, verify the domain, set the
   custom domain and Enforce HTTPS (`docs/deploy.md`)
 - [ ] Owner: private vulnerability reporting, Terms review, Search Console

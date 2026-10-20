@@ -1,12 +1,13 @@
 <script lang="ts">
-  // The booklet's back pages: terms, contact, and the page that isn't there.
+  // The booklet's back pages: terms, legal, contact, and the page that isn't there.
   // Plain reading pages on booklet paper; contact goes through GitHub only.
   import Icon from './Icon.svelte';
   import Dee from './Dee.svelte';
 
-  let { kind }: { kind: 'terms' | 'contact' | 'missing' } = $props();
+  let { kind }: { kind: 'terms' | 'legal' | 'contact' | 'missing' } = $props();
 
   const REPO = 'https://github.com/E1yWrites/udb';
+  const PORTFOLIO = 'https://lorenzmalabanan.com';
 </script>
 
 <main class="info" aria-labelledby="info-title">
@@ -58,6 +59,58 @@
         <p>
           Product names, trademarks and product images belong to their makers. UDB isn't affiliated with, endorsed by or
           sponsored by any device maker. An image only identifies a product; it never means the product is supported.
+        </p>
+      </section>
+      <p class="stamp">Last updated 20 October 2026</p>
+    {:else if kind === 'legal'}
+      <header>
+        <h1 id="info-title" tabindex="-1">Legal</h1>
+        <p class="lede">Who runs UDB, the licences it ships under, and whose names and images it shows.</p>
+      </header>
+      <section>
+        <h2>Who runs UDB</h2>
+        <p>
+          UDB is made and run by Lorenz “Lanz” Malabanan, an independent developer in Batangas City, Philippines, as a
+          personal open-source project. It isn't a company and sells nothing. More of my work is on
+          <a href={PORTFOLIO} target="_blank" rel="noreferrer">lorenzmalabanan.com</a>, including
+          <a href="{PORTFOLIO}/projects/udb" target="_blank" rel="noreferrer">UDB's project page</a>.
+        </p>
+        <p>Questions, bugs and takedown requests go through the <a href="/contact/">Contact</a> page.</p>
+      </section>
+      <section>
+        <h2>Licence</h2>
+        <p>
+          UDB is free software under the GNU General Public License, version 3 or later. Some protocol code is ported from
+          projects under the GNU Affero General Public License 3.0, so the app hosted here is offered under AGPL-3.0 terms:
+          the <a href="{REPO}/tree/{__COMMIT__}" target="_blank" rel="noreferrer">exact source of this build</a> is linked
+          from the foot of every page.
+        </p>
+      </section>
+      <section>
+        <h2>Third-party work</h2>
+        <ul class="credits">
+          <li><strong>OpenMouse</strong> (AGPL-3.0): ported device protocols and the ATK, Razer, SteelSeries and Logitech catalogues.</li>
+          <li><strong>libratbag</strong> (MIT, © Red Hat, Inc.): Logitech device list.</li>
+          <li><strong>HeadsetControl</strong> (GPL-3.0): Logitech headset product IDs and names.</li>
+          <li><strong>Fredoka</strong> (SIL Open Font License 1.1): the display typeface, served from this site.</li>
+        </ul>
+        <p>Each one's licence and source are kept with the code, in the repository's <span class="data">third_party/</span> folder.</p>
+      </section>
+      <section>
+        <h2>Names, trademarks and images</h2>
+        <p>
+          Product names, trademarks and product images belong to their makers. UDB isn't affiliated with, endorsed by or
+          sponsored by any of them; a name or picture only identifies a product and never means it is supported. Each
+          image's source is recorded in the repository. If you own an image and want it removed, ask through the Contact
+          page and it will be taken down.
+        </p>
+        <p>The UDB name, Dee the mascot and the app icon belong to their author.</p>
+      </section>
+      <section>
+        <h2>Privacy and use</h2>
+        <p>
+          UDB collects nothing and uploads nothing; the <a href="/terms/">Terms of use</a> say what is kept in your browser,
+          what the host may log, and what you accept when you write to a device.
         </p>
       </section>
       <p class="stamp">Last updated 20 October 2026</p>
@@ -165,8 +218,22 @@
     color: var(--page-muted);
   }
 
-  section p + p {
+  section p + p,
+  .credits + p {
     margin-top: var(--space-3);
+  }
+
+  .credits {
+    display: grid;
+    gap: var(--space-2);
+    max-width: 66ch;
+    margin: 0;
+    padding-left: 1.1em;
+    color: var(--page-muted);
+  }
+
+  .credits strong {
+    color: var(--page-ink);
   }
 
   .lede {

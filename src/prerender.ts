@@ -22,6 +22,12 @@ export const PAGES: Page[] = [
       'UDB is free software that runs only in your browser. What it does with your devices and your data, and the licence it ships under.',
   },
   {
+    path: '/legal/',
+    title: 'Legal · UDB',
+    description:
+      'Who runs UDB, the GPL and AGPL terms it ships under, the open-source work it builds on, and whose product names and images it shows.',
+  },
+  {
     path: '/contact/',
     title: 'Contact · UDB',
     description:

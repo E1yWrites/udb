@@ -11,7 +11,8 @@ to GitHub Pages. It is served at **<https://udb.lorenzmalabanan.com>**
 
 - the client bundle (`assets/`), with the CSP as a meta tag (ADR 5);
 - the public pages, server-rendered with their own heads (ADR 12):
-  `index.html` (the landing), `terms/index.html`, `contact/index.html`;
+  `index.html` (the landing), `terms/index.html`, `legal/index.html`,
+  `contact/index.html`;
 - `sw.js`, the service worker, written last so it precaches the pages too (ADR 9);
 - from `public/`: `CNAME`, `robots.txt`, `sitemap.xml`, `og.png`, `404.html`,
   the manifest, icons, fonts, brand art and product images.
@@ -60,10 +61,10 @@ canonical URLs.
 Before merging to `main`:
 
 - [ ] `npm run check`, `npm test` and `npm run build` pass (CI runs them too).
-- [ ] `dist/` holds `index.html`, `terms/index.html` and `contact/index.html`,
+- [ ] `dist/` holds `index.html` and `terms/`, `legal/` and `contact/index.html`,
       each with its text in the HTML (view source, not the inspector), plus
       `CNAME`, `robots.txt`, `sitemap.xml` and `og.png`.
-- [ ] `npm run preview`: `/`, `/terms/` and `/contact/` load with no console
+- [ ] `npm run preview`: `/`, `/terms/`, `/legal/` and `/contact/` load with no console
       errors; `/#/app` opens the app; `/#/terms` goes to `/terms/`.
 - [ ] The device view works on the preview devices (`npm run dev`, `/?preview`),
       at desktop and phone width. Preview results are never hardware evidence.
